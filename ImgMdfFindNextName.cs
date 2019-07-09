@@ -12,11 +12,13 @@ namespace ImageBank
                     .Select(e => e.Value)
                     .ToArray();
 
+            imgX.LastChecked = DateTime.Now;
+            SqlUpdateLink(imgX.Name, imgX.NextName, imgX.Sim, imgX.LastChecked);
+
             if (scope.Length == 0)
             {
                 imgX.NextName = imgX.Name;
                 imgX.Sim = 0f;
-                imgX.LastChecked = DateTime.Now;
                 SqlUpdateLink(imgX.Name, imgX.NextName, imgX.Sim, imgX.LastChecked);
 
                 imgX.LastUpdated = imgX.LastChecked;

@@ -20,6 +20,44 @@
             </MenuItem>
             <MenuItem Header="Move">
                 <MenuItem Header="Move to Right" Click="MoveToRightClick" />
+                <Separator />
+                <MenuItem Header="Adult">
+                    <MenuItem Header="Adult\Ana" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Adult\Aubrey" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Adult\Gina" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Adult\Mirai" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Adult\Natasha" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Adult\Rui" Click="MoveToFolderClick"  />
+                </MenuItem>
+                <MenuItem Header="Ds">
+                    <MenuItem Header="Ds\Angela" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Ds\Diana" Click="MoveToFolderClick"  />
+                </MenuItem>                
+                <MenuItem Header="Kandid">
+                    <MenuItem Header="Kandid\Aygun+Gunay" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Bina" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Baltimora" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Cila" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Memasia" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Narmina" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Polina" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Viola" Click="MoveToFolderClick"  />
+                </MenuItem>
+                <MenuItem Header="Models">
+                    <MenuItem Header="Models\Dolly" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Models\Jessy" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Models\Sandra" Click="MoveToFolderClick"  />
+                </MenuItem>
+                <MenuItem Header="Ls">
+                    <MenuItem Header="Ls\Adana" Click="MoveToFolderClick"  />
+                </MenuItem>
+                <MenuItem Header="TmTv">
+                    <MenuItem Header="TmTv\Sasha" Click="MoveToFolderClick"  />
+                </MenuItem>
+                <MenuItem Header="Tpi">
+                    <MenuItem Header="Tpi\Berenice" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Tpi\Pamela" Click="MoveToFolderClick"  />
+                </MenuItem>                
             </MenuItem>
         </Menu>
         <StatusBar DockPanel.Dock="Bottom">

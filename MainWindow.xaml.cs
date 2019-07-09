@@ -85,5 +85,10 @@ namespace ImageBank
         {
             MoveToRightClick();
         }
+
+        private void MoveToFolderClick(object sender, RoutedEventArgs e)
+        {
+            MoveToFolderClick((string)((System.Windows.Controls.MenuItem)sender).Header);
+        }
     }
 }

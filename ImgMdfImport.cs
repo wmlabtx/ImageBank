@@ -95,7 +95,7 @@ namespace ImageBank
                         continue;
                     }
 
-                    if (!HelperPath.IsLegacy(imgFound.Folder)
+                    if (!HelperPath.IsLegacy(imgFound.Folder))
                     {
                         skipped++;
                         continue;
@@ -149,7 +149,7 @@ namespace ImageBank
 
         public void Import(IProgress<string> progress)
         {
-            Import(10, progress);
+            Import(32, progress);
         }
     }
 }

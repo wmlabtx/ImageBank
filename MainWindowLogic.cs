@@ -43,6 +43,7 @@ namespace ImageBank
                     Show();
                     WindowState = WindowState.Normal;
                     _notifyIcon.Visible = false;
+                    RedrawCanvas();
                 };
 
             var progress = new Progress<string>(message => Status.Text = message);
@@ -117,28 +118,18 @@ namespace ImageBank
 
         private void MoveToRightClick()
         {
-            /*
-            if (!(BoxLeft.Tag is string nameX))
-            {
-                return;
-            }
+            var folder = AppVars.ImgPanel[1].Img.Folder;
+            MoveToFolderClick(folder);
+        }
 
-            if (!(BoxRight.Tag is string nameY))
-            {
-                return;
-            }
-
-            var imgY = AppVars.Collection.GetImgByName(nameY);
-            if (imgY == null || string.IsNullOrEmpty(imgY.Folder))
-            {
-                return;
-            }
-
+        private async void MoveToFolderClick(string folder)
+        {
             var progress = new Progress<string>(message => Status.Text = message);
             DisableElements();
-            await Task.Run(() => { AppVars.Collection.MoveTo(nameX, imgY.Folder); });
-            ShowNewImages(progress);
-            */
+            await Task.Run(() => { AppVars.Collection.MoveTo(AppVars.ImgPanel[0].Img.Name, folder); });
+            await Task.Run(() => { AppVars.Collection.Find(null, progress); });
+            DrawCanvas();
+            EnableElements();
         }
 
         private void PictureLeftBoxMouseClick()

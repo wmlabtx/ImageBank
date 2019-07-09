@@ -109,6 +109,7 @@
     <Compile Include="ImgMdfFind.cs" />
     <Compile Include="ImgMdfImport.cs" />
     <Compile Include="ImgMdfLoad.cs" />
+    <Compile Include="ImgMdfMoveTo.cs" />
     <Compile Include="ImgMdfSql.cs" />
     <Compile Include="ImgMdfGetImgPanel.cs" />
     <Compile Include="ImgPanel.cs" />

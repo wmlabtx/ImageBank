@@ -18,18 +18,20 @@ namespace ImageBank
                         return;
                     }
 
-                    var folders = new SortedDictionary<string, DateTime>();
-                    foreach (var img in _imgList)
-                    {
-                        if 
-                    }
+                    var imgX = _imgList.Count(e => e.Value.LastView < e.Value.LastUpdated) > 0 ?
+                        _imgList.Where(e => e.Value.LastView < e.Value.LastUpdated).OrderByDescending(e => e.Value.Sim).FirstOrDefault().Value :
+                        _imgList.OrderBy(e => e.Value.LastView).FirstOrDefault().Value;
+/*
+                    var imgX =
+                        _imgList.Count(e => e.Value.LastView < e.Value.LastUpdated) > 0 ?
+                        Find(_imgList.Where(e => e.Value.LastView < e.Value.LastUpdated)) :
+                        Find(_imgList);
+*/
 
-
-
-                    var imgX = _imgList.Values.OrderBy(e => e.LastView).FirstOrDefault();
                     if (imgX == null)
                     {
-                        return;
+                        nameX = null;
+                        continue;
                     }
 
                     nameX = imgX.Name;
@@ -72,5 +74,52 @@ namespace ImageBank
                 break;
             }
         }
+
+        /*
+        private Img Find(IEnumerable<KeyValuePair<string, Img>> scopeX)
+        {
+            var folders = new SortedDictionary<string, DateTime>();
+            foreach (var img in scopeX)
+            {
+                if (HelperPath.IsLegacy(img.Value.Folder) || DateTime.Now.Subtract(img.Value.LastView).TotalHours < 1.0)
+                {
+                    continue;
+                }
+
+                if (folders.ContainsKey(img.Value.Folder))
+                {
+                    if (folders[img.Value.Folder] < img.Value.LastView)
+                    {
+                        folders[img.Value.Folder] = img.Value.LastView;
+                    }
+                }
+                else
+                {
+                    folders.Add(img.Value.Folder, img.Value.LastView);
+                }
+            }
+
+            var minfolder = AppConsts.FolderLegacy;
+            var minlastview = DateTime.Now;
+            foreach (var folder in folders.Keys)
+            {
+                if (folders[folder] < minlastview)
+                {
+                    minfolder = folder;
+                    minlastview = folders[folder];
+                }
+            }
+
+            var scope = HelperPath.IsLegacy(minfolder) ?
+                _imgList.Where(e => HelperPath.IsLegacy(e.Value.Folder)) :
+                _imgList.Where(e => e.Value.Folder.Equals(minfolder));
+
+            var imgX = scope.Count(e => e.Value.LastView < e.Value.LastUpdated) > 0 ?
+                scope.Where(e => e.Value.LastView < e.Value.LastUpdated).OrderByDescending(e => e.Value.Sim).FirstOrDefault().Value :
+                scope.OrderBy(e => e.Value.LastView).FirstOrDefault().Value;
+
+            return imgX;
+        }
+        */
     }
 }
