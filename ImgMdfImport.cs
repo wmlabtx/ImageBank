@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 
@@ -29,11 +30,11 @@ namespace ImageBank
                 var ofilename = fileInfo.FullName;
                 var oname = HelperPath.GetName(ofilename);
                 var oextension = Path.GetExtension(ofilename);
-                if (oextension.Equals(AppConsts.WebpExtension, StringComparison.InvariantCultureIgnoreCase))
+                if (oextension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    if (_imgList.TryGetValue(oname, out var imgWebpFound))
+                    if (_imgList.TryGetValue(oname, out var imgJpgFound))
                     {
-                        if (imgWebpFound.FileName.Equals(ofilename, StringComparison.InvariantCultureIgnoreCase))
+                        if (imgJpgFound.FileName.Equals(ofilename, StringComparison.InvariantCultureIgnoreCase))
                         {
                             continue;
                         }
@@ -52,15 +53,35 @@ namespace ImageBank
                     }
 
                     var jpgfilename = Path.ChangeExtension(ofilename, AppConsts.JpgExtension);
+                    if (File.Exists(jpgfilename))
+                    {
+                        HelperRecycleBin.Delete(ofilename);
+                        skipped++;
+                        continue;
+                    }
+
                     File.WriteAllBytes(jpgfilename, decrypteddata);
                     HelperRecycleBin.Delete(ofilename);
                     ofilename = jpgfilename;
                     oextension = AppConsts.JpgExtension;
                 }
 
+                if (oextension.Equals(AppConsts.JpegExtension, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    var jpgfilename = Path.ChangeExtension(ofilename, AppConsts.JpgExtension);
+                    if (File.Exists(jpgfilename))
+                    {
+                        skipped++;
+                        continue;
+                    }
+
+                    File.Move(ofilename, jpgfilename);
+                    ofilename = jpgfilename;
+                    oextension = AppConsts.JpgExtension;
+                }
+
                 if (
                     !oextension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase) &&
-                    !oextension.Equals(AppConsts.JpegExtension, StringComparison.InvariantCultureIgnoreCase) &&
                     !oextension.Equals(AppConsts.PngExtension, StringComparison.InvariantCultureIgnoreCase) &&
                     !oextension.Equals(AppConsts.BmpExtension, StringComparison.InvariantCultureIgnoreCase) &&
                     !oextension.Equals(AppConsts.WebpExtension, StringComparison.InvariantCultureIgnoreCase)
@@ -70,15 +91,8 @@ namespace ImageBank
                     continue;
                 }
 
-                var bitmap = HelperImages.GetBitmap(ofilename);
-                if (bitmap == null)
-                {
-                    skipped++;
-                    continue;
-                }
 
-                var data = HelperImages.ConvertToWebp(bitmap);
-                if (data == null)
+                if (!HelperImages.GetDataAndBitmap(ofilename, out byte[] data, out Bitmap bitmap))
                 {
                     skipped++;
                     continue;
@@ -95,14 +109,19 @@ namespace ImageBank
                         continue;
                     }
 
-                    if (!HelperPath.IsLegacy(imgFound.Folder))
+                    if (HelperPath.IsLegacy(imgFound.Folder))
                     {
-                        skipped++;
-                        continue;
+                        DeleteImgAndFile(name);
                     }
                     else
                     {
-                        DeleteImgAndFile(name);
+                        if (HelperPath.IsLegacy(ofolder))
+                        {
+                            HelperRecycleBin.Delete(ofilename);
+                        }
+
+                        skipped++;
+                        continue;
                     }
                 }
 
@@ -149,7 +168,7 @@ namespace ImageBank
 
         public void Import(IProgress<string> progress)
         {
-            Import(32, progress);
+            Import(1024, progress);
         }
     }
 }

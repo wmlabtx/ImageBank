@@ -16,7 +16,7 @@ namespace ImageBank
             }
 
             sb.Append(name);
-            sb.Append(AppConsts.WebpExtension);
+            sb.Append(AppConsts.JpgExtension);
 
             return sb.ToString();
         }

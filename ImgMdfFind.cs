@@ -36,11 +36,6 @@ namespace ImageBank
 
                     nameX = imgX.Name;
 
-                    if (AppVars.ImgPanel[0] != null)
-                    {
-                        AppVars.ImgPanel[0].Dispose();
-                    }
-
                     AppVars.ImgPanel[0] = GetImgPanel(nameX);
                     if (AppVars.ImgPanel[0] == null)
                     {
@@ -53,16 +48,20 @@ namespace ImageBank
                 var oldname = AppVars.ImgPanel[0].Img.NextName;
                 var oldsim = AppVars.ImgPanel[0].Img.Sim;
 
-                if (AppVars.ImgPanel[1] != null)
-                {
-                    AppVars.ImgPanel[1].Dispose();
-                }
-
                 AppVars.ImgPanel[1] = GetImgPanel(AppVars.ImgPanel[0].Img.NextName);
                 if (AppVars.ImgPanel[1] == null)
                 {
                     var nameY = AppVars.ImgPanel[0].Img.NextName;
                     progress.Report($"{_imgList.Count}: {nameY}: corrupted!");
+
+                    var imgX = AppVars.ImgPanel[0].Img;
+                    imgX.NextName = imgX.Name;
+                    imgX.Sim = 0f;
+                    imgX.LastChecked = DateTime.Now.AddYears(-10);
+                    SqlUpdateLink(imgX.Name, imgX.NextName, imgX.Sim, imgX.LastChecked);
+
+                    imgX.LastUpdated = imgX.LastChecked;
+                    SqlUpdateLastUpdated(imgX.Name, imgX.LastUpdated);
                     continue;
                 }
 

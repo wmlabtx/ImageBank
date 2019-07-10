@@ -1,6 +1,7 @@
 ﻿using OpenCvSharp;
 using System;
 using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
@@ -11,51 +12,43 @@ namespace ImageBank
 {
     public static class HelperImages
     {
-        public static Bitmap GetBitmap(string filename)
+        public static bool GetDataAndBitmap(string filename, out byte[] data, out Bitmap bitmap)
         {
-            Bitmap bitmap;
+            if (!File.Exists(filename))
+            {
+                data = null;
+                bitmap = null;
+                return false;
+            }
+
+            data = File.ReadAllBytes(filename);
+            if (data == null || data.Length == 0)
+            {
+                bitmap = null;
+                return false;
+            }
+
             using (var mat = new Mat(filename))
             {
                 try
                 {
                     bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(mat);
+                    var extension = Path.GetExtension(filename);
+                    if (!extension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        var iep = new ImageEncodingParam(ImwriteFlags.JpegQuality, 90);
+                        Cv2.ImEncode(AppConsts.JpgExtension, mat, out data, iep);
+                    }
                 }
-                catch (System.ArgumentException)
+                catch (ArgumentException)
                 {
-                    return null;
-                }
-            }
-
-            return bitmap;
-        }
-
-        public static bool SaveBitmap(string filename, Bitmap bitmap)
-        {
-            var iep = new ImageEncodingParam(ImwriteFlags.WebPQuality, 100);
-            using (var mat = OpenCvSharp.Extensions.BitmapConverter.ToMat(bitmap))
-            {
-                if (!mat.SaveImage(filename, iep))
-                {
+                    data = null;
+                    bitmap = null;
                     return false;
                 }
             }
 
             return true;
-        }
-
-        public static byte[] ConvertToWebp(Bitmap bitmap)
-        {
-            var iep = new ImageEncodingParam(ImwriteFlags.WebPQuality, 100);
-            using (var mat = OpenCvSharp.Extensions.BitmapConverter.ToMat(bitmap))
-            {
-                Cv2.ImEncode(AppConsts.WebpExtension, mat, out var data, iep);
-                if (data != null && data.Length > 0)
-                {
-                    return data;
-                }
-            }
-
-            return null;
         }
 
         [DllImport("gdi32.dll", EntryPoint = "DeleteObject")]

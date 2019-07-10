@@ -18,12 +18,6 @@
         public const string PngExtension = ".png";
         public const string BmpExtension = ".bmp";
 
-        public const string WebpMask = "*" + WebpExtension;
-        public const string JpgMask = "*" + JpgExtension;
-        public const string JpegMask = "*" + JpgExtension;
-        public const string DatMask = "*" + DatExtension;
-        public const string PngMask = "*" + PngExtension;
-
         public const double WindowMargin = 5.0;
         public const double TimeLapse = 500.0;
 

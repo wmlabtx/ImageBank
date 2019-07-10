@@ -6,6 +6,9 @@ namespace ImageBank
     {
         public int GetFolderSize(string folder)
         {
+            return _imgList.Count(e => e.Value.Folder.Equals(folder));
+
+            /*
             if (HelperPath.IsLegacy(folder))
             {
                 return _imgList.Count(e => HelperPath.IsLegacy(e.Value.Folder));
@@ -14,6 +17,7 @@ namespace ImageBank
             {
                 return _imgList.Count(e => e.Value.Folder.Equals(folder));
             }            
+            */
         }
     }
 }

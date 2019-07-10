@@ -18,8 +18,7 @@ namespace ImageBank
                 return null;
             }
 
-            var data = File.ReadAllBytes(img.FileName);
-            if (data == null)
+            if (!HelperImages.GetDataAndBitmap(img.FileName, out var data, out var bitmap))
             {
                 DeleteImg(img);
                 return null;
@@ -27,13 +26,6 @@ namespace ImageBank
 
             var realname = HelperCrc.GetCrc(data);
             if (!realname.Equals(name))
-            {
-                DeleteImg(img);
-                return null;
-            }
-
-            var bitmap = HelperImages.GetBitmap(img.FileName);
-            if (bitmap == null)
             {
                 DeleteImg(img);
                 return null;

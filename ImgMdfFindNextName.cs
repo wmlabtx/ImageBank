@@ -27,6 +27,13 @@ namespace ImageBank
                 return 0;
             }
 
+            var nextimg = GetImgByName(imgX.NextName);
+            if (nextimg == null || imgX.Name.Equals(nextimg) || !HelperPath.FolderComparable(imgX.Folder, nextimg.Folder))
+            {
+                imgX.Sim = 0f;
+                SqlUpdateLink(imgX.Name, imgX.NextName, imgX.Sim, imgX.LastChecked);
+            }
+
             var updates = 0;
             foreach (var imgY in scope)
             {

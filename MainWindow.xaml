@@ -22,26 +22,43 @@
                 <MenuItem Header="Move to Right" Click="MoveToRightClick" />
                 <Separator />
                 <MenuItem Header="Adult">
-                    <MenuItem Header="Adult\Ana" Click="MoveToFolderClick"  />
-                    <MenuItem Header="Adult\Aubrey" Click="MoveToFolderClick"  />
-                    <MenuItem Header="Adult\Gina" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Adult\Ana Foxxx" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Adult\Aubrey Star" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Adult\Gina Gerson" Click="MoveToFolderClick"  />
                     <MenuItem Header="Adult\Mirai" Click="MoveToFolderClick"  />
                     <MenuItem Header="Adult\Natasha" Click="MoveToFolderClick"  />
-                    <MenuItem Header="Adult\Rui" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Adult\Rui Matsushita" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Adult\Varvara" Click="MoveToFolderClick"  />
+                </MenuItem>
+                <MenuItem Header="Art">
+                    <MenuItem Header="Art\AGI" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Art\Alex" Click="MoveToFolderClick"  />
                 </MenuItem>
                 <MenuItem Header="Ds">
+                    <MenuItem Header="Ds\Anya" Click="MoveToFolderClick"  />
                     <MenuItem Header="Ds\Angela" Click="MoveToFolderClick"  />
                     <MenuItem Header="Ds\Diana" Click="MoveToFolderClick"  />
-                </MenuItem>                
+                </MenuItem>
                 <MenuItem Header="Kandid">
+                    <MenuItem Header="Kandid\Arlina" Click="MoveToFolderClick"  />
                     <MenuItem Header="Kandid\Aygun+Gunay" Click="MoveToFolderClick"  />
-                    <MenuItem Header="Kandid\Bina" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Baku" Click="MoveToFolderClick"  />
                     <MenuItem Header="Kandid\Baltimora" Click="MoveToFolderClick"  />
-                    <MenuItem Header="Kandid\Cila" Click="MoveToFolderClick"  />
-                    <MenuItem Header="Kandid\Memasia" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Galerea" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Katy" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Mariam" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Memorial" Click="MoveToFolderClick"  />
                     <MenuItem Header="Kandid\Narmina" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\NYC" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Nasa" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Penta" Click="MoveToFolderClick"  />
                     <MenuItem Header="Kandid\Polina" Click="MoveToFolderClick"  />
-                    <MenuItem Header="Kandid\Viola" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Rosenberg" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\School 039" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\School 077" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\School 160" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\School 177" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Tarana" Click="MoveToFolderClick"  />
                 </MenuItem>
                 <MenuItem Header="Models">
                     <MenuItem Header="Models\Dolly" Click="MoveToFolderClick"  />
@@ -57,6 +74,10 @@
                 <MenuItem Header="Tpi">
                     <MenuItem Header="Tpi\Berenice" Click="MoveToFolderClick"  />
                     <MenuItem Header="Tpi\Pamela" Click="MoveToFolderClick"  />
+                </MenuItem>
+                <MenuItem Header="Vandych">
+                    <MenuItem Header="Vandych\Alina" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Vandych\Draenei" Click="MoveToFolderClick"  />
                 </MenuItem>                
             </MenuItem>
         </Menu>
