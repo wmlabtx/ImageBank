@@ -18,9 +18,61 @@ namespace ImageBank
                         return;
                     }
 
+                    Img imgX = null;
+
+                    var scopeupdatednotviewed = _imgList.Where(e => e.Value.LastView < e.Value.LastUpdated).Select(e => e.Value).ToList();
+                    if (scopeupdatednotviewed.Count > 0)
+                    {
+                        //imgX = scopeupdatednotviewed.OrderByDescending(e => e.Sim).FirstOrDefault();
+
+                        imgX = scopeupdatednotviewed.OrderBy(e => e.LastView).FirstOrDefault();
+                    }
+                    else
+                    {
+                        var folders = new SortedDictionary<string, DateTime>();
+                        foreach (var img in _imgList)
+                        {
+                            if (HelperPath.IsLegacy(img.Value.Folder) || DateTime.Now.Subtract(img.Value.LastView).TotalHours < 1.0)
+                            {
+                                continue;
+                            }
+
+                            if (folders.ContainsKey(img.Value.Folder))
+                            {
+                                if (folders[img.Value.Folder] < img.Value.LastView)
+                                {
+                                    folders[img.Value.Folder] = img.Value.LastView;
+                                }
+                            }
+                            else
+                            {
+                                folders.Add(img.Value.Folder, img.Value.LastView);
+                            }
+                        }
+
+                        var minfolder = AppConsts.FolderLegacy;
+                        var minlastview = DateTime.Now;
+                        foreach (var folder in folders.Keys)
+                        {
+                            if (folders[folder] < minlastview)
+                            {
+                                minfolder = folder;
+                                minlastview = folders[folder];
+                            }
+                        }
+
+                        var scopefolder = HelperPath.IsLegacy(minfolder) ?
+                            _imgList.Where(e => HelperPath.IsLegacy(e.Value.Folder)) :
+                            _imgList.Where(e => e.Value.Folder.Equals(minfolder));
+
+                        imgX = scopefolder.OrderBy(e => e.Value.LastView).FirstOrDefault().Value;
+                    }
+
+                    /*
                     var imgX = _imgList.Count(e => e.Value.LastView < e.Value.LastUpdated) > 0 ?
                         _imgList.Where(e => e.Value.LastView < e.Value.LastUpdated).OrderByDescending(e => e.Value.Sim).FirstOrDefault().Value :
                         _imgList.OrderBy(e => e.Value.LastView).FirstOrDefault().Value;
+                    */
 /*
                     var imgX =
                         _imgList.Count(e => e.Value.LastView < e.Value.LastUpdated) > 0 ?

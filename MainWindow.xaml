@@ -46,6 +46,8 @@
                     <MenuItem Header="Kandid\Baltimora" Click="MoveToFolderClick"  />
                     <MenuItem Header="Kandid\Galerea" Click="MoveToFolderClick"  />
                     <MenuItem Header="Kandid\Katy" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Houston" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Leila" Click="MoveToFolderClick"  />
                     <MenuItem Header="Kandid\Mariam" Click="MoveToFolderClick"  />
                     <MenuItem Header="Kandid\Memorial" Click="MoveToFolderClick"  />
                     <MenuItem Header="Kandid\Narmina" Click="MoveToFolderClick"  />
@@ -59,6 +61,8 @@
                     <MenuItem Header="Kandid\School 160" Click="MoveToFolderClick"  />
                     <MenuItem Header="Kandid\School 177" Click="MoveToFolderClick"  />
                     <MenuItem Header="Kandid\Tarana" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Walmart" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Washington" Click="MoveToFolderClick"  />
                 </MenuItem>
                 <MenuItem Header="Models">
                     <MenuItem Header="Models\Dolly" Click="MoveToFolderClick"  />
