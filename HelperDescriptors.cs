@@ -16,19 +16,24 @@ namespace ImageBank
             var orb = ORB.Create(AppConsts.MaxOrbPointsInImage);
             try
             {
-                using (var mat = Mat.FromImageData(data, ImreadModes.Grayscale))
+                using (var matsource = Mat.FromImageData(data, ImreadModes.Grayscale))
                 {
-                    if (mat.Width == 0 || mat.Height == 0)
+                    if (matsource.Width == 0 || matsource.Height == 0)
                     {
                         return false;
                     }
 
-                    matdescriptors = new Mat();
-                    orb.DetectAndCompute(mat, null, out _, matdescriptors);
-                    if (matdescriptors.Cols != 32 || matdescriptors.Rows == 0)
+                    const double fsample = 640.0 * 480.0;
+                    var fx = Math.Sqrt(fsample / (matsource.Width * matsource.Height));
+                    using (var mat = matsource.Resize(Size.Zero, fx, fx, InterpolationFlags.Cubic))
                     {
-                        matdescriptors.Dispose();
-                        throw new Exception();
+                        matdescriptors = new Mat();
+                        orb.DetectAndCompute(mat, null, out _, matdescriptors);
+                        if (matdescriptors.Cols != 32 || matdescriptors.Rows == 0)
+                        {
+                            matdescriptors.Dispose();
+                            throw new Exception();
+                        }
                     }
                 }
             }

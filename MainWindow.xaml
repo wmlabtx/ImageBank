@@ -29,6 +29,7 @@
                     <MenuItem Header="Adult\Natasha" Click="MoveToFolderClick"  />
                     <MenuItem Header="Adult\Rui Matsushita" Click="MoveToFolderClick"  />
                     <MenuItem Header="Adult\Varvara" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Adult\Talinka A" Click="MoveToFolderClick"  />
                 </MenuItem>
                 <MenuItem Header="Art">
                     <MenuItem Header="Art\AGI" Click="MoveToFolderClick"  />
@@ -66,7 +67,9 @@
                 </MenuItem>
                 <MenuItem Header="Models">
                     <MenuItem Header="Models\Dolly" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Models\Emanuelle" Click="MoveToFolderClick"  />
                     <MenuItem Header="Models\Jessy" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Models\Mandy Seize" Click="MoveToFolderClick"  />
                     <MenuItem Header="Models\Sandra" Click="MoveToFolderClick"  />
                 </MenuItem>
                 <MenuItem Header="Ls">
@@ -77,6 +80,7 @@
                 </MenuItem>
                 <MenuItem Header="Tpi">
                     <MenuItem Header="Tpi\Berenice" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Tpi\Gabi" Click="MoveToFolderClick"  />
                     <MenuItem Header="Tpi\Pamela" Click="MoveToFolderClick"  />
                 </MenuItem>
                 <MenuItem Header="Vandych">

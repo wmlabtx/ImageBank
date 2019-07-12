@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenCvSharp;
+using System;
 using System.Data.SqlClient;
 using System.Text;
 
@@ -81,6 +82,26 @@ namespace ImageBank
                 using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
                 {
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastView}", lastView);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrName}", name);
+                    sqlCommand.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private void SqlUpdateDescriptors(string name, Mat matdescriptors)
+        {
+            lock (_sqlLock)
+            {
+                var sb = new StringBuilder();
+                sb.Append("UPDATE Images SET ");
+                sb.Append($"{AppConsts.AttrDescriptors} = @{AppConsts.AttrDescriptors} ");
+                sb.Append("WHERE ");
+                sb.Append($"{AppConsts.AttrName} = @{AppConsts.AttrName}");
+                var sqltext = sb.ToString();
+                using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
+                {
+                    var descriptors = HelperDescriptors.ConvertToByteDescriptors(matdescriptors);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrDescriptors}", descriptors);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrName}", name);
                     sqlCommand.ExecuteNonQuery();
                 }

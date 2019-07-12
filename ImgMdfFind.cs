@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -20,23 +21,22 @@ namespace ImageBank
 
                     Img imgX = null;
 
-                    var scopeupdatednotviewed = _imgList.Where(e => e.Value.LastView < e.Value.LastUpdated).Select(e => e.Value).ToList();
+                    var scopeupdatednotviewed = _imgList
+                        .Where(e => e.Value.LastView < e.Value.LastUpdated && !e.Value.Name.Equals(e.Value.NextName) && _imgList.ContainsKey(e.Value.NextName))
+                        .Select(e => e.Value)
+                        .ToList();
+
                     if (scopeupdatednotviewed.Count > 0)
                     {
-                        //imgX = scopeupdatednotviewed.OrderByDescending(e => e.Sim).FirstOrDefault();
+                        imgX = scopeupdatednotviewed.OrderByDescending(e => e.Sim).FirstOrDefault();
 
-                        imgX = scopeupdatednotviewed.OrderBy(e => e.LastView).FirstOrDefault();
+                        //imgX = scopeupdatednotviewed.OrderBy(e => e.LastView).FirstOrDefault();
                     }
                     else
                     {
                         var folders = new SortedDictionary<string, DateTime>();
                         foreach (var img in _imgList)
                         {
-                            if (HelperPath.IsLegacy(img.Value.Folder) || DateTime.Now.Subtract(img.Value.LastView).TotalHours < 1.0)
-                            {
-                                continue;
-                            }
-
                             if (folders.ContainsKey(img.Value.Folder))
                             {
                                 if (folders[img.Value.Folder] < img.Value.LastView)
@@ -52,6 +52,11 @@ namespace ImageBank
 
                         var minfolder = AppConsts.FolderLegacy;
                         var minlastview = DateTime.Now;
+                        var scopekeys = _imgList
+                            .Where(e => !e.Value.Name.Equals(e.Value.NextName) && _imgList.ContainsKey(e.Value.NextName))
+                            .Select(e => e.Key)
+                            .ToArray();
+
                         foreach (var folder in folders.Keys)
                         {
                             if (folders[folder] < minlastview)

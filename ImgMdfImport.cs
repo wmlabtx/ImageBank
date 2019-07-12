@@ -139,8 +139,9 @@ namespace ImageBank
                 var filename = HelperPath.GetFileName(name, ofolder);
                 if (!filename.Equals(ofilename))
                 {
-                    File.WriteAllBytes(filename, data);
-                    HelperRecycleBin.Delete(ofilename);
+                    File.Move(ofilename, filename);
+                    //File.WriteAllBytes(filename, data);
+                    //HelperRecycleBin.Delete(ofilename);
                 }
 
                 var lastview = (_imgList.Count > 0 ? _imgList.Min(e => e.Value.LastView) : DateTime.Now).AddMinutes(-1);
@@ -168,7 +169,7 @@ namespace ImageBank
 
         public void Import(IProgress<string> progress)
         {
-            Import(1024, progress);
+            Import(1000, progress);
         }
     }
 }

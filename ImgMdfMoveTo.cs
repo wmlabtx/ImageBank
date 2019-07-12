@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace ImageBank
 {
@@ -25,10 +24,8 @@ namespace ImageBank
             var imgNext = GetImgByName(img.NextName);
             if (imgNext == null || !destfolder.Equals(imgNext.Folder))
             {
-                img.NextName = name;
                 img.Sim = 0f;
-                img.LastChecked = DateTime.Now.AddYears(-10);
-                SqlUpdateLink(name, img.NextName, img.Sim, img.LastChecked);
+                FindNextName(img);
             }
         }
     }
