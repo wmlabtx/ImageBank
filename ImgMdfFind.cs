@@ -29,8 +29,6 @@ namespace ImageBank
                     if (scopeupdatednotviewed.Count > 0)
                     {
                         imgX = scopeupdatednotviewed.OrderByDescending(e => e.Sim).FirstOrDefault();
-
-                        //imgX = scopeupdatednotviewed.OrderBy(e => e.LastView).FirstOrDefault();
                     }
                     else
                     {

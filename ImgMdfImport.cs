@@ -98,6 +98,9 @@ namespace ImageBank
                     continue;
                 }
 
+                var lastview = DateTime.MinValue;
+                var lastchecked = DateTime.MinValue;
+                var lastupdated = DateTime.MinValue;
                 var name = HelperCrc.GetCrc(data);
                 if (_imgList.TryGetValue(name, out var imgFound))
                 {
@@ -111,14 +114,17 @@ namespace ImageBank
 
                     if (HelperPath.IsLegacy(imgFound.Folder))
                     {
+                        lastview = imgFound.LastView;
+                        lastchecked = imgFound.LastChecked;
+                        lastupdated = imgFound.LastUpdated;
                         DeleteImgAndFile(name);
                     }
                     else
                     {
-                        if (HelperPath.IsLegacy(ofolder))
+                        if (HelperPath.IsLegacy(ofolder) || imgFound.Folder.Equals(ofolder))
                         {
                             HelperRecycleBin.Delete(ofilename);
-                        }
+                        }                       
 
                         skipped++;
                         continue;
@@ -144,9 +150,20 @@ namespace ImageBank
                     //HelperRecycleBin.Delete(ofilename);
                 }
 
-                var lastview = (_imgList.Count > 0 ? _imgList.Min(e => e.Value.LastView) : DateTime.Now).AddMinutes(-1);
-                var lastchecked = (_imgList.Count > 0 ? _imgList.Min(e => e.Value.LastChecked) : DateTime.Now).AddMinutes(-1);
-                var lastupdated = lastchecked;
+                if (lastview == DateTime.MinValue)
+                {
+                    lastview = (_imgList.Count > 0 ? _imgList.Min(e => e.Value.LastView) : DateTime.Now).AddMinutes(-1);
+                }
+
+                if (lastchecked == DateTime.MinValue)
+                {
+                    lastchecked = (_imgList.Count > 0 ? _imgList.Min(e => e.Value.LastChecked) : DateTime.Now).AddMinutes(-1);
+                }
+
+                if (lastupdated == DateTime.MinValue)
+                {
+                    lastupdated = lastchecked;
+                }
 
                 var img = new Img(
                     name,

@@ -24,12 +24,13 @@
                 <MenuItem Header="Adult">
                     <MenuItem Header="Adult\Ana Foxxx" Click="MoveToFolderClick"  />
                     <MenuItem Header="Adult\Aubrey Star" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Adult\Brazilia" Click="MoveToFolderClick"  />
                     <MenuItem Header="Adult\Gina Gerson" Click="MoveToFolderClick"  />
                     <MenuItem Header="Adult\Mirai" Click="MoveToFolderClick"  />
                     <MenuItem Header="Adult\Natasha" Click="MoveToFolderClick"  />
                     <MenuItem Header="Adult\Rui Matsushita" Click="MoveToFolderClick"  />
                     <MenuItem Header="Adult\Varvara" Click="MoveToFolderClick"  />
-                    <MenuItem Header="Adult\Talinka A" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Adult\Talinka" Click="MoveToFolderClick"  />
                 </MenuItem>
                 <MenuItem Header="Art">
                     <MenuItem Header="Art\AGI" Click="MoveToFolderClick"  />

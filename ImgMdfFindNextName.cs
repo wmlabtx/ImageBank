@@ -60,7 +60,7 @@ namespace ImageBank
 
                             updates++;
                         }
-                    }
+                    }                    
                 }
                 else
                 {

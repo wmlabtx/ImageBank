@@ -127,7 +127,7 @@ namespace ImageBank
             var progress = new Progress<string>(message => Status.Text = message);
             DisableElements();
             await Task.Run(() => { AppVars.Collection.MoveTo(AppVars.ImgPanel[0].Img.Name, folder); });
-            await Task.Run(() => { AppVars.Collection.Find(null, progress); });
+            await Task.Run(() => { AppVars.Collection.Find(AppVars.ImgPanel[0].Img.Name, progress); });
             DrawCanvas();
             EnableElements();
         }
@@ -250,7 +250,7 @@ namespace ImageBank
                 pLabels[index].Text = sb.ToString();
                 pLabels[index].Background =
                     HelperPath.IsLegacy(AppVars.ImgPanel[index].Img.Folder) ?
-                    System.Windows.Media.Brushes.White :
+                    (AppVars.ImgPanel[index].Img.Sim > 48.0 ? System.Windows.Media.Brushes.Red : System.Windows.Media.Brushes.White) :
                     System.Windows.Media.Brushes.Bisque;
             }
 
