@@ -32,43 +32,7 @@ namespace ImageBank
                     }
                     else
                     {
-                        var folders = new SortedDictionary<string, DateTime>();
-                        foreach (var img in _imgList)
-                        {
-                            if (folders.ContainsKey(img.Value.Folder))
-                            {
-                                if (folders[img.Value.Folder] < img.Value.LastView)
-                                {
-                                    folders[img.Value.Folder] = img.Value.LastView;
-                                }
-                            }
-                            else
-                            {
-                                folders.Add(img.Value.Folder, img.Value.LastView);
-                            }
-                        }
-
-                        var minfolder = AppConsts.FolderLegacy;
-                        var minlastview = DateTime.Now;
-                        var scopekeys = _imgList
-                            .Where(e => !e.Value.Name.Equals(e.Value.NextName) && _imgList.ContainsKey(e.Value.NextName))
-                            .Select(e => e.Key)
-                            .ToArray();
-
-                        foreach (var folder in folders.Keys)
-                        {
-                            if (folders[folder] < minlastview)
-                            {
-                                minfolder = folder;
-                                minlastview = folders[folder];
-                            }
-                        }
-
-                        var scopefolder = HelperPath.IsLegacy(minfolder) ?
-                            _imgList.Where(e => HelperPath.IsLegacy(e.Value.Folder)) :
-                            _imgList.Where(e => e.Value.Folder.Equals(minfolder));
-
-                        imgX = scopefolder.OrderBy(e => e.Value.LastView).FirstOrDefault().Value;
+                        imgX = _imgList.OrderBy(e => e.Value.LastView).FirstOrDefault().Value;
                     }
 
                     /*
