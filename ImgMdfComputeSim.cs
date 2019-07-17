@@ -1,5 +1,4 @@
-﻿ using System;
-using System.IO;
+﻿using System;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -8,6 +7,8 @@ namespace ImageBank
 {
     public partial class ImgMdf
     {
+        int counterimport = 0;
+
         public string ComputeSim()
         {
             AppVars.SuspendEvent.WaitOne(Timeout.Infinite);
@@ -15,6 +16,12 @@ namespace ImageBank
             if (_imgList.Count == 0)
             {
                 return null;
+            }
+
+            if (counterimport > 9)
+            {
+                counterimport = 0;
+                Import(10, null);
             }
 
             var imgX = _imgList.Values.OrderBy(e => e.LastChecked).FirstOrDefault();
@@ -42,10 +49,16 @@ namespace ImageBank
             }
 
             var sb = new StringBuilder();
+            sb.Append($"[{counterimport}] ");
             sb.Append($"{oldsim:F1}");
             if (string.IsNullOrEmpty(oldname) || !imgX.NextName.Equals(oldname))
             {
+                counterimport = 0;
                 sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F1}");
+            }
+            else
+            {
+                counterimport++;
             }
 
             if (updates > 0)

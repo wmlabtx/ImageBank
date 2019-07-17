@@ -65,6 +65,7 @@
                     <MenuItem Header="Kandid\Tarana" Click="MoveToFolderClick"  />
                     <MenuItem Header="Kandid\Walmart" Click="MoveToFolderClick"  />
                     <MenuItem Header="Kandid\Washington" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Kandid\Web" Click="MoveToFolderClick"  />
                 </MenuItem>
                 <MenuItem Header="Models">
                     <MenuItem Header="Models\Dolly" Click="MoveToFolderClick"  />

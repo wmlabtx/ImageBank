@@ -34,6 +34,11 @@ namespace ImageBank
                             matdescriptors.Dispose();
                             throw new Exception();
                         }
+
+                        while (matdescriptors.Rows > AppConsts.MaxOrbPointsInImage)
+                        {
+                            matdescriptors = matdescriptors.RowRange(0, AppConsts.MaxOrbPointsInImage);
+                        }
                     }
                 }
             }

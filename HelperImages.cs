@@ -28,7 +28,21 @@ namespace ImageBank
                 return false;
             }
 
-            using (var mat = new Mat(filename))
+            /*
+            var extension = Path.GetExtension(filename);
+            if (extension.Equals(AppConsts.DatExtension))
+            {
+                var name = HelperPath.GetName(filename);
+                data = HelperEncrypting.Decrypt(data, name);
+                if (data == null || data.Length == 0)
+                {
+                    bitmap = null;
+                    return false;
+                }
+            }
+            */
+
+            using (var mat = Cv2.ImDecode(data, ImreadModes.AnyColor))
             {
                 try
                 {

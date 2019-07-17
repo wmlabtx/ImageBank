@@ -6,15 +6,15 @@
         public const string FileDatabase = @"D:\Users\Murad\Documents\World of Warcraft\_retail_\Cache\SDB\db\images.mdf";
         public const string FolderLegacy = "Legacy";
 
-        public const int MaxOrbPointsInImage = 250; // 250*32 = 8000
+        public const int MaxOrbPointsInImage = 125; // 125*32 = 4000
         public const int MaxHammingDistance = 64;
 
         public const int MaxImages = 100000;
 
+        public const string DatExtension = ".dat";
         public const string WebpExtension = ".webp";
         public const string JpgExtension = ".jpg";
-        public const string JpegExtension = ".jpeg";
-        public const string DatExtension = ".dat";
+        public const string JpegExtension = ".jpeg";        
         public const string PngExtension = ".png";
         public const string BmpExtension = ".bmp";
 

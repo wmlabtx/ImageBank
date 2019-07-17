@@ -49,7 +49,7 @@ namespace ImageBank
                         imgX.LastUpdated = DateTime.Now;
                         SqlUpdateLastUpdated(imgX.Name, imgX.LastUpdated);
 
-                        if (HelperPath.FolderComparable(imgY.Folder, imgX.Folder) && sim > imgY.Sim)
+                        if (HelperPath.FolderComparable(imgY.Folder, imgX.Folder) && imgY.Descriptors.Rows == imgX.Descriptors.Rows && sim > imgY.Sim)
                         {
                             imgY.NextName = imgX.Name;
                             imgY.Sim = sim;
@@ -62,6 +62,7 @@ namespace ImageBank
                         }
                     }                    
                 }
+                /*
                 else
                 {
                     if (HelperPath.FolderComparable(imgY.Folder, imgX.Folder))
@@ -80,6 +81,7 @@ namespace ImageBank
                         }
                     }
                 }
+                */
             }
 
             return updates;

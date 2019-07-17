@@ -24,7 +24,10 @@ namespace ImageBank
                 if (DateTime.Now.Subtract(dt).TotalMilliseconds > AppConsts.TimeLapse)
                 {
                     dt = DateTime.Now;
-                    progress.Report($"{_imgList.Count}: analysing files (a:{added}/m:{moved}/s:{skipped}/{counter})...");
+                    if (progress != null)
+                    {
+                        progress.Report($"{_imgList.Count}: analysing files (a:{added}/m:{moved}/s:{skipped}/{counter})...");
+                    }
                 }
 
                 var ofilename = fileInfo.FullName;
@@ -186,7 +189,7 @@ namespace ImageBank
 
         public void Import(IProgress<string> progress)
         {
-            Import(1000, progress);
+            Import(2000, progress);
         }
     }
 }
