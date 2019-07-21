@@ -22,18 +22,25 @@ namespace ImageBank
                     Img imgX = null;
 
                     var scopeupdatednotviewed = _imgList
-                        .Where(e => e.Value.LastView < e.Value.LastUpdated && !e.Value.Name.Equals(e.Value.NextName) && _imgList.ContainsKey(e.Value.NextName))
+                        .Where(e => e.Value.LastView < e.Value.LastUpdated && _imgList.ContainsKey(e.Value.NextName))
                         .Select(e => e.Value)
-                        .ToList();
+                        .ToArray();
 
-                    if (scopeupdatednotviewed.Count > 0)
+                    if (scopeupdatednotviewed.Length > 0)
                     {
                         imgX = scopeupdatednotviewed.OrderByDescending(e => e.Sim).FirstOrDefault();
-                        //imgX = scopeupdatednotviewed.OrderByDescending(e => e.LastChecked).FirstOrDefault();
+                        //imgX = scopeupdatednotviewed.OrderByDescending(e => e.LastChecked).FirstOrDefault();   
+                        //imgX = FindInRotation(scopeupdatednotviewed);
                     }
                     else
                     {
                         imgX = _imgList.OrderBy(e => e.Value.LastView).FirstOrDefault().Value;
+                        var all = _imgList
+                            .Where(e => _imgList.ContainsKey(e.Value.NextName))
+                            .Select(e => e.Value)
+                            .ToArray();
+
+                        imgX = FindInRotation(all);
                     }
 
                     /*
@@ -41,12 +48,19 @@ namespace ImageBank
                         _imgList.Where(e => e.Value.LastView < e.Value.LastUpdated).OrderByDescending(e => e.Value.Sim).FirstOrDefault().Value :
                         _imgList.OrderBy(e => e.Value.LastView).FirstOrDefault().Value;
                     */
-/*
+                    /*
+                                        var imgX =
+                                            _imgList.Count(e => e.Value.LastView < e.Value.LastUpdated) > 0 ?
+                                            Find(_imgList.Where(e => e.Value.LastView < e.Value.LastUpdated)) :
+                                            Find(_imgList);
+                    */
+
+                    /*
                     var imgX =
                         _imgList.Count(e => e.Value.LastView < e.Value.LastUpdated) > 0 ?
                         Find(_imgList.Where(e => e.Value.LastView < e.Value.LastUpdated)) :
                         Find(_imgList);
-*/
+                        */
 
                     if (imgX == null)
                     {
@@ -140,5 +154,70 @@ namespace ImageBank
             return imgX;
         }
         */
+
+        private Img FindInRotation(Img[] scopeX)
+        {
+            var scope = scopeX;
+            var level = 0;
+            Img imgX = null;
+            while (true)
+            {
+                var folders = new SortedDictionary<string, DateTime>();
+                foreach (var img in scope)
+                {
+                    var pars = img.Folder.Split('\\');
+                    var folder = pars[level];
+
+                    if (folders.ContainsKey(folder))
+                    {
+                        if (folders[folder] < img.LastView)
+                        {
+                            folders[folder] = img.LastView;
+                        }
+                    }
+                    else
+                    {
+                        folders.Add(folder, img.LastView);
+                    }
+                }
+
+                var minfolder = AppConsts.FolderLegacy;
+                var minlastview = DateTime.Now;
+                foreach (var folder in folders.Keys)
+                {
+                    if (folders[folder] < minlastview)
+                    {
+                        minfolder = folder;
+                        minlastview = folders[folder];
+                    }
+                }
+
+                var scopenew = new List<Img>();
+                foreach (var img in scope)
+                {
+                    var pars = img.Folder.Split('\\');
+                    var folder = pars[level];
+
+                    if (folder.Equals(minfolder))
+                    {
+                        scopenew.Add(img);
+                    }
+                }
+
+                level++;
+                var nextpars = scopenew[0].Folder.Split('\\');
+                if (nextpars.Length <= level)
+                {
+                    imgX = scopenew.OrderBy(e => e.LastView).FirstOrDefault();
+                    break;
+                }
+                else
+                {
+                    scope = scopenew.ToArray();
+                }
+            }
+
+            return imgX;
+        }
     }
 }

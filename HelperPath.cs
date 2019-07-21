@@ -48,8 +48,8 @@ namespace ImageBank
         public static bool FolderComparable(string folderX, string folderY)
         {
             if (
-                IsLegacy(folderX) ||
-                folderY.StartsWith(folderX, StringComparison.InvariantCultureIgnoreCase)
+                (IsLegacy(folderX) && !IsLegacy(folderY)) ||
+                (!IsLegacy(folderY) && folderY.StartsWith(folderX, StringComparison.InvariantCultureIgnoreCase))
                 )
             {
                 return true;

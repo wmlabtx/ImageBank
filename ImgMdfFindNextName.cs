@@ -7,31 +7,21 @@ namespace ImageBank
     {
         private int FindNextName(Img imgX)
         {
+            var oldnextname = imgX.NextName;
+
+            imgX.NextName = imgX.Name;
+            imgX.Sim = 0f;
+            imgX.LastChecked = DateTime.Now;
+            SqlUpdateLink(imgX.Name, imgX.NextName, imgX.Sim, imgX.LastChecked);
+
             var scope = _imgList
                     .Where(e => !e.Value.Name.Equals(imgX.Name))
                     .Select(e => e.Value)
                     .ToArray();
 
-            imgX.LastChecked = DateTime.Now;
-            SqlUpdateLink(imgX.Name, imgX.NextName, imgX.Sim, imgX.LastChecked);
-
             if (scope.Length == 0)
             {
-                imgX.NextName = imgX.Name;
-                imgX.Sim = 0f;
-                SqlUpdateLink(imgX.Name, imgX.NextName, imgX.Sim, imgX.LastChecked);
-
-                imgX.LastUpdated = imgX.LastChecked;
-                SqlUpdateLastUpdated(imgX.Name, imgX.LastUpdated);
-
                 return 0;
-            }
-
-            var nextimg = GetImgByName(imgX.NextName);
-            if (nextimg == null || imgX.Name.Equals(nextimg) || !HelperPath.FolderComparable(imgX.Folder, nextimg.Folder))
-            {
-                imgX.Sim = 0f;
-                SqlUpdateLink(imgX.Name, imgX.NextName, imgX.Sim, imgX.LastChecked);
             }
 
             var updates = 0;
@@ -46,16 +36,13 @@ namespace ImageBank
                         imgX.Sim = sim;
                         SqlUpdateLink(imgX.Name, imgX.NextName, imgX.Sim, imgX.LastChecked);
 
-                        imgX.LastUpdated = DateTime.Now;
-                        SqlUpdateLastUpdated(imgX.Name, imgX.LastUpdated);
-
                         if (HelperPath.FolderComparable(imgY.Folder, imgX.Folder) && imgY.Descriptors.Rows == imgX.Descriptors.Rows && sim > imgY.Sim)
                         {
                             imgY.NextName = imgX.Name;
                             imgY.Sim = sim;
                             SqlUpdateLink(imgY.Name, imgY.NextName, imgY.Sim, imgY.LastChecked);
 
-                            imgY.LastUpdated = DateTime.Now;
+                            imgY.LastUpdated = imgX.LastChecked;
                             SqlUpdateLastUpdated(imgY.Name, imgY.LastUpdated);
 
                             updates++;
@@ -82,6 +69,12 @@ namespace ImageBank
                     }
                 }
                 */
+            }
+
+            if (!imgX.NextName.Equals(oldnextname))
+            {
+                imgX.LastUpdated = DateTime.Now;
+                SqlUpdateLastUpdated(imgX.Name, imgX.LastUpdated);
             }
 
             return updates;

@@ -111,6 +111,12 @@ namespace ImageBank
                     {
                         imgFound.Folder = ofolder;
                         SqlUpdateFolder(name, imgFound.Folder);
+
+                        imgFound.NextName = imgFound.Name;
+                        imgFound.Sim = 0f;
+                        imgFound.LastChecked = DateTime.Now.AddYears(-10);
+                        SqlUpdateLink(imgFound.Name, imgFound.NextName, imgFound.Sim, imgFound.LastChecked);
+
                         moved++;
                         continue;
                     }
@@ -189,7 +195,7 @@ namespace ImageBank
 
         public void Import(IProgress<string> progress)
         {
-            Import(2000, progress);
+            Import(20000, progress);
         }
     }
 }

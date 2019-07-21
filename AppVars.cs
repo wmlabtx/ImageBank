@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 
 namespace ImageBank
 {
@@ -6,7 +7,8 @@ namespace ImageBank
     {
         public static readonly ImgMdf Collection = new ImgMdf();
         public static ImgPanel[] ImgPanel = new ImgPanel[2];
+        public static Progress<string> Progress;
         public static ManualResetEvent SuspendEvent;
-        public static int ImagesToView;
+        //public static int ImagesToView;
     }
 }
