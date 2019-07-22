@@ -125,7 +125,6 @@ namespace ImageBank
         {
             DisableElements();
             await Task.Run(() => { AppVars.Collection.MoveTo(AppVars.ImgPanel[0].Img.Name, folder); });
-            await Task.Run(() => { AppVars.Collection.Find(AppVars.ImgPanel[0].Img.Name, AppVars.Progress); });
             DrawCanvas();
             EnableElements();
         }
@@ -229,7 +228,7 @@ namespace ImageBank
                     sb.Append($" [{foldersize}]");
                 }
 
-                sb.Append($" {AppVars.ImgPanel[index].Img.Sim:F1}");
+                sb.Append($" {AppVars.ImgPanel[index].Img.Sim:F2}");
 
                 sb.AppendLine();
                 sb.Append($"{HelperConvertors.SizeToString(AppVars.ImgPanel[index].Size)} ({AppVars.ImgPanel[index].Bitmap.Width:F0}x{AppVars.ImgPanel[index].Bitmap.Height:F0})");
@@ -242,7 +241,7 @@ namespace ImageBank
 
                 sb.AppendLine();
                 sb.Append($"{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].Img.LastView))} ago");
-                sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].Img.LastUpdated))} ago]");
+                sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].Img.LastChecked))} ago]");
 
                 pLabels[index].Text = sb.ToString();
                 pLabels[index].Background =

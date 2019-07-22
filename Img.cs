@@ -9,7 +9,6 @@ namespace ImageBank
         public string Folder { get; set; }
         public DateTime LastView { get; set; }
         public DateTime LastChecked { get; set; }
-        public DateTime LastUpdated { get; set; }
         public Mat Descriptors { get; set; }
         public string NextName { get; set; }
         public float Sim { get; set; }
@@ -20,7 +19,6 @@ namespace ImageBank
             string folder,
             DateTime lastview,
             DateTime lastchecked,
-            DateTime lastupdated,
             Mat descriptors,
             string nextname,
             float sim)
@@ -29,7 +27,6 @@ namespace ImageBank
             Folder = folder;
             LastView = lastview;
             LastChecked = lastchecked;
-            LastUpdated = lastupdated;
             Descriptors = descriptors;
             NextName = nextname;
             Sim = sim;

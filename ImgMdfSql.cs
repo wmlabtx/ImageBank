@@ -30,6 +30,7 @@ namespace ImageBank
             }
         }
 
+        /*
         private void SqlUpdateLastUpdated(string name, DateTime lastupdated)
         {
             lock (_sqlLock)
@@ -48,7 +49,7 @@ namespace ImageBank
                 }
             }
         }
-
+        */
 
         private void SqlUpdateFolder(string name, string folder)
         {
@@ -118,7 +119,6 @@ namespace ImageBank
                 sb.Append($"{AppConsts.AttrFolder}, ");
                 sb.Append($"{AppConsts.AttrLastView}, ");
                 sb.Append($"{AppConsts.AttrLastChecked}, ");
-                sb.Append($"{AppConsts.AttrLastUpdated}, ");
                 sb.Append($"{AppConsts.AttrDescriptors}, ");
                 sb.Append($"{AppConsts.AttrNextName}, ");
                 sb.Append($"{AppConsts.AttrSim}");
@@ -127,7 +127,6 @@ namespace ImageBank
                 sb.Append($"@{AppConsts.AttrFolder}, ");
                 sb.Append($"@{AppConsts.AttrLastView}, ");
                 sb.Append($"@{AppConsts.AttrLastChecked}, ");
-                sb.Append($"@{AppConsts.AttrLastUpdated}, ");
                 sb.Append($"@{AppConsts.AttrDescriptors}, ");
                 sb.Append($"@{AppConsts.AttrNextName}, ");
                 sb.Append($"@{AppConsts.AttrSim}");
@@ -139,7 +138,6 @@ namespace ImageBank
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrFolder}", img.Folder);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastView}", img.LastView);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastChecked}", img.LastChecked);
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastUpdated}", img.LastUpdated);
                     var descriptors = HelperDescriptors.ConvertToByteDescriptors(img.Descriptors);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrDescriptors}", descriptors);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrNextName}", img.NextName);

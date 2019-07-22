@@ -125,7 +125,6 @@ namespace ImageBank
                     {
                         lastview = imgFound.LastView;
                         lastchecked = imgFound.LastChecked;
-                        lastupdated = imgFound.LastUpdated;
                         DeleteImgAndFile(name);
                     }
                     else
@@ -161,17 +160,12 @@ namespace ImageBank
 
                 if (lastview == DateTime.MinValue)
                 {
-                    lastview = (_imgList.Count > 0 ? _imgList.Min(e => e.Value.LastView) : DateTime.Now).AddMinutes(-1);
+                    lastview = HelperPath.IsLegacy(ofolder) ? DateTime.Now : DateTime.Now.AddYears(-10);
                 }
 
                 if (lastchecked == DateTime.MinValue)
                 {
-                    lastchecked = (_imgList.Count > 0 ? _imgList.Min(e => e.Value.LastChecked) : DateTime.Now).AddMinutes(-1);
-                }
-
-                if (lastupdated == DateTime.MinValue)
-                {
-                    lastupdated = lastchecked;
+                    lastchecked = DateTime.Now.AddYears(-10);
                 }
 
                 var img = new Img(
@@ -179,7 +173,6 @@ namespace ImageBank
                     ofolder,
                     lastview,
                     lastchecked,
-                    lastupdated,
                     descriptors,
                     name,
                     0f);
@@ -195,7 +188,7 @@ namespace ImageBank
 
         public void Import(IProgress<string> progress)
         {
-            Import(20000, progress);
+            Import(10000, progress);
         }
     }
 }

@@ -9,6 +9,5 @@ namespace ImageBank
         public static ImgPanel[] ImgPanel = new ImgPanel[2];
         public static Progress<string> Progress;
         public static ManualResetEvent SuspendEvent;
-        //public static int ImagesToView;
     }
 }

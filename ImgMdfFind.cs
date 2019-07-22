@@ -21,16 +21,14 @@ namespace ImageBank
 
                     Img imgX = null;
 
-                    var scopeupdatednotviewed = _imgList
-                        .Where(e => e.Value.LastView < e.Value.LastUpdated && _imgList.ContainsKey(e.Value.NextName))
+                    var scoperecentlyadded = _imgList
+                        .Where(e => e.Value.LastView.Year < 2010 && _imgList.ContainsKey(e.Value.NextName))
                         .Select(e => e.Value)
                         .ToArray();
 
-                    if (scopeupdatednotviewed.Length > 0)
+                    if (scoperecentlyadded.Length > 0)
                     {
-                        imgX = scopeupdatednotviewed.OrderByDescending(e => e.Sim).FirstOrDefault();
-                        //imgX = scopeupdatednotviewed.OrderByDescending(e => e.LastChecked).FirstOrDefault();   
-                        //imgX = FindInRotation(scopeupdatednotviewed);
+                        imgX = scoperecentlyadded.OrderByDescending(e => e.LastChecked).FirstOrDefault();   
                     }
                     else
                     {
@@ -42,25 +40,6 @@ namespace ImageBank
 
                         imgX = FindInRotation(all);
                     }
-
-                    /*
-                    var imgX = _imgList.Count(e => e.Value.LastView < e.Value.LastUpdated) > 0 ?
-                        _imgList.Where(e => e.Value.LastView < e.Value.LastUpdated).OrderByDescending(e => e.Value.Sim).FirstOrDefault().Value :
-                        _imgList.OrderBy(e => e.Value.LastView).FirstOrDefault().Value;
-                    */
-                    /*
-                                        var imgX =
-                                            _imgList.Count(e => e.Value.LastView < e.Value.LastUpdated) > 0 ?
-                                            Find(_imgList.Where(e => e.Value.LastView < e.Value.LastUpdated)) :
-                                            Find(_imgList);
-                    */
-
-                    /*
-                    var imgX =
-                        _imgList.Count(e => e.Value.LastView < e.Value.LastUpdated) > 0 ?
-                        Find(_imgList.Where(e => e.Value.LastView < e.Value.LastUpdated)) :
-                        Find(_imgList);
-                        */
 
                     if (imgX == null)
                     {
@@ -94,66 +73,16 @@ namespace ImageBank
                     imgX.LastChecked = DateTime.Now.AddYears(-10);
                     SqlUpdateLink(imgX.Name, imgX.NextName, imgX.Sim, imgX.LastChecked);
 
-                    imgX.LastUpdated = imgX.LastChecked;
-                    SqlUpdateLastUpdated(imgX.Name, imgX.LastUpdated);
                     continue;
                 }
 
                 var sb = new StringBuilder();
-                var countnotvievedyet = _imgList.Count(e => e.Value.LastView < e.Value.LastUpdated);
-                sb.Append($"{countnotvievedyet}/{_imgList.Count}: ");
-                sb.Append($" {_avgTimes:F2}s");
+                sb.Append($"{_imgList.Count}: ");
+                sb.Append($"{_avgTimes:F2}s");
                 progress.Report(sb.ToString());
                 break;
             }
         }
-
-        /*
-        private Img Find(IEnumerable<KeyValuePair<string, Img>> scopeX)
-        {
-            var folders = new SortedDictionary<string, DateTime>();
-            foreach (var img in scopeX)
-            {
-                if (HelperPath.IsLegacy(img.Value.Folder) || DateTime.Now.Subtract(img.Value.LastView).TotalHours < 1.0)
-                {
-                    continue;
-                }
-
-                if (folders.ContainsKey(img.Value.Folder))
-                {
-                    if (folders[img.Value.Folder] < img.Value.LastView)
-                    {
-                        folders[img.Value.Folder] = img.Value.LastView;
-                    }
-                }
-                else
-                {
-                    folders.Add(img.Value.Folder, img.Value.LastView);
-                }
-            }
-
-            var minfolder = AppConsts.FolderLegacy;
-            var minlastview = DateTime.Now;
-            foreach (var folder in folders.Keys)
-            {
-                if (folders[folder] < minlastview)
-                {
-                    minfolder = folder;
-                    minlastview = folders[folder];
-                }
-            }
-
-            var scope = HelperPath.IsLegacy(minfolder) ?
-                _imgList.Where(e => HelperPath.IsLegacy(e.Value.Folder)) :
-                _imgList.Where(e => e.Value.Folder.Equals(minfolder));
-
-            var imgX = scope.Count(e => e.Value.LastView < e.Value.LastUpdated) > 0 ?
-                scope.Where(e => e.Value.LastView < e.Value.LastUpdated).OrderByDescending(e => e.Value.Sim).FirstOrDefault().Value :
-                scope.OrderBy(e => e.Value.LastView).FirstOrDefault().Value;
-
-            return imgX;
-        }
-        */
 
         private Img FindInRotation(Img[] scopeX)
         {

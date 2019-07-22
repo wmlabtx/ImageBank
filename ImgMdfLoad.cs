@@ -18,10 +18,9 @@ namespace ImageBank
                 sb.Append($"{AppConsts.AttrFolder}, "); // 1
                 sb.Append($"{AppConsts.AttrLastView}, "); // 2
                 sb.Append($"{AppConsts.AttrLastChecked}, "); // 3
-                sb.Append($"{AppConsts.AttrLastUpdated}, "); // 4
-                sb.Append($"{AppConsts.AttrDescriptors}, "); // 5
-                sb.Append($"{AppConsts.AttrNextName}, "); // 6
-                sb.Append($"{AppConsts.AttrSim} "); // 7
+                sb.Append($"{AppConsts.AttrDescriptors}, "); // 4
+                sb.Append($"{AppConsts.AttrNextName}, "); // 5
+                sb.Append($"{AppConsts.AttrSim} "); // 6
                 sb.Append("FROM Images");
                 var sqltext = sb.ToString();
                 using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
@@ -36,13 +35,12 @@ namespace ImageBank
                             var folder = reader.GetString(1);
                             var lastview = reader.GetDateTime(2);
                             var lastchecked = reader.GetDateTime(3);
-                            var lastupdated = reader.GetDateTime(4);
-                            var bytedescriptors = (byte[]) reader[5];
+                            var bytedescriptors = (byte[]) reader[4];
                             Mat matdescriptors = HelperDescriptors.ConvertToMatDescriptors(bytedescriptors);
-                            var nextname = reader.GetString(6);
-                            var sim = (float)reader.GetDouble(7);
+                            var nextname = reader.GetString(5);
+                            var sim = (float)reader.GetDouble(6);
 
-                            var img = new Img(name, folder, lastview, lastchecked, lastupdated, matdescriptors, nextname, sim);
+                            var img = new Img(name, folder, lastview, lastchecked, matdescriptors, nextname, sim);
                             _imgList.TryAdd(name, img);
 
                             if (DateTime.Now.Subtract(dt).TotalMilliseconds > AppConsts.TimeLapse)

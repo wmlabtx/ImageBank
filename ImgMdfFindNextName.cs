@@ -5,7 +5,7 @@ namespace ImageBank
 {
     public partial class ImgMdf
     {
-        private int FindNextName(Img imgX)
+        private void FindNextName(Img imgX)
         {
             var oldnextname = imgX.NextName;
 
@@ -21,13 +21,14 @@ namespace ImageBank
 
             if (scope.Length == 0)
             {
-                return 0;
+                return;
             }
 
-            var updates = 0;
+            var foldersize = GetFolderSize(imgX.Folder);
+            //var updates = 0;
             foreach (var imgY in scope)
             {
-                if (HelperPath.FolderComparable(imgX.Folder, imgY.Folder))
+                if (foldersize < 2 || HelperPath.FolderComparable(imgX.Folder, imgY.Folder))
                 {
                     var sim = GetSim(imgX.Descriptors, imgY.Descriptors);
                     if (sim > imgX.Sim)
@@ -36,17 +37,16 @@ namespace ImageBank
                         imgX.Sim = sim;
                         SqlUpdateLink(imgX.Name, imgX.NextName, imgX.Sim, imgX.LastChecked);
 
+                        /*
                         if (HelperPath.FolderComparable(imgY.Folder, imgX.Folder) && imgY.Descriptors.Rows == imgX.Descriptors.Rows && sim > imgY.Sim)
                         {
                             imgY.NextName = imgX.Name;
                             imgY.Sim = sim;
                             SqlUpdateLink(imgY.Name, imgY.NextName, imgY.Sim, imgY.LastChecked);
 
-                            imgY.LastUpdated = imgX.LastChecked;
-                            SqlUpdateLastUpdated(imgY.Name, imgY.LastUpdated);
-
                             updates++;
                         }
+                        */
                     }                    
                 }
                 /*
@@ -70,14 +70,6 @@ namespace ImageBank
                 }
                 */
             }
-
-            if (!imgX.NextName.Equals(oldnextname))
-            {
-                imgX.LastUpdated = DateTime.Now;
-                SqlUpdateLastUpdated(imgX.Name, imgX.LastUpdated);
-            }
-
-            return updates;
         }
     }
 }

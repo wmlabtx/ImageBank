@@ -6,7 +6,7 @@
         public const string FileDatabase = @"D:\Users\Murad\Documents\World of Warcraft\_retail_\Cache\SDB\db\images.mdf";
         public const string FolderLegacy = "lg";
 
-        public const int MaxOrbPointsInImage = 250; // 250*32 = 8000
+        public const int MaxOrbPointsInImage = 32; // 32*32 = 1024
         public const int MaxHammingDistance = 64;
 
         public const int MaxImages = 100000;
@@ -25,7 +25,6 @@
         public const string AttrFolder = "Folder";
         public const string AttrLastView = "LastView";
         public const string AttrLastChecked = "LastChecked";
-        public const string AttrLastUpdated = "LastUpdated";
         public const string AttrDescriptors = "Descriptors";
         public const string AttrNextName = "NextName";
         public const string AttrSim = "Sim";

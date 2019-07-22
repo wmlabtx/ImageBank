@@ -18,7 +18,7 @@ namespace ImageBank
             }
 
             var scopewrong = _imgList
-                .Where(e => !_imgList.ContainsKey(e.Value.NextName))
+                .Where(e => e.Value.Name.Equals(e.Value.NextName) || !_imgList.ContainsKey(e.Value.NextName))
                 .Select(e => e.Value)
                 .ToArray();
 
@@ -42,7 +42,7 @@ namespace ImageBank
             var oldsim = imgX.Sim;
 
             var dt = DateTime.Now;
-            var updates = FindNextName(imgX);
+            FindNextName(imgX);
 
             var imgY = GetImgByName(imgX.NextName);
             if (imgY == null)
@@ -67,23 +67,35 @@ namespace ImageBank
                 _avgTimes = _findTimes.Average();
             }
 
+            /*
+            imgX.LastView = DateTime.Now;
+            SqlUpdateLastView(imgX.Name, imgX.LastView);
+            */
+
             var sb = new StringBuilder();
-            var countnotvievedyet = _imgList.Count(e => e.Value.LastView < e.Value.LastUpdated);
-            sb.Append($"{countnotvievedyet}/{_imgList.Count}: ");
-            sb.Append($" {_avgTimes:F2}s");
+            sb.Append($"{_imgList.Count}: ");
+            sb.Append($"{_avgTimes:F2}s");
             ((IProgress<string>)AppVars.Progress).Report(sb.ToString());
 
             sb.Length = 0;          
             sb.Append($"{oldsim:F1}");
             if (string.IsNullOrEmpty(oldname) || !imgX.NextName.Equals(oldname))
             {
-                sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F1}");
+                if (HelperPath.IsLegacy(imgX.Folder))
+                {
+                    imgX.LastView = _imgList.Min(e => e.Value.LastView).AddMinutes(-1);
+                    SqlUpdateLastView(imgX.Name, imgX.LastView);
+                }
+
+                sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F2}");
             }
 
+            /*
             if (updates > 0)
             {
                 sb.Append($" ({updates})");
             }
+            */
 
             sb.Append(" / ");
             sb.Append($"{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(imgX.LastView))} ago");
