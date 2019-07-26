@@ -1,13 +1,14 @@
 ﻿using OpenCvSharp;
 using System;
+using System.Collections.Generic;
 
 namespace ImageBank
 {
     public static class HelperDescriptors
     {
-        public static bool ComputeDescriptors(byte[] data, out Mat matdescriptors)
+        public static bool ComputeDescriptors(byte[] data, out ulong[] udescriptors)
         {
-            matdescriptors = null;
+            udescriptors = null;
             if (data == null || data.Length == 0)
             {
                 return false;
@@ -23,46 +24,120 @@ namespace ImageBank
                         return false;
                     }
 
-                    const double fsample = 640.0 * 480.0;
+                    const double fsample = 1024.0 * 768.0;
                     var fx = Math.Sqrt(fsample / (matsource.Width * matsource.Height));
                     using (var mat = matsource.Resize(Size.Zero, fx, fx, InterpolationFlags.Cubic))
                     {
-                        matdescriptors = new Mat();
-                        orb.DetectAndCompute(mat, null, out _, matdescriptors);
-                        if (matdescriptors.Cols != 32 || matdescriptors.Rows == 0)
+                        var descriptors = new Mat();
+                        orb.DetectAndCompute(mat, null, out _, descriptors);
+                        if (descriptors.Cols != 32 || descriptors.Rows == 0)
                         {
-                            matdescriptors.Dispose();
                             throw new Exception();
                         }
 
-                        while (matdescriptors.Rows > AppConsts.MaxOrbPointsInImage)
+                        while (descriptors.Rows > AppConsts.MaxOrbPointsInImage)
                         {
-                            matdescriptors = matdescriptors.RowRange(0, AppConsts.MaxOrbPointsInImage);
+                            descriptors = descriptors.RowRange(0, AppConsts.MaxOrbPointsInImage);
                         }
+
+                        var buffer = new byte[descriptors.Rows * descriptors.Cols];
+                        descriptors.GetArray(0, 0, buffer);
+                        udescriptors = ConvertToDescriptors(buffer);
                     }
                 }
             }
             catch (Exception)
             {
-                matdescriptors = null;
+                udescriptors = null;
                 return false;
             }
 
             return true;
         }
 
-        public static Mat ConvertToMatDescriptors(byte[] descriptors)
+        private struct DistanceTwo
         {
-            var rows = descriptors.Length / 32;
-            var mat = new Mat(rows, 32, MatType.CV_8UC1, descriptors);
-            return mat;
+            public int X;
+            public int Y;
+            public int D;
         }
 
-        public static byte[] ConvertToByteDescriptors(Mat mat)
+        private static int Dcomparer(DistanceTwo x, DistanceTwo y)
         {
-            var descriptors = new byte[mat.Rows * mat.Cols];
-            mat.GetArray(0, 0, descriptors);
-            return descriptors;
+            return x.D.CompareTo(y.D);
+        }
+
+        private static int HammingDistance(IReadOnlyList<ulong> x, int xoffset, IReadOnlyList<ulong> y, int yoffset)
+        {
+            var distance = 0;
+            for (var i = 0; i < 4; i++)
+            {
+                distance += Intrinsic.PopCnt(x[xoffset + i] ^ y[yoffset + i]);
+                if (distance >= AppConsts.MaxHammingDistance)
+                {
+                    break;
+                }
+            }
+
+            return distance;
+        }
+
+        public static float GetSim(ulong[] x, ulong[] y)
+        {
+            var list = new List<DistanceTwo>();
+            var xoffset = 0;
+            while (xoffset < x.Length)
+            {
+                var yoffset = 0;
+                while (yoffset < y.Length)
+                {
+                    var distance = HammingDistance(x, xoffset, y, yoffset);
+                    if (distance < AppConsts.MaxHammingDistance)
+                    {
+                        list.Add(new DistanceTwo() { X = xoffset, Y = yoffset, D = distance });
+                    }
+
+                    yoffset += 4;
+                }
+
+                xoffset += 4;
+            }
+
+            list.Sort(Dcomparer);
+            float sum = 0f;
+            while (list.Count > 0)
+            {
+                var mind = list[0].D;
+                var minx = list[0].X;
+                var miny = list[0].Y;
+                sum += (float)(1.0 / Math.Pow(Math.Exp(mind / AppConsts.MaxHammingDistance), 2.0));
+                var pos = list.Count - 1;
+                while (pos >= 0)
+                {
+                    if (list[pos].X == minx || list[pos].Y == miny)
+                    {
+                        list.RemoveAt(pos);
+                    }
+
+                    pos--;
+                }
+            }
+
+            return sum * 4f / x.Length;
+        }
+
+        public static ulong[] ConvertToDescriptors(byte[] buffer)
+        {
+            var udescriptors = new ulong[buffer.Length / sizeof(ulong)];
+            Buffer.BlockCopy(buffer, 0, udescriptors, 0, buffer.Length);
+            return udescriptors;
+        }
+
+        public static byte[] ConvertToByteArray(ulong[] udescriptors)
+        {
+            var buffer = new byte[udescriptors.Length * sizeof(ulong)];
+            Buffer.BlockCopy(udescriptors, 0, buffer, 0, buffer.Length);
+            return buffer;
         }
     }
 }

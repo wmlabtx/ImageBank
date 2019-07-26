@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace ImageBank
 {
@@ -10,6 +8,7 @@ namespace ImageBank
     {
         public void Find(string nameX, IProgress<string> progress)
         {
+            progress.Report(string.Empty);
             while (true)
             {                
                 if (string.IsNullOrEmpty(nameX))
@@ -22,7 +21,7 @@ namespace ImageBank
                     Img imgX = null;
 
                     var scoperecentlyadded = _imgList
-                        .Where(e => e.Value.LastView.Year < 2010 && _imgList.ContainsKey(e.Value.NextName))
+                        .Where(e => e.Value.LastView.Year < 2012 && _imgList.ContainsKey(e.Value.NextName))
                         .Select(e => e.Value)
                         .ToArray();
 
@@ -68,18 +67,12 @@ namespace ImageBank
                     progress.Report($"{_imgList.Count}: {nameY}: corrupted!");
 
                     var imgX = AppVars.ImgPanel[0].Img;
-                    imgX.NextName = imgX.Name;
-                    imgX.Sim = 0f;
-                    imgX.LastChecked = DateTime.Now.AddYears(-10);
-                    SqlUpdateLink(imgX.Name, imgX.NextName, imgX.Sim, imgX.LastChecked);
+                    ResetNextName(imgX);
+                    HelperSql.UpdateLink(imgX.Name, imgX.NextName, imgX.Sim, imgX.LastChecked);
 
                     continue;
                 }
-
-                var sb = new StringBuilder();
-                sb.Append($"{_imgList.Count}: ");
-                sb.Append($"{_avgTimes:F2}s");
-                progress.Report(sb.ToString());
+                
                 break;
             }
         }

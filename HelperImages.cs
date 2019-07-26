@@ -12,23 +12,20 @@ namespace ImageBank
 {
     public static class HelperImages
     {
-        public static bool GetDataAndBitmap(string filename, out byte[] data, out Bitmap bitmap)
+        public static bool GetJpgFromFile(string filename, out byte[] data)
         {
+            data = null;
             if (!File.Exists(filename))
             {
-                data = null;
-                bitmap = null;
                 return false;
             }
 
             data = File.ReadAllBytes(filename);
             if (data == null || data.Length == 0)
             {
-                bitmap = null;
                 return false;
             }
 
-            /*
             var extension = Path.GetExtension(filename);
             if (extension.Equals(AppConsts.DatExtension))
             {
@@ -36,23 +33,57 @@ namespace ImageBank
                 data = HelperEncrypting.Decrypt(data, name);
                 if (data == null || data.Length == 0)
                 {
-                    bitmap = null;
                     return false;
                 }
             }
-            */
+
+
+
+            if (
+                !extension.Equals(AppConsts.DatExtension, StringComparison.InvariantCultureIgnoreCase) &&
+                !extension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase) &&
+                !extension.Equals(AppConsts.PngExtension, StringComparison.InvariantCultureIgnoreCase) &&
+                !extension.Equals(AppConsts.BmpExtension, StringComparison.InvariantCultureIgnoreCase) &&
+                !extension.Equals(AppConsts.WebpExtension, StringComparison.InvariantCultureIgnoreCase)
+               )
+            {
+                using (var mat = Cv2.ImDecode(data, ImreadModes.AnyColor))
+                {
+                    try
+                    {
+                        var bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(mat);
+                        if (!extension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase) &&
+                            !extension.Equals(AppConsts.DatExtension, StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            var iep = new ImageEncodingParam(ImwriteFlags.JpegQuality, 90);
+                            Cv2.ImEncode(AppConsts.JpgExtension, mat, out data, iep);
+                        }
+                    }
+                    catch (ArgumentException)
+                    {
+                        data = null;
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public static bool GetJpgAndBitmapFromDatabase(Img img, out byte[] data, out Bitmap bitmap)
+        {
+            data = HelperSql.GetData(img);
+            if (data == null || data.Length == 0)
+            {
+                bitmap = null;
+                return false;
+            }
 
             using (var mat = Cv2.ImDecode(data, ImreadModes.AnyColor))
             {
                 try
                 {
                     bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(mat);
-                    var extension = Path.GetExtension(filename);
-                    if (!extension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        var iep = new ImageEncodingParam(ImwriteFlags.JpegQuality, 90);
-                        Cv2.ImEncode(AppConsts.JpgExtension, mat, out data, iep);
-                    }
                 }
                 catch (ArgumentException)
                 {

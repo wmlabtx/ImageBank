@@ -4,7 +4,7 @@
     {
         public const string PathRoot = @"D:\Users\Murad\Documents\World of Warcraft\_retail_\Cache\SDB\hp\";
         public const string FileDatabase = @"D:\Users\Murad\Documents\World of Warcraft\_retail_\Cache\SDB\db\images.mdf";
-        public const string FolderLegacy = "lg";
+        public const string FolderLegacy = "Lg";
 
         public const int MaxOrbPointsInImage = 32; // 32*32 = 1024
         public const int MaxHammingDistance = 64;

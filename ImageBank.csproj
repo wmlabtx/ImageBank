@@ -52,6 +52,9 @@
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\MSTest.TestFramework.1.4.0\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll</HintPath>
     </Reference>
+    <Reference Include="NetIntrinsics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=8a64b1b2776c69fe, processorArchitecture=MSIL">
+      <HintPath>packages\NetIntrinsics.1.0.4\lib\net451\NetIntrinsics.dll</HintPath>
+    </Reference>
     <Reference Include="OpenCvSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099, processorArchitecture=MSIL">
       <HintPath>packages\OpenCvSharp3-AnyCPU.4.0.0.20181129\lib\net461\OpenCvSharp.dll</HintPath>
     </Reference>
@@ -65,6 +68,7 @@
       <HintPath>packages\OpenCvSharp3-AnyCPU.4.0.0.20181129\lib\net461\OpenCvSharp.UserInterface.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
@@ -107,16 +111,16 @@
     <Compile Include="ImgMdf.cs" />
     <Compile Include="ImgMdfAdd.cs" />
     <Compile Include="ImgMdfComputeSim.cs" />
+    <Compile Include="ImgMdfDateTime.cs" />
     <Compile Include="ImgMdfDelete.cs" />
     <Compile Include="ImgMdfFindNextName.cs" />
     <Compile Include="ImgMdfGetFolderSize.cs" />
     <Compile Include="ImgMdfGetImgByName.cs" />
-    <Compile Include="ImgMdfGetSim.cs" />
     <Compile Include="ImgMdfFind.cs" />
     <Compile Include="ImgMdfImport.cs" />
     <Compile Include="ImgMdfLoad.cs" />
     <Compile Include="ImgMdfMoveTo.cs" />
-    <Compile Include="ImgMdfSql.cs" />
+    <Compile Include="HelperSql.cs" />
     <Compile Include="ImgMdfGetImgPanel.cs" />
     <Compile Include="ImgPanel.cs" />
     <Compile Include="MainWindow.xaml.cs">

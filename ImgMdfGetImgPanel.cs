@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace ImageBank
+﻿namespace ImageBank
 {
     public partial class ImgMdf
     {
@@ -12,22 +10,9 @@ namespace ImageBank
                 return null;
             }
 
-            if (!File.Exists(img.FileName))
+            if (!HelperImages.GetJpgAndBitmapFromDatabase(img, out var data, out var bitmap))
             {
-                DeleteImg(img);
-                return null;
-            }
-
-            if (!HelperImages.GetDataAndBitmap(img.FileName, out var data, out var bitmap))
-            {
-                DeleteImg(img);
-                return null;
-            }
-
-            var realname = HelperCrc.GetCrc(data);
-            if (!realname.Equals(name))
-            {
-                DeleteImg(img);
+                DeleteImg(name);
                 return null;
             }
 

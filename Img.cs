@@ -1,5 +1,4 @@
-﻿using OpenCvSharp;
-using System;
+﻿using System;
 
 namespace ImageBank
 {
@@ -9,7 +8,7 @@ namespace ImageBank
         public string Folder { get; set; }
         public DateTime LastView { get; set; }
         public DateTime LastChecked { get; set; }
-        public Mat Descriptors { get; set; }
+        public ulong[] Descriptors { get; set; }
         public string NextName { get; set; }
         public float Sim { get; set; }
         public string FileName => HelperPath.GetFileName(Name, Folder);
@@ -19,7 +18,7 @@ namespace ImageBank
             string folder,
             DateTime lastview,
             DateTime lastchecked,
-            Mat descriptors,
+            ulong[] descriptors,
             string nextname,
             float sim)
         {

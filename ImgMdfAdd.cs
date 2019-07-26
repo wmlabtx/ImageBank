@@ -2,14 +2,14 @@
 {
     public partial class ImgMdf
     {
-        private void Add(Img img)
+        private void Add(Img img, byte[] data)
         {
             if (!_imgList.TryAdd(img.Name, img))
             {
                 return;
             }
 
-            SqlImgAdd(img);
+            HelperSql.AddImg(img, data);
         }
     }
 }

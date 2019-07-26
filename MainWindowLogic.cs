@@ -142,7 +142,7 @@ namespace ImageBank
         private async void ButtonLeftNextMouseClick()
         {
             AppVars.ImgPanel[0].Img.LastView = DateTime.Now;
-            AppVars.Collection.SqlUpdateLastView(AppVars.ImgPanel[0].Img.Name, AppVars.ImgPanel[0].Img.LastView);
+            HelperSql.UpdateLastView(AppVars.ImgPanel[0].Img.Name, AppVars.ImgPanel[0].Img.LastView);
 
             DisableElements();
             await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
@@ -233,7 +233,7 @@ namespace ImageBank
                 sb.AppendLine();
                 sb.Append($"{HelperConvertors.SizeToString(AppVars.ImgPanel[index].Size)} ({AppVars.ImgPanel[index].Bitmap.Width:F0}x{AppVars.ImgPanel[index].Bitmap.Height:F0})");
 
-                var points = AppVars.ImgPanel[index].Img.Descriptors != null ? AppVars.ImgPanel[index].Img.Descriptors.Rows : 0;
+                var points = AppVars.ImgPanel[index].Img.Descriptors != null ? AppVars.ImgPanel[index].Img.Descriptors.Length / 4 : 0;
                 if (points > 0)
                 {
                     sb.Append($" P{points}");
@@ -246,7 +246,7 @@ namespace ImageBank
                 pLabels[index].Text = sb.ToString();
                 pLabels[index].Background =
                     HelperPath.IsLegacy(AppVars.ImgPanel[index].Img.Folder) ?
-                    (AppVars.ImgPanel[index].Img.Sim > 48.0 ? System.Windows.Media.Brushes.Red : System.Windows.Media.Brushes.White) :
+                    (AppVars.ImgPanel[index].Img.Sim > 0.5 ? System.Windows.Media.Brushes.Red : System.Windows.Media.Brushes.White) :
                     System.Windows.Media.Brushes.Bisque;
             }
 
@@ -302,7 +302,7 @@ namespace ImageBank
         private async void ImgPanelDelete(int index)
         {
             DisableElements();
-            await Task.Run(() => { AppVars.Collection.DeleteImgAndFile(AppVars.ImgPanel[index].Img.Name); });
+            await Task.Run(() => { AppVars.Collection.DeleteImg(AppVars.ImgPanel[index].Img.Name); });
             await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
             DrawCanvas();
             EnableElements();

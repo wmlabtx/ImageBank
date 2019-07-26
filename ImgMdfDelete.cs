@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 
 namespace ImageBank
 {
@@ -14,33 +13,19 @@ namespace ImageBank
 
             foreach (var img in scope)
             {
-                img.NextName = img.Name;
-                img.Sim = 0f;
-                img.LastChecked = DateTime.Now.AddYears(-10);
-                SqlUpdateLink(img.Name, img.NextName, img.Sim, img.LastChecked);
+                ResetNextName(img);
             }
         }
 
-        private void DeleteImg(Img img)
+        public void DeleteImg(string name)
         {
-            if (!_imgList.TryRemove(img.Name, out var imgDeleted))
+            if (!_imgList.TryRemove(name, out var imgDeleted))
             {
                 return;
             }
 
-            SqlImgDelete(img);
+            HelperSql.DeleteImgAndFile(imgDeleted);
             DeleteNextName(imgDeleted.Name);
-        }
-
-        public void DeleteImgAndFile(string name)
-        {
-            if (!_imgList.TryGetValue(name, out var img))
-            {
-                return;
-            }
-
-            HelperRecycleBin.Delete(img.FileName);
-            DeleteImg(img);
         }
     }
 }

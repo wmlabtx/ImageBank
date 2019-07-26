@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -31,12 +30,6 @@ namespace ImageBank
                 return null;
             }
 
-            if (!File.Exists(imgX.FileName))
-            {
-                DeleteImg(imgX);
-                return null;
-            }
-
             var oldname = imgX.NextName;
             var oldchecked = imgX.LastChecked;
             var oldsim = imgX.Sim;
@@ -47,12 +40,6 @@ namespace ImageBank
             var imgY = GetImgByName(imgX.NextName);
             if (imgY == null)
             {
-                return null;
-            }
-
-            if (!File.Exists(imgY.FileName))
-            {
-                DeleteImg(imgY);
                 return null;
             }
 
@@ -74,28 +61,19 @@ namespace ImageBank
 
             var sb = new StringBuilder();
             sb.Append($"{_imgList.Count}: ");
-            sb.Append($"{_avgTimes:F2}s");
-            ((IProgress<string>)AppVars.Progress).Report(sb.ToString());
+            sb.Append($"{_avgTimes:F2}s ");
 
-            sb.Length = 0;          
             sb.Append($"{oldsim:F1}");
             if (string.IsNullOrEmpty(oldname) || !imgX.NextName.Equals(oldname))
             {
                 if (HelperPath.IsLegacy(imgX.Folder))
                 {
-                    imgX.LastView = _imgList.Min(e => e.Value.LastView).AddMinutes(-1);
-                    SqlUpdateLastView(imgX.Name, imgX.LastView);
+                    imgX.LastView = GetMinLastView();
+                    HelperSql.UpdateLastView(imgX.Name, imgX.LastView);
                 }
 
                 sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F2}");
             }
-
-            /*
-            if (updates > 0)
-            {
-                sb.Append($" ({updates})");
-            }
-            */
 
             sb.Append(" / ");
             sb.Append($"{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(imgX.LastView))} ago");

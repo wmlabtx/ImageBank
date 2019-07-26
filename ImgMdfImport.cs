@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 
@@ -33,69 +32,8 @@ namespace ImageBank
                 var ofilename = fileInfo.FullName;
                 var oname = HelperPath.GetName(ofilename);
                 var oextension = Path.GetExtension(ofilename);
-                if (oextension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    if (_imgList.TryGetValue(oname, out var imgJpgFound))
-                    {
-                        if (imgJpgFound.FileName.Equals(ofilename, StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            continue;
-                        }
-                    }
-                }
-
                 var ofolder = HelperPath.GetFolder(ofilename);
-                if (oextension.Equals(AppConsts.DatExtension, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    var encrypteddata = File.ReadAllBytes(ofilename);
-                    var decrypteddata = HelperEncrypting.Decrypt(encrypteddata, oname);
-                    if (decrypteddata == null || decrypteddata.Length == 0)
-                    {
-                        skipped++;
-                        continue;
-                    }
-
-                    var jpgfilename = Path.ChangeExtension(ofilename, AppConsts.JpgExtension);
-                    if (File.Exists(jpgfilename))
-                    {
-                        HelperRecycleBin.Delete(ofilename);
-                        skipped++;
-                        continue;
-                    }
-
-                    File.WriteAllBytes(jpgfilename, decrypteddata);
-                    HelperRecycleBin.Delete(ofilename);
-                    ofilename = jpgfilename;
-                    oextension = AppConsts.JpgExtension;
-                }
-
-                if (oextension.Equals(AppConsts.JpegExtension, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    var jpgfilename = Path.ChangeExtension(ofilename, AppConsts.JpgExtension);
-                    if (File.Exists(jpgfilename))
-                    {
-                        skipped++;
-                        continue;
-                    }
-
-                    File.Move(ofilename, jpgfilename);
-                    ofilename = jpgfilename;
-                    oextension = AppConsts.JpgExtension;
-                }
-
-                if (
-                    !oextension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase) &&
-                    !oextension.Equals(AppConsts.PngExtension, StringComparison.InvariantCultureIgnoreCase) &&
-                    !oextension.Equals(AppConsts.BmpExtension, StringComparison.InvariantCultureIgnoreCase) &&
-                    !oextension.Equals(AppConsts.WebpExtension, StringComparison.InvariantCultureIgnoreCase)
-                   )
-                {
-                    skipped++;
-                    continue;
-                }
-
-
-                if (!HelperImages.GetDataAndBitmap(ofilename, out byte[] data, out Bitmap bitmap))
+                if (!HelperImages.GetJpgFromFile(ofilename, out var jpgdata))
                 {
                     skipped++;
                     continue;
@@ -103,33 +41,18 @@ namespace ImageBank
 
                 var lastview = DateTime.MinValue;
                 var lastchecked = DateTime.MinValue;
-                var lastupdated = DateTime.MinValue;
-                var name = HelperCrc.GetCrc(data);
+                var name = HelperCrc.GetCrc(jpgdata);
                 if (_imgList.TryGetValue(name, out var imgFound))
                 {
-                    if (!File.Exists(imgFound.FileName))
-                    {
-                        imgFound.Folder = ofolder;
-                        SqlUpdateFolder(name, imgFound.Folder);
-
-                        imgFound.NextName = imgFound.Name;
-                        imgFound.Sim = 0f;
-                        imgFound.LastChecked = DateTime.Now.AddYears(-10);
-                        SqlUpdateLink(imgFound.Name, imgFound.NextName, imgFound.Sim, imgFound.LastChecked);
-
-                        moved++;
-                        continue;
-                    }
-
-                    if (HelperPath.IsLegacy(imgFound.Folder))
+                    if (HelperPath.IsLegacy(imgFound.Folder) && !HelperPath.IsLegacy(ofolder))
                     {
                         lastview = imgFound.LastView;
                         lastchecked = imgFound.LastChecked;
-                        DeleteImgAndFile(name);
+                        DeleteImg(name);
                     }
                     else
                     {
-                        if (HelperPath.IsLegacy(ofolder) || imgFound.Folder.Equals(ofolder))
+                        if (HelperPath.IsLegacy(ofolder))
                         {
                             HelperRecycleBin.Delete(ofilename);
                         }                       
@@ -150,22 +73,14 @@ namespace ImageBank
                     break;
                 }
 
-                var filename = HelperPath.GetFileName(name, ofolder);
-                if (!filename.Equals(ofilename))
-                {
-                    File.Move(ofilename, filename);
-                    //File.WriteAllBytes(filename, data);
-                    //HelperRecycleBin.Delete(ofilename);
-                }
-
                 if (lastview == DateTime.MinValue)
                 {
-                    lastview = HelperPath.IsLegacy(ofolder) ? DateTime.Now : DateTime.Now.AddYears(-10);
+                    lastview = GetMinLastView();
                 }
 
                 if (lastchecked == DateTime.MinValue)
                 {
-                    lastchecked = DateTime.Now.AddYears(-10);
+                    lastchecked = GetMinLastChecked();
                 }
 
                 var img = new Img(
@@ -177,8 +92,11 @@ namespace ImageBank
                     name,
                     0f);
 
-                Add(img);
+                Add(img, data);               
                 added++;
+
+                HelperRecycleBin.Delete(ofilename);
+
                 if (added >= maxadd)
                 {
                     break;
@@ -188,7 +106,7 @@ namespace ImageBank
 
         public void Import(IProgress<string> progress)
         {
-            Import(10000, progress);
+            Import(100000, progress);
         }
     }
 }
