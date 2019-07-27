@@ -142,7 +142,10 @@ namespace ImageBank
         private async void ButtonLeftNextMouseClick()
         {
             AppVars.ImgPanel[0].Img.LastView = DateTime.Now;
-            HelperSql.UpdateLastView(AppVars.ImgPanel[0].Img.Name, AppVars.ImgPanel[0].Img.LastView);
+            HelperSql.UpdateGeneration(AppVars.ImgPanel[0].Img);
+
+            AppVars.ImgPanel[0].Img.Generation = 2;
+            HelperSql.UpdateLastView(AppVars.ImgPanel[0].Img);           
 
             DisableElements();
             await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
@@ -246,7 +249,7 @@ namespace ImageBank
                 pLabels[index].Text = sb.ToString();
                 pLabels[index].Background =
                     HelperPath.IsLegacy(AppVars.ImgPanel[index].Img.Folder) ?
-                    (AppVars.ImgPanel[index].Img.Sim > 0.5 ? System.Windows.Media.Brushes.Red : System.Windows.Media.Brushes.White) :
+                    (AppVars.ImgPanel[index].Img.Sim > 0.7 ? System.Windows.Media.Brushes.Red : System.Windows.Media.Brushes.White) :
                     System.Windows.Media.Brushes.Bisque;
             }
 
@@ -302,7 +305,7 @@ namespace ImageBank
         private async void ImgPanelDelete(int index)
         {
             DisableElements();
-            await Task.Run(() => { AppVars.Collection.DeleteImg(AppVars.ImgPanel[index].Img.Name); });
+            await Task.Run(() => { AppVars.Collection.DeleteImg(AppVars.ImgPanel[index].Img); });
             await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
             DrawCanvas();
             EnableElements();

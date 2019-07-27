@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace ImageBank
@@ -18,36 +17,18 @@ namespace ImageBank
                         return;
                     }
 
-                    Img imgX = null;
-
-                    var scoperecentlyadded = _imgList
-                        .Where(e => e.Value.LastView.Year < 2012 && _imgList.ContainsKey(e.Value.NextName))
+                    var scope = _imgList
+                        .Where(e => _imgList.ContainsKey(e.Value.NextName))
                         .Select(e => e.Value)
                         .ToArray();
 
-                    if (scoperecentlyadded.Length > 0)
-                    {
-                        imgX = scoperecentlyadded.OrderByDescending(e => e.LastChecked).FirstOrDefault();   
-                    }
-                    else
-                    {
-                        imgX = _imgList.OrderBy(e => e.Value.LastView).FirstOrDefault().Value;
-                        var all = _imgList
-                            .Where(e => _imgList.ContainsKey(e.Value.NextName))
-                            .Select(e => e.Value)
-                            .ToArray();
-
-                        imgX = FindInRotation(all);
-                    }
-
-                    if (imgX == null)
-                    {
-                        nameX = null;
-                        continue;
-                    }
+                    var mingeneration = scope.Min(e => e.Generation);
+                    var scopeming = scope.Where(e => e.Generation == mingeneration);
+                    var imgX = mingeneration < 2 ?
+                        scopeming.OrderByDescending(e => e.Sim).FirstOrDefault() :
+                        scopeming.OrderBy(e => e.LastView).FirstOrDefault();
 
                     nameX = imgX.Name;
-
                     AppVars.ImgPanel[0] = GetImgPanel(nameX);
                     if (AppVars.ImgPanel[0] == null)
                     {
@@ -57,9 +38,6 @@ namespace ImageBank
                     }
                 }
 
-                var oldname = AppVars.ImgPanel[0].Img.NextName;
-                var oldsim = AppVars.ImgPanel[0].Img.Sim;
-
                 AppVars.ImgPanel[1] = GetImgPanel(AppVars.ImgPanel[0].Img.NextName);
                 if (AppVars.ImgPanel[1] == null)
                 {
@@ -68,7 +46,6 @@ namespace ImageBank
 
                     var imgX = AppVars.ImgPanel[0].Img;
                     ResetNextName(imgX);
-                    HelperSql.UpdateLink(imgX.Name, imgX.NextName, imgX.Sim, imgX.LastChecked);
 
                     continue;
                 }
@@ -77,6 +54,7 @@ namespace ImageBank
             }
         }
 
+        /*
         private Img FindInRotation(Img[] scopeX)
         {
             var scope = scopeX;
@@ -141,5 +119,6 @@ namespace ImageBank
 
             return imgX;
         }
+        */
     }
 }

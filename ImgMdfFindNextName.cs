@@ -10,42 +10,50 @@ namespace ImageBank
             img.NextName = img.Name;
             img.Sim = 0f;
             img.LastChecked = GetMinLastChecked();
-            HelperSql.UpdateLink(img.Name, img.NextName, img.Sim, img.LastChecked);
+            HelperSql.UpdateLink(img);
         }
 
         private void FindNextName(Img imgX)
         {
             var oldnextname = imgX.NextName;
 
-            if (imgX.Name.Equals(imgX.NextName) || !_imgList.ContainsKey(imgX.NextName))
+            var imgY = GetImgByName(imgX.NextName);
+            if (imgY == null || !HelperPath.FolderComparable(imgX.Folder, imgY.Folder))
             {
                 ResetNextName(imgX);
             }
-
-            var foldersize = GetFolderSize(imgX.Folder);
+            else
+            {
+                imgX.LastChecked = DateTime.Now;
+                HelperSql.UpdateLink(imgX);
+            }
+            
             var scope = _imgList
-                    .Where(e => 
-                        !e.Value.Name.Equals(imgX.Name) &&
-                        (foldersize < 2 || HelperPath.FolderComparable(imgX.Folder, e.Value.Folder)))
-                    .Select(e => e.Value)
-                    .ToArray();
+                .Where(e => 
+                    !e.Value.Name.Equals(imgX.Name) && 
+                    HelperPath.FolderComparable(imgX.Folder, e.Value.Folder))
+                .Select(e => e.Value)
+                .ToArray();
 
             if (scope.Length == 0)
             {
                 return;
             }
 
-            foreach (var imgY in scope)
+            var oldname = imgX.NextName;
+            foreach (var e in scope)
             {
-                var dt = DateTime.Now;
-                var sim = HelperDescriptors.GetSim(imgX.Descriptors, imgY.Descriptors);
-                var el = DateTime.Now.Subtract(dt).TotalMilliseconds;
+                var sim = HelperDescriptors.GetSim(imgX.Descriptors, e.Descriptors);
                 if (sim > imgX.Sim)
                 {
-                    imgX.NextName = imgY.Name;
+                    imgX.NextName = e.Name;
                     imgX.Sim = sim;
-                    HelperSql.UpdateLink(imgX.Name, imgX.NextName, imgX.Sim, imgX.LastChecked);
                 }                    
+            }
+
+            if (!oldname.Equals(imgX.NextName))
+            {
+                HelperSql.UpdateLink(imgX);
             }
         }
     }

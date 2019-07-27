@@ -20,49 +20,59 @@ namespace ImageBank
                 return false;
             }
 
+            var extension = Path.GetExtension(filename);
+            if (
+                !extension.Equals(AppConsts.PngExtension, StringComparison.InvariantCultureIgnoreCase) &&
+                !extension.Equals(AppConsts.BmpExtension, StringComparison.InvariantCultureIgnoreCase) &&
+                !extension.Equals(AppConsts.WebpExtension, StringComparison.InvariantCultureIgnoreCase) &&
+                !extension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase) &&
+                !extension.Equals(AppConsts.JpegExtension, StringComparison.InvariantCultureIgnoreCase) &&
+                !extension.Equals(AppConsts.DatExtension, StringComparison.InvariantCultureIgnoreCase)
+               )
+            {
+                return false;
+            }
+
             data = File.ReadAllBytes(filename);
             if (data == null || data.Length == 0)
             {
                 return false;
             }
-
-            var extension = Path.GetExtension(filename);
+                
             if (extension.Equals(AppConsts.DatExtension))
             {
-                var name = HelperPath.GetName(filename);
-                data = HelperEncrypting.Decrypt(data, name);
+                var password = HelperPath.GetPassword(filename);
+                data = HelperEncrypting.Decrypt(data, password);
                 if (data == null || data.Length == 0)
                 {
                     return false;
                 }
             }
-
-
-
-            if (
-                !extension.Equals(AppConsts.DatExtension, StringComparison.InvariantCultureIgnoreCase) &&
-                !extension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase) &&
-                !extension.Equals(AppConsts.PngExtension, StringComparison.InvariantCultureIgnoreCase) &&
-                !extension.Equals(AppConsts.BmpExtension, StringComparison.InvariantCultureIgnoreCase) &&
-                !extension.Equals(AppConsts.WebpExtension, StringComparison.InvariantCultureIgnoreCase)
-               )
+            else
             {
-                using (var mat = Cv2.ImDecode(data, ImreadModes.AnyColor))
+                if (
+                    extension.Equals(AppConsts.PngExtension, StringComparison.InvariantCultureIgnoreCase) ||
+                    extension.Equals(AppConsts.BmpExtension, StringComparison.InvariantCultureIgnoreCase) ||
+                    extension.Equals(AppConsts.WebpExtension, StringComparison.InvariantCultureIgnoreCase)
+                   )
                 {
-                    try
+                    using (var mat = Cv2.ImDecode(data, ImreadModes.AnyColor))
                     {
-                        var bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(mat);
-                        if (!extension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase) &&
-                            !extension.Equals(AppConsts.DatExtension, StringComparison.InvariantCultureIgnoreCase))
+                        try
                         {
-                            var iep = new ImageEncodingParam(ImwriteFlags.JpegQuality, 90);
-                            Cv2.ImEncode(AppConsts.JpgExtension, mat, out data, iep);
+                            var bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(mat);
+                            if (!extension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase) &&
+                                !extension.Equals(AppConsts.JpegExtension, StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                var iep = new ImageEncodingParam(ImwriteFlags.JpegQuality, 90);
+                                Cv2.ImEncode(AppConsts.JpgExtension, mat, out data, iep);
+                            }
                         }
-                    }
-                    catch (ArgumentException)
-                    {
-                        data = null;
-                        return false;
+                        catch (ArgumentException)
+                        {
+                            data = null;
+                            return false;
+                        }
                     }
                 }
             }

@@ -8,6 +8,7 @@ namespace ImageBank
     {
         public void MoveTo(string name, string destfolder)
         {
+            /*
             var img = GetImgByName(name);
             if (img == null)
             {
@@ -36,6 +37,7 @@ namespace ImageBank
 
                 HelperSql.UpdateLink(name, img.NextName, img.Sim, img.LastChecked);
             }
+            */
         }
     }
 }

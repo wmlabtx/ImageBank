@@ -6,16 +6,19 @@ namespace ImageBank
     {
         public string Name { get; }
         public string Folder { get; set; }
+        public int Generation { get; set; }
         public DateTime LastView { get; set; }
         public DateTime LastChecked { get; set; }
         public ulong[] Descriptors { get; set; }
         public string NextName { get; set; }
         public float Sim { get; set; }
+
         public string FileName => HelperPath.GetFileName(Name, Folder);
 
         public Img(
             string name,
             string folder,
+            int generation,
             DateTime lastview,
             DateTime lastchecked,
             ulong[] descriptors,
@@ -24,6 +27,7 @@ namespace ImageBank
         {
             Name = name;
             Folder = folder;
+            Generation = generation;
             LastView = lastview;
             LastChecked = lastchecked;
             Descriptors = descriptors;

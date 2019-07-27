@@ -8,14 +8,14 @@ namespace ImageBank
         public DateTime GetMinLastView()
         {
             return _imgList.Count > 0 ?
-                _imgList.Min(e => e.Value.LastView).AddMinutes(-1) :
+                _imgList.Min(e => e.Value.LastView).AddSeconds(-1) :
                 DateTime.Now;
         }
 
         public DateTime GetMinLastChecked()
         {
             return _imgList.Count > 0 ?
-                _imgList.Min(e => e.Value.LastChecked).AddMinutes(-1) :
+                _imgList.Min(e => e.Value.LastChecked).AddSeconds(-1) :
                 DateTime.Now;
         }
     }

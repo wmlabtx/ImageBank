@@ -17,15 +17,15 @@ namespace ImageBank
             }
         }
 
-        public void DeleteImg(string name)
+        public void DeleteImg(Img img)
         {
-            if (!_imgList.TryRemove(name, out var imgDeleted))
+            if (!_imgList.TryRemove(img.Name, out var imgDeleted))
             {
                 return;
             }
 
             HelperSql.DeleteImgAndFile(imgDeleted);
-            DeleteNextName(imgDeleted.Name);
+            DeleteNextName(img.Name);
         }
     }
 }

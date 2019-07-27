@@ -23,6 +23,7 @@
 
         public const string AttrName = "Name";
         public const string AttrFolder = "Folder";
+        public const string AttrGeneration = "Generation";
         public const string AttrLastView = "LastView";
         public const string AttrLastChecked = "LastChecked";
         public const string AttrDescriptors = "Descriptors";

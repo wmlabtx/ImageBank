@@ -12,7 +12,7 @@
 
             if (!HelperImages.GetJpgAndBitmapFromDatabase(img, out var data, out var bitmap))
             {
-                DeleteImg(name);
+                DeleteImg(img);
                 return null;
             }
 

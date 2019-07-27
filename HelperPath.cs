@@ -16,9 +16,15 @@ namespace ImageBank
             }
 
             sb.Append(name);
-            sb.Append(AppConsts.DatExtension);
+            sb.Append(AppConsts.JpgExtension);
 
             return sb.ToString();
+        }
+
+        public static string GetPassword(string filename)
+        {
+            var password = Path.GetFileNameWithoutExtension(filename).ToLowerInvariant();
+            return password;
         }
 
         public static string GetName(string filename)
