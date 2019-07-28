@@ -9,7 +9,7 @@
         public const int MaxOrbPointsInImage = 32; // 32*32 = 1024
         public const int MaxHammingDistance = 64;
 
-        public const int MaxImages = 100000;
+        public const int MaxImages = 200000;
 
         public const string DatExtension = ".dat";
         public const string WebpExtension = ".webp";

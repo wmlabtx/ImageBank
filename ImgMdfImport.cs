@@ -119,7 +119,7 @@ namespace ImageBank
 
         public void Import(IProgress<string> progress)
         {
-            Import(10000, progress);
+            Import(100000, progress);
         }
     }
 }
