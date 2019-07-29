@@ -111,17 +111,18 @@
     <Compile Include="ImgMdf.cs" />
     <Compile Include="ImgMdfAdd.cs" />
     <Compile Include="ImgMdfComputeSim.cs" />
+    <Compile Include="ImgMdfData.cs" />
     <Compile Include="ImgMdfDateTime.cs" />
     <Compile Include="ImgMdfDelete.cs" />
     <Compile Include="ImgMdfFindNextName.cs" />
-    <Compile Include="ImgMdfGetFolderSize.cs" />
+    <Compile Include="ImgMdfGetNodeSize.cs" />
     <Compile Include="ImgMdfGetImgByName.cs" />
     <Compile Include="ImgMdfFind.cs" />
     <Compile Include="ImgMdfImport.cs" />
     <Compile Include="ImgMdfLoad.cs" />
     <Compile Include="ImgMdfMoveTo.cs" />
-    <Compile Include="HelperSql.cs" />
     <Compile Include="ImgMdfGetImgPanel.cs" />
+    <Compile Include="ImgMdfUpdate.cs" />
     <Compile Include="ImgPanel.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

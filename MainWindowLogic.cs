@@ -117,14 +117,14 @@ namespace ImageBank
 
         private void MoveToRightClick()
         {
-            var folder = AppVars.ImgPanel[1].Img.Folder;
-            MoveToFolderClick(folder);
+            var nodeY = AppVars.ImgPanel[1].Img.Node;
+            MoveToNodeClick(nodeY);
         }
 
-        private async void MoveToFolderClick(string folder)
+        private async void MoveToNodeClick(string node)
         {
             DisableElements();
-            await Task.Run(() => { AppVars.Collection.MoveTo(AppVars.ImgPanel[0].Img.Name, folder); });
+            await Task.Run(() => { AppVars.Collection.MoveTo(AppVars.ImgPanel[0].Img.Name, node); });
             DrawCanvas();
             EnableElements();
         }
@@ -142,10 +142,10 @@ namespace ImageBank
         private async void ButtonLeftNextMouseClick()
         {
             AppVars.ImgPanel[0].Img.LastView = DateTime.Now;
-            HelperSql.UpdateGeneration(AppVars.ImgPanel[0].Img);
+            AppVars.Collection.UpdateGeneration(AppVars.ImgPanel[0].Img);
 
             AppVars.ImgPanel[0].Img.Generation = 2;
-            HelperSql.UpdateLastView(AppVars.ImgPanel[0].Img);           
+            AppVars.Collection.UpdateLastView(AppVars.ImgPanel[0].Img);           
 
             DisableElements();
             await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
@@ -218,17 +218,17 @@ namespace ImageBank
                 pBoxes[index].Source = HelperImages.ImageSourceFromBitmap(AppVars.ImgPanel[index].Bitmap);
 
                 var sb = new StringBuilder();
-                if (!string.IsNullOrEmpty(AppVars.ImgPanel[index].Img.Folder))
+                if (!string.IsNullOrEmpty(AppVars.ImgPanel[index].Img.Node))
                 {
-                    sb.Append($"{AppVars.ImgPanel[index].Img.Folder}\\");
+                    sb.Append($"{AppVars.ImgPanel[index].Img.Node}\\");
                 }
 
                 sb.Append($"{AppVars.ImgPanel[index].Img.Name}");
 
-                var foldersize = AppVars.Collection.GetFolderSize(AppVars.ImgPanel[index].Img.Folder);
-                if (foldersize > 0)
+                var nodesize = AppVars.Collection.GetNodeSize(AppVars.ImgPanel[index].Img.Node);
+                if (nodesize > 0)
                 {
-                    sb.Append($" [{foldersize}]");
+                    sb.Append($" [{nodesize}]");
                 }
 
                 sb.Append($" {AppVars.ImgPanel[index].Img.Sim:F2}");
@@ -248,12 +248,12 @@ namespace ImageBank
 
                 pLabels[index].Text = sb.ToString();
                 pLabels[index].Background =
-                    HelperPath.IsLegacy(AppVars.ImgPanel[index].Img.Folder) ?
+                    string.IsNullOrEmpty(AppVars.ImgPanel[index].Img.Node) ?
                     (AppVars.ImgPanel[index].Img.Sim > 0.7 ? System.Windows.Media.Brushes.Red : System.Windows.Media.Brushes.White) :
                     System.Windows.Media.Brushes.Bisque;
             }
 
-            if (!HelperPath.IsLegacy(AppVars.ImgPanel[0].Img.Folder) && AppVars.ImgPanel[0].Img.Folder.Equals(AppVars.ImgPanel[1].Img.Folder))
+            if (!string.IsNullOrEmpty(AppVars.ImgPanel[0].Img.Node) && AppVars.ImgPanel[0].Img.Node.Equals(AppVars.ImgPanel[1].Img.Node))
             {
                 pLabels[0].Background = System.Windows.Media.Brushes.LightGreen;
                 pLabels[1].Background = System.Windows.Media.Brushes.LightGreen;

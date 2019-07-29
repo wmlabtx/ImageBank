@@ -12,9 +12,9 @@ namespace ImageBank
 {
     public static class HelperImages
     {
-        public static bool GetJpgFromFile(string filename, out byte[] data)
+        public static bool GetJpgFromFile(string filename, out byte[] jpgdata)
         {
-            data = null;
+            jpgdata = null;
             if (!File.Exists(filename))
             {
                 return false;
@@ -33,8 +33,8 @@ namespace ImageBank
                 return false;
             }
 
-            data = File.ReadAllBytes(filename);
-            if (data == null || data.Length == 0)
+            jpgdata = File.ReadAllBytes(filename);
+            if (jpgdata == null || jpgdata.Length == 0)
             {
                 return false;
             }
@@ -42,8 +42,8 @@ namespace ImageBank
             if (extension.Equals(AppConsts.DatExtension))
             {
                 var password = HelperPath.GetPassword(filename);
-                data = HelperEncrypting.Decrypt(data, password);
-                if (data == null || data.Length == 0)
+                jpgdata = HelperEncrypting.Decrypt(jpgdata, password);
+                if (jpgdata == null || jpgdata.Length == 0)
                 {
                     return false;
                 }
@@ -56,7 +56,7 @@ namespace ImageBank
                     extension.Equals(AppConsts.WebpExtension, StringComparison.InvariantCultureIgnoreCase)
                    )
                 {
-                    using (var mat = Cv2.ImDecode(data, ImreadModes.AnyColor))
+                    using (var mat = Cv2.ImDecode(jpgdata, ImreadModes.AnyColor))
                     {
                         try
                         {
@@ -65,12 +65,12 @@ namespace ImageBank
                                 !extension.Equals(AppConsts.JpegExtension, StringComparison.InvariantCultureIgnoreCase))
                             {
                                 var iep = new ImageEncodingParam(ImwriteFlags.JpegQuality, 90);
-                                Cv2.ImEncode(AppConsts.JpgExtension, mat, out data, iep);
+                                Cv2.ImEncode(AppConsts.JpgExtension, mat, out jpgdata, iep);
                             }
                         }
                         catch (ArgumentException)
                         {
-                            data = null;
+                            jpgdata = null;
                             return false;
                         }
                     }
@@ -80,16 +80,9 @@ namespace ImageBank
             return true;
         }
 
-        public static bool GetJpgAndBitmapFromDatabase(Img img, out byte[] data, out Bitmap bitmap)
+        public static bool GetBitmap(byte[] jpgdata, out Bitmap bitmap)
         {
-            data = HelperSql.GetData(img);
-            if (data == null || data.Length == 0)
-            {
-                bitmap = null;
-                return false;
-            }
-
-            using (var mat = Cv2.ImDecode(data, ImreadModes.AnyColor))
+            using (var mat = Cv2.ImDecode(jpgdata, ImreadModes.AnyColor))
             {
                 try
                 {
@@ -97,7 +90,6 @@ namespace ImageBank
                 }
                 catch (ArgumentException)
                 {
-                    data = null;
                     bitmap = null;
                     return false;
                 }

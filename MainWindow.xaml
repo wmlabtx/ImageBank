@@ -22,12 +22,12 @@
                 <MenuItem Header="Move to Right" Click="MoveToRightClick" />
                 <Separator />
                 <MenuItem Header="Ar">
-                    <MenuItem Header="Ar.AGI" Click="MoveToFolderClick"  />
-                    <MenuItem Header="Ar.Alex" Click="MoveToFolderClick"  />
+                    <MenuItem Header="Ar.AGI" Click="MoveToNodeClick"  />
+                    <MenuItem Header="Ar.Alex" Click="MoveToNodeClick"  />
                 </MenuItem>
                 <MenuItem Header="Kd">
                     <MenuItem Header="Kd.Arlington">
-                        <MenuItem Header="Kd.Arlington.Ka" Click="MoveToFolderClick"  />
+                        <MenuItem Header="Kd.Arlington.Ka" Click="MoveToNodeClick"  />
                     </MenuItem>
                 </MenuItem>
             </MenuItem>

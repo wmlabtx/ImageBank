@@ -8,7 +8,7 @@ namespace ImageBank
     {
         private void Import(int maxadd, IProgress<string> progress)
         {
-            var directoryInfo = new DirectoryInfo(AppConsts.PathRoot);
+            var directoryInfo = new DirectoryInfo(AppConsts.PathSource);
             var fileInfos = directoryInfo.GetFiles("*.*", SearchOption.AllDirectories).ToList();
 
             AppVars.SuspendEvent.Reset();
@@ -31,51 +31,21 @@ namespace ImageBank
                     }
                 }
 
-                var ofilename = fileInfo.FullName;
-                var oname = HelperPath.GetName(ofilename);
-                var ofolder = HelperPath.GetFolder(ofilename);
-                var oextension = Path.GetExtension(ofilename);
-
-                if (oextension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    if (_imgList.TryGetValue(oname, out var imgJpgFound))
-                    {
-                        if (imgJpgFound.FileName.Equals(ofilename, StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            continue;
-                        }
-                        else
-                        {
-                            if (HelperPath.IsLegacy(imgJpgFound.Folder) && !HelperPath.IsLegacy(ofolder))
-                            {
-                                HelperRecycleBin.Delete(imgJpgFound.FileName);
-                                imgJpgFound.Folder = ofolder;
-                                HelperSql.UpdateFolder(imgJpgFound);
-                                ResetNextName(imgJpgFound);
-                                moved++;
-                                continue;
-                            }
-
-                            if (HelperPath.IsLegacy(ofolder))
-                            {
-                                HelperRecycleBin.Delete(ofilename);
-                            }
-
-                            skipped++;
-                            continue;
-                        }
-                    }
-                }
+                var filename = fileInfo.FullName;
                 
-                if (!HelperImages.GetJpgFromFile(ofilename, out var jpgdata))
+                if (!HelperImages.GetJpgFromFile(filename, out var jpgdata))
                 {
                     skipped++;
                     continue;
                 }
 
-                var lastview = GetMinLastView();
-                var lastchecked = GetMinLastChecked();
                 var name = HelperCrc.GetCrc(jpgdata);
+                if (_imgList.TryGetValue(name, out var imgFound))
+                {
+                    skipped++;
+                    HelperRecycleBin.Delete(filename);
+                    continue;
+                }
 
                 if (!HelperDescriptors.ComputeDescriptors(jpgdata, out var descriptors))
                 {
@@ -83,30 +53,29 @@ namespace ImageBank
                     continue;
                 }
 
-                if (_imgList.Count >= AppConsts.MaxImages)
-                {
-                    break;
-                }
+                var lastview = GetMinLastView();
+                var lastchecked = GetMinLastChecked();
+                var array = HelperEncrypting.Encrypt(jpgdata, name);
+                var crc = HelperCrc.GetCrc(array);
+                var offset = GetSuggestedOffset();
+                WriteData(offset, array);
 
                 var img = new Img(
-                    oname,
-                    ofolder,
+                    name,
+                    string.Empty,
                     2,
                     lastview,                    
                     lastchecked,
                     descriptors,
-                    oname,
-                    0f);
+                    name,
+                    0f,
+                    offset,
+                    array.Length,
+                    crc);
 
-                Add(img);               
+                Add(img);
                 added++;
-
-                var filename = img.FileName;
-                if (!filename.Equals(ofilename))
-                {
-                    HelperSql.SetData(img, jpgdata);
-                    HelperRecycleBin.Delete(ofilename);
-                }
+                HelperRecycleBin.Delete(filename);
 
                 if (added >= maxadd)
                 {
@@ -117,9 +86,30 @@ namespace ImageBank
             AppVars.SuspendEvent.Set();
         }
 
+        public static void ProcessDirectory(string startLocation, IProgress<string> progress)
+        {
+            foreach (var directory in Directory.GetDirectories(startLocation))
+            {
+                ProcessDirectory(directory, progress);
+                if (Directory.GetFiles(directory).Length != 0 || Directory.GetDirectories(directory).Length != 0)
+                    continue;
+
+                progress.Report($"{directory} deleting...");
+                try
+                {
+                    Directory.Delete(directory, false);
+                }
+                catch (IOException)
+                {
+                }
+            }
+        }
+
         public void Import(IProgress<string> progress)
         {
-            Import(100000, progress);
+            Import(1000000, progress);
+            ProcessDirectory(AppConsts.PathSource, progress);
+            progress.Report(string.Empty);
         }
     }
 }

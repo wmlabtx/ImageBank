@@ -51,22 +51,17 @@ namespace ImageBank
             return folder;
         }
 
-        public static bool FolderComparable(string folderX, string folderY)
+        public static bool NodesComparable(string nodeX, string nodeY)
         {
             if (
-                (IsLegacy(folderX) && !IsLegacy(folderY)) ||
-                (!IsLegacy(folderY) && folderY.StartsWith(folderX, StringComparison.InvariantCultureIgnoreCase))
+                string.IsNullOrEmpty(nodeX) ||
+                (!string.IsNullOrEmpty(nodeY) && nodeY.StartsWith(nodeX, StringComparison.InvariantCultureIgnoreCase))
                 )
             {
                 return true;
             }
 
             return false;
-        }
-
-        public static bool IsLegacy(string folder)
-        {
-            return folder.StartsWith(AppConsts.FolderLegacy, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }

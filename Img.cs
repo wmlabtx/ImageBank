@@ -5,34 +5,41 @@ namespace ImageBank
     public class Img
     {
         public string Name { get; }
-        public string Folder { get; set; }
+        public string Node { get; set; }
         public int Generation { get; set; }
         public DateTime LastView { get; set; }
         public DateTime LastChecked { get; set; }
         public ulong[] Descriptors { get; set; }
         public string NextName { get; set; }
         public float Sim { get; set; }
-
-        public string FileName => HelperPath.GetFileName(Name, Folder);
+        public long Offset { get; set; }
+        public int Lenght { get; set; }
+        public string Crc { get; set; }
 
         public Img(
             string name,
-            string folder,
+            string node,
             int generation,
             DateTime lastview,
             DateTime lastchecked,
             ulong[] descriptors,
             string nextname,
-            float sim)
+            float sim,
+            long offset,
+            int lenght,
+            string crc)
         {
             Name = name;
-            Folder = folder;
+            Node = node;
             Generation = generation;
             LastView = lastview;
             LastChecked = lastchecked;
             Descriptors = descriptors;
             NextName = nextname;
             Sim = sim;
+            Offset = offset;
+            Lenght = lenght;
+            Crc = crc;
         }
     }
 }

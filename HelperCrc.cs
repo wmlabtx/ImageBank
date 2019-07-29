@@ -8,28 +8,35 @@ namespace ImageBank
     {
         public static string GetCrc(byte[] array)
         {
-            const string charlist = "0123456789abcdefghijklmnopqrstuvwxyz";
+            const string cs = "0123456789bcdfghjklmnpqrstvwxz";
+            const string cg = "0123456789aeiouy";
 
             if (array == null || array.Length == 0)
             {
                 return null;
             }
 
-            var crc = SHA256.Create().ComputeHash(array, 0, array.Length);
-            var crcushort = new ushort[crc.Length / sizeof(ushort)];
-            Buffer.BlockCopy(crc, 0, crcushort, 0, crc.Length);
-
-            var sb = new StringBuilder();
-            for (var i = 0; i < 9; i++)
+            using (var sha256 = SHA256.Create())
             {
-                sb.Append(charlist[crcushort[i] % charlist.Length]);
-                if (i == 2 || i == 5)
-                {
-                    sb.Append('-');
-                }
-            }
+                var crc = sha256.ComputeHash(array, 0, array.Length);
+                var crcushort = new ushort[crc.Length / sizeof(ushort)];
+                Buffer.BlockCopy(crc, 0, crcushort, 0, crc.Length);
 
-            return sb.ToString();
+                var sb = new StringBuilder();
+                sb.Append(cs[crcushort[1] % cs.Length]);
+                sb.Append(cg[crcushort[2] % cg.Length]);
+                sb.Append(cs[crcushort[3] % cs.Length]);
+                sb.Append('-');
+                sb.Append(cs[crcushort[6] % cs.Length]);
+                sb.Append(cg[crcushort[7] % cg.Length]);
+                sb.Append(cs[crcushort[8] % cs.Length]);
+                sb.Append(cg[crcushort[9] % cg.Length]);
+                sb.Append('-');
+                sb.Append(cs[crcushort[12] % cs.Length]);
+                sb.Append(cg[crcushort[13] % cg.Length]);
+                sb.Append(cs[crcushort[14] % cs.Length]);
+                return sb.ToString();
+            }
         }
     }
 }

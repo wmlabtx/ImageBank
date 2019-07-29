@@ -10,7 +10,7 @@ namespace ImageBank
             img.NextName = img.Name;
             img.Sim = 0f;
             img.LastChecked = GetMinLastChecked();
-            HelperSql.UpdateLink(img);
+            UpdateLink(img);
         }
 
         private void FindNextName(Img imgX)
@@ -18,20 +18,20 @@ namespace ImageBank
             var oldnextname = imgX.NextName;
 
             var imgY = GetImgByName(imgX.NextName);
-            if (imgY == null || !HelperPath.FolderComparable(imgX.Folder, imgY.Folder))
+            if (imgY == null || !HelperPath.NodesComparable(imgX.Node, imgY.Node))
             {
                 ResetNextName(imgX);
             }
             else
             {
                 imgX.LastChecked = DateTime.Now;
-                HelperSql.UpdateLink(imgX);
+                UpdateLink(imgX);
             }
             
             var scope = _imgList
                 .Where(e => 
                     !e.Value.Name.Equals(imgX.Name) && 
-                    HelperPath.FolderComparable(imgX.Folder, e.Value.Folder))
+                    HelperPath.NodesComparable(imgX.Node, e.Value.Node))
                 .Select(e => e.Value)
                 .ToArray();
 
@@ -53,7 +53,7 @@ namespace ImageBank
 
             if (!oldname.Equals(imgX.NextName))
             {
-                HelperSql.UpdateLink(imgX);
+                UpdateLink(imgX);
             }
         }
     }

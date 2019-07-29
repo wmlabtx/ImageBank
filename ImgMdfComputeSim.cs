@@ -74,7 +74,7 @@ namespace ImageBank
                 if (!imgX.Name.Equals(oldname) && imgX.Generation == 2)
                 {
                     imgX.Generation = 1;
-                    HelperSql.UpdateGeneration(imgX);
+                    UpdateGeneration(imgX);
                 }
 
                 sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F2}");

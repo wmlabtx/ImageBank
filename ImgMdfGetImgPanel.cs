@@ -10,13 +10,19 @@
                 return null;
             }
 
-            if (!HelperImages.GetJpgAndBitmapFromDatabase(img, out var data, out var bitmap))
+            var jpgdata = GetJpgData(img);
+            if (jpgdata == null)
+            {
+                return null;
+            }
+
+            if (!HelperImages.GetBitmap(jpgdata, out var bitmap))
             {
                 DeleteImg(img);
                 return null;
             }
 
-            var imgpanel = new ImgPanel(img, bitmap, data.Length);
+            var imgpanel = new ImgPanel(img, bitmap, jpgdata.Length);
             return imgpanel;
         }
     }
