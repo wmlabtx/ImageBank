@@ -124,7 +124,7 @@ namespace ImageBank
         private async void MoveToNodeClick(string node)
         {
             DisableElements();
-            await Task.Run(() => { AppVars.Collection.MoveTo(AppVars.ImgPanel[0].Img.Name, node); });
+            await Task.Run(() => { AppVars.Collection.MoveTo(AppVars.ImgPanel[0].Img, node); });
             DrawCanvas();
             EnableElements();
         }
@@ -142,10 +142,7 @@ namespace ImageBank
         private async void ButtonLeftNextMouseClick()
         {
             AppVars.ImgPanel[0].Img.LastView = DateTime.Now;
-            AppVars.Collection.UpdateGeneration(AppVars.ImgPanel[0].Img);
-
-            AppVars.ImgPanel[0].Img.Generation = 2;
-            AppVars.Collection.UpdateLastView(AppVars.ImgPanel[0].Img);           
+            AppVars.Collection.UpdateLastView(AppVars.ImgPanel[0].Img);
 
             DisableElements();
             await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
@@ -249,7 +246,7 @@ namespace ImageBank
                 pLabels[index].Text = sb.ToString();
                 pLabels[index].Background =
                     string.IsNullOrEmpty(AppVars.ImgPanel[index].Img.Node) ?
-                    (AppVars.ImgPanel[index].Img.Sim > 0.7 ? System.Windows.Media.Brushes.Red : System.Windows.Media.Brushes.White) :
+                    (AppVars.ImgPanel[index].Img.Sim > 0.9 ? System.Windows.Media.Brushes.Red : System.Windows.Media.Brushes.White) :
                     System.Windows.Media.Brushes.Bisque;
             }
 

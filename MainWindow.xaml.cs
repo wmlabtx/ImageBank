@@ -88,7 +88,7 @@ namespace ImageBank
 
         private void MoveToNodeClick(object sender, RoutedEventArgs e)
         {
-            MoveToNodeClick((string)((System.Windows.Controls.MenuItem)sender).Header);
+            MoveToNodeClick((string)((System.Windows.Controls.MenuItem)sender).Tag);
         }
     }
 }

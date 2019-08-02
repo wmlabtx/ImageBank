@@ -17,7 +17,7 @@ namespace ImageBank
 
         public ImgMdf()
         {
-            var connectionString = $"Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename={AppConsts.FileDatabase};";
+            var connectionString = $"Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename={AppConsts.FileDatabase};Connection Timeout=30";
             _sqlConnection = new SqlConnection(connectionString);
             _sqlConnection.Open();
 

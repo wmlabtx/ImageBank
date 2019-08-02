@@ -51,7 +51,7 @@ namespace ImageBank
                 var array = HelperEncrypting.Encrypt(jpgdata, img.Name);
                 img.Crc = HelperCrc.GetCrc(array);
                 img.Lenght = array.Length;
-                img.Offset = AppVars.Collection.GetSuggestedOffset();
+                img.Offset = AppVars.Collection.GetSuggestedOffset(img.Lenght);
                 WriteData(img.Offset, array);
 
                 var sb = new StringBuilder();
@@ -73,16 +73,27 @@ namespace ImageBank
             }
         }
 
-        public long GetSuggestedOffset()
+        public long GetSuggestedOffset(int lenght)
         {
             if (_imgList.Count == 0)
             {
-                return 0;
+                return 0L;
             }
 
             var imgarray = _imgList.OrderBy(e => e.Value.Offset).Select(e => e.Value).ToArray();
-            var imglast = imgarray[imgarray.Length - 1];
-            var offset = imglast.Offset + imglast.Lenght;
+            var index = 0;
+            var offset = 0L;
+            while (index < imgarray.Length && offset + lenght > imgarray[index].Offset)
+            {
+                offset = imgarray[index].Offset + imgarray[index].Lenght;
+                index++;
+            }
+
+            if (index >= imgarray.Length)
+            {
+                offset = imgarray[index - 1].Offset + imgarray[index - 1].Lenght;
+            }
+
             return offset;
         }
     }

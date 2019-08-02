@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ImageBank
@@ -20,14 +21,10 @@ namespace ImageBank
                     var scope = _imgList
                         .Where(e => _imgList.ContainsKey(e.Value.NextName))
                         .Select(e => e.Value)
+                        .OrderBy(e => e.LastView)
                         .ToArray();
 
-                    var mingeneration = scope.Min(e => e.Generation);
-                    var scopeming = scope.Where(e => e.Generation == mingeneration);
-                    var imgX = mingeneration < 2 ?
-                        scopeming.OrderByDescending(e => e.Sim).FirstOrDefault() :
-                        scopeming.OrderBy(e => e.LastView).FirstOrDefault();
-
+                    Img imgX = FindInRotation(scope);
                     nameX = imgX.Name;
                     AppVars.ImgPanel[0] = GetImgPanel(nameX);
                     if (AppVars.ImgPanel[0] == null)
@@ -54,71 +51,46 @@ namespace ImageBank
             }
         }
 
-        /*
-        private Img FindInRotation(Img[] scopeX)
+        private Img FindInRotation(Img[] scope)
         {
-            var scope = scopeX;
-            var level = 0;
-            Img imgX = null;
-            while (true)
+            var nodes = new SortedDictionary<string, DateTime>();
+            foreach (var img in scope)
             {
-                var folders = new SortedDictionary<string, DateTime>();
-                foreach (var img in scope)
+                if (nodes.ContainsKey(img.Node))
                 {
-                    var pars = img.Folder.Split('\\');
-                    var folder = pars[level];
-
-                    if (folders.ContainsKey(folder))
+                    if (nodes[img.Node] < img.LastView)
                     {
-                        if (folders[folder] < img.LastView)
-                        {
-                            folders[folder] = img.LastView;
-                        }
+                        nodes[img.Node] = img.LastView;
                     }
-                    else
-                    {
-                        folders.Add(folder, img.LastView);
-                    }
-                }
-
-                var minfolder = AppConsts.FolderLegacy;
-                var minlastview = DateTime.Now;
-                foreach (var folder in folders.Keys)
-                {
-                    if (folders[folder] < minlastview)
-                    {
-                        minfolder = folder;
-                        minlastview = folders[folder];
-                    }
-                }
-
-                var scopenew = new List<Img>();
-                foreach (var img in scope)
-                {
-                    var pars = img.Folder.Split('\\');
-                    var folder = pars[level];
-
-                    if (folder.Equals(minfolder))
-                    {
-                        scopenew.Add(img);
-                    }
-                }
-
-                level++;
-                var nextpars = scopenew[0].Folder.Split('\\');
-                if (nextpars.Length <= level)
-                {
-                    imgX = scopenew.OrderBy(e => e.LastView).FirstOrDefault();
-                    break;
                 }
                 else
                 {
-                    scope = scopenew.ToArray();
+                    nodes.Add(img.Node, img.LastView);
                 }
             }
 
+            var minnode = string.Empty;
+            var minlastview = DateTime.Now;
+            foreach (var node in nodes.Keys)
+            {
+                if (DateTime.Now.Subtract(nodes[node]).TotalHours < 1.0)
+                {
+                    continue;
+                }
+
+                if (nodes[node] < minlastview)
+                {
+                    minnode = node;
+                    minlastview = nodes[node];
+                }
+            }
+
+            var imgX = scope
+                .Where(e => e.Node.Equals(minnode))
+                .OrderBy(e => e.LastView)
+                .FirstOrDefault();
+
             return imgX;
         }
-        */
     }
 }

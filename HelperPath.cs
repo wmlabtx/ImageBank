@@ -33,22 +33,17 @@ namespace ImageBank
             return name;
         }
 
-        public static string GetFolder(string filename)
+        public static string GetNode(string filename)
         {
-            if (string.IsNullOrEmpty(filename) || filename.Length <= AppConsts.PathRoot.Length)
-            {
-                return null;
-            }
-
-            var part = filename.Substring(AppConsts.PathRoot.Length);
-            var pos = part.LastIndexOf('\\');
+            var name = Path.GetFileNameWithoutExtension(filename);
+            var pos = name.LastIndexOf('.');
             if (pos <= 0)
             {
                 return string.Empty;
             }
 
-            var folder = part.Substring(0, pos);
-            return folder;
+            var node = name.Substring(0, pos);
+            return node;
         }
 
         public static bool NodesComparable(string nodeX, string nodeY)

@@ -13,6 +13,7 @@
             var jpgdata = GetJpgData(img);
             if (jpgdata == null)
             {
+                DeleteImg(img);
                 return null;
             }
 

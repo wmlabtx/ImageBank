@@ -47,25 +47,6 @@ namespace ImageBank
             }
         }
 
-        public void UpdateGeneration(Img img)
-        {
-            lock (_sqlLock)
-            {
-                var sb = new StringBuilder();
-                sb.Append("UPDATE Images SET ");
-                sb.Append($"{AppConsts.AttrGeneration} = @{AppConsts.AttrGeneration} ");
-                sb.Append("WHERE ");
-                sb.Append($"{AppConsts.AttrName} = @{AppConsts.AttrName}");
-                var sqltext = sb.ToString();
-                using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
-                {
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrGeneration}", img.Generation);
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrName}", img.Name);
-                    sqlCommand.ExecuteNonQuery();
-                }
-            }
-        }
-
         public void UpdateNode(Img img)
         {
             lock (_sqlLock)

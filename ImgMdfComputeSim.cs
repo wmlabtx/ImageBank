@@ -16,16 +16,10 @@ namespace ImageBank
                 return null;
             }
 
-            var scopewrong = _imgList
-                .Where(e => !_imgList.ContainsKey(e.Value.NextName))
-                .ToArray();
-
-            var imgX = scopewrong.Length > 0 ?
-                scopewrong
-                    .FirstOrDefault().Value :
-                _imgList
-                    .OrderBy(e => e.Value.LastChecked)
-                    .FirstOrDefault().Value;
+            var imgX = _imgList
+                .OrderBy(e => e.Value.LastChecked)
+                .FirstOrDefault()
+                .Value;
 
             if (imgX == null)
             {
@@ -37,7 +31,7 @@ namespace ImageBank
             var oldsim = imgX.Sim;
 
             var dt = DateTime.Now;
-            FindNextName(imgX);
+            var updates = FindNextName(imgX);
 
             var imgY = GetImgByName(imgX.NextName);
             if (imgY == null)
@@ -62,21 +56,20 @@ namespace ImageBank
             */
 
             var sb = new StringBuilder();
-            var g0 = _imgList.Count(e => e.Value.Generation == 0);
-            var g1 = _imgList.Count(e => e.Value.Generation == 1);
-            var g2 = _imgList.Count(e => e.Value.Generation == 2);
-            sb.Append($"{g0}/{g1}/{g2}: ");
+            var count = _imgList.Count();
+            sb.Append($"{count}: ");
             sb.Append($"{_avgTimes:F2}s ");
 
-            sb.Append($"{oldsim:F2}");
-            if (string.IsNullOrEmpty(oldname) || !imgX.NextName.Equals(oldname))
+            if (updates > 0)
             {
-                if (!imgX.Name.Equals(oldname) && imgX.Generation == 2)
-                {
-                    imgX.Generation = 1;
-                    UpdateGeneration(imgX);
-                }
+                sb.Append($"({updates}) ");
+            }
 
+            sb.Append($"{oldsim:F2}");
+            if (!imgX.Name.Equals(oldname) && !imgX.NextName.Equals(oldname))
+            {
+                imgX.LastView = GetMinLastView();
+                UpdateLastView(imgX);
                 sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F2}");
             }
 

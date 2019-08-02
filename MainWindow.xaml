@@ -21,14 +21,36 @@
             <MenuItem Header="Move">
                 <MenuItem Header="Move to Right" Click="MoveToRightClick" />
                 <Separator />
-                <MenuItem Header="Ar">
-                    <MenuItem Header="Ar.AGI" Click="MoveToNodeClick"  />
-                    <MenuItem Header="Ar.Alex" Click="MoveToNodeClick"  />
+                <MenuItem Header="Unassigned" Tag="" Click="MoveToNodeClick"  />
+                <Separator />
+                <MenuItem Header="Adult">
+                    <MenuItem Header="Adult" Tag="Adult" Click="MoveToNodeClick" />
+                    <MenuItem Header="Ana Foxxx" Tag="Adult.Ana Foxxx" Click="MoveToNodeClick" />
+                    <MenuItem Header="Aubrey Star" Tag="Adult.Aubrey Star" Click="MoveToNodeClick" />
+                    <MenuItem Header="Gina Gerson" Tag="Adult.Gina Gerson" Click="MoveToNodeClick" />
+                    <MenuItem Header="Foxy Di" Tag="Adult.Foxy Di" Click="MoveToNodeClick" />
+                    <MenuItem Header="Miran" Tag="Adult.Miran" Click="MoveToNodeClick" />
+                    <MenuItem Header="Nata" Tag="Adult.Nata" Click="MoveToNodeClick" />
+                    <MenuItem Header="Rui Matsushita" Tag="Adult.Rui Matsushita" Click="MoveToNodeClick" />
                 </MenuItem>
-                <MenuItem Header="Kd">
-                    <MenuItem Header="Kd.Arlington">
-                        <MenuItem Header="Kd.Arlington.Ka" Click="MoveToNodeClick"  />
-                    </MenuItem>
+                <MenuItem Header="Art">
+                    <MenuItem Header="Art" Tag="Art" Click="MoveToNodeClick" />
+                    <MenuItem Header="Alex" Tag="Art.Alex" Click="MoveToNodeClick"  />
+                    <MenuItem Header="AGI" Tag="Art.AGI" Click="MoveToNodeClick"  />
+                </MenuItem>
+                <MenuItem Header="Bd" Tag="Bd" Click="MoveToNodeClick" />
+                <MenuItem Header="Kandid">
+                    <MenuItem Header="Kandid" Tag="Kandid" Click="MoveToNodeClick" />
+                    <MenuItem Header="Aygun" Tag="Kandid.Aygun" Click="MoveToNodeClick"  />
+                    <MenuItem Header="Polina" Tag="Kandid.Polina" Click="MoveToNodeClick"  />
+                </MenuItem>
+                <MenuItem Header="Hentai" Tag="Hentai" Click="MoveToNodeClick" />
+                <MenuItem Header="Ls" Tag="Ls" Click="MoveToNodeClick" />
+                <MenuItem Header="Tpi">
+                    <MenuItem Header="Tpi" Tag="Tpi" Click="MoveToNodeClick" />
+                    <MenuItem Header="Berenice" Tag="Tpi.Berenice" Click="MoveToNodeClick"  />
+                    <MenuItem Header="Gabi" Tag="Tpi.Gabi" Click="MoveToNodeClick"  />
+                    <MenuItem Header="Pamela" Tag="Tpi.Pamela" Click="MoveToNodeClick"  />
                 </MenuItem>
             </MenuItem>
         </Menu>

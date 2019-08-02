@@ -18,7 +18,6 @@ namespace ImageBank
                 sb.Append("INSERT INTO Images (");
                 sb.Append($"{AppConsts.AttrName}, ");
                 sb.Append($"{AppConsts.AttrNode}, ");
-                sb.Append($"{AppConsts.AttrGeneration}, ");
                 sb.Append($"{AppConsts.AttrLastView}, ");
                 sb.Append($"{AppConsts.AttrLastChecked}, ");
                 sb.Append($"{AppConsts.AttrDescriptors}, ");
@@ -30,7 +29,6 @@ namespace ImageBank
                 sb.Append(") VALUES (");
                 sb.Append($"@{AppConsts.AttrName}, ");
                 sb.Append($"@{AppConsts.AttrNode}, ");
-                sb.Append($"@{AppConsts.AttrGeneration}, ");
                 sb.Append($"@{AppConsts.AttrLastView}, ");
                 sb.Append($"@{AppConsts.AttrLastChecked}, ");
                 sb.Append($"@{AppConsts.AttrDescriptors}, ");
@@ -45,7 +43,6 @@ namespace ImageBank
                 {
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrName}", img.Name);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrNode}", img.Node);
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrGeneration}", img.Generation);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastView}", img.LastView);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastChecked}", img.LastChecked);
                     var buffer = HelperDescriptors.ConvertToByteArray(img.Descriptors);

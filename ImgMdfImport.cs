@@ -40,9 +40,20 @@ namespace ImageBank
                 }
 
                 var name = HelperCrc.GetCrc(jpgdata);
+                var node = HelperPath.GetNode(filename);
                 if (_imgList.TryGetValue(name, out var imgFound))
                 {
-                    skipped++;
+                    if (string.IsNullOrEmpty(imgFound.Node) && !string.IsNullOrEmpty(imgFound.Node))
+                    {
+                        imgFound.Node = node;
+                        UpdateNode(imgFound);
+                        moved++;
+                    }
+                    else
+                    {
+                        skipped++;
+                    }
+                    
                     HelperRecycleBin.Delete(filename);
                     continue;
                 }
@@ -57,13 +68,12 @@ namespace ImageBank
                 var lastchecked = GetMinLastChecked();
                 var array = HelperEncrypting.Encrypt(jpgdata, name);
                 var crc = HelperCrc.GetCrc(array);
-                var offset = GetSuggestedOffset();
+                var offset = GetSuggestedOffset(array.Length);
                 WriteData(offset, array);
 
                 var img = new Img(
                     name,
-                    string.Empty,
-                    2,
+                    node,
                     lastview,                    
                     lastchecked,
                     descriptors,
