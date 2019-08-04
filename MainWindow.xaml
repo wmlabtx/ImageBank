@@ -38,14 +38,12 @@
                     <MenuItem Header="Alex" Tag="Art.Alex" Click="MoveToNodeClick"  />
                     <MenuItem Header="AGI" Tag="Art.AGI" Click="MoveToNodeClick"  />
                 </MenuItem>
-                <MenuItem Header="Bd" Tag="Bd" Click="MoveToNodeClick" />
                 <MenuItem Header="Kandid">
                     <MenuItem Header="Kandid" Tag="Kandid" Click="MoveToNodeClick" />
                     <MenuItem Header="Aygun" Tag="Kandid.Aygun" Click="MoveToNodeClick"  />
                     <MenuItem Header="Polina" Tag="Kandid.Polina" Click="MoveToNodeClick"  />
                 </MenuItem>
                 <MenuItem Header="Hentai" Tag="Hentai" Click="MoveToNodeClick" />
-                <MenuItem Header="Ls" Tag="Ls" Click="MoveToNodeClick" />
                 <MenuItem Header="Tpi">
                     <MenuItem Header="Tpi" Tag="Tpi" Click="MoveToNodeClick" />
                     <MenuItem Header="Berenice" Tag="Tpi.Berenice" Click="MoveToNodeClick"  />

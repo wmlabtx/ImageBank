@@ -22,6 +22,7 @@
 
         public const string AttrName = "Name";
         public const string AttrNode = "Node";
+        public const string AttrGen = "Gen";
         public const string AttrLastView = "LastView";
         public const string AttrLastChecked = "LastChecked";
         public const string AttrDescriptors = "Descriptors";

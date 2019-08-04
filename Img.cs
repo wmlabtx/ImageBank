@@ -6,6 +6,7 @@ namespace ImageBank
     {
         public string Name { get; }
         public string Node { get; set; }
+        public int Gen { get; set; }
         public DateTime LastView { get; set; }
         public DateTime LastChecked { get; set; }
         public ulong[] Descriptors { get; set; }
@@ -18,6 +19,7 @@ namespace ImageBank
         public Img(
             string name,
             string node,
+            int gen,
             DateTime lastview,
             DateTime lastchecked,
             ulong[] descriptors,
@@ -29,6 +31,7 @@ namespace ImageBank
         {
             Name = name;
             Node = node;
+            Gen = gen;
             LastView = lastview;
             LastChecked = lastchecked;
             Descriptors = descriptors;

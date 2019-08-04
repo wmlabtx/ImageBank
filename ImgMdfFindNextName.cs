@@ -75,8 +75,10 @@ namespace ImageBank
 
                     if (sim > imgY.Sim)
                     {
+                        imgY.Gen = 0;
                         imgY.NextName = imgX.Name;
                         imgY.Sim = sim;
+                        imgY.LastChecked = DateTime.Now;
                         UpdateLink(imgY);
                         updates++;
                     }

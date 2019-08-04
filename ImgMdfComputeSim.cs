@@ -57,8 +57,8 @@ namespace ImageBank
 
             var sb = new StringBuilder();
             var count = _imgList.Count();
-            sb.Append($"{count}: ");
-            sb.Append($"{_avgTimes:F2}s ");
+            var modified = _imgList.Count(e => e.Value.Gen == 0);
+            sb.Append($"{modified}/{count}: {_avgTimes:F2}s ");
 
             if (updates > 0)
             {
@@ -68,10 +68,15 @@ namespace ImageBank
             sb.Append($"{oldsim:F2}");
             if (!imgX.Name.Equals(oldname) && !imgX.NextName.Equals(oldname))
             {
-                imgX.LastView = GetMinLastView();
-                UpdateLastView(imgX);
+                imgX.Gen = 0;                
                 sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F2}");
             }
+            else
+            {
+                imgX.Gen++;
+            }
+
+            UpdateGen(imgX);
 
             sb.Append(" / ");
             sb.Append($"{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(imgX.LastView))} ago");

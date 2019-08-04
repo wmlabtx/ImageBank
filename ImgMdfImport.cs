@@ -43,7 +43,7 @@ namespace ImageBank
                 var node = HelperPath.GetNode(filename);
                 if (_imgList.TryGetValue(name, out var imgFound))
                 {
-                    if (string.IsNullOrEmpty(imgFound.Node) && !string.IsNullOrEmpty(imgFound.Node))
+                    if (!string.IsNullOrEmpty(node))
                     {
                         imgFound.Node = node;
                         UpdateNode(imgFound);
@@ -74,6 +74,7 @@ namespace ImageBank
                 var img = new Img(
                     name,
                     node,
+                    0,
                     lastview,                    
                     lastchecked,
                     descriptors,
@@ -84,6 +85,7 @@ namespace ImageBank
                     crc);
 
                 Add(img);
+                ResetNextName(img);
                 added++;
                 HelperRecycleBin.Delete(filename);
 

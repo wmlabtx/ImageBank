@@ -24,7 +24,18 @@ namespace ImageBank
                         .OrderBy(e => e.LastView)
                         .ToArray();
 
-                    Img imgX = FindInRotation(scope);
+                    var mingen = scope.Min(e => e.Gen);
+                    var scopegen = scope.Where(e => e.Gen == mingen).ToArray();
+                    Img imgX;
+                    if (mingen > 0)
+                    {
+                        imgX = scopegen.OrderBy(e => e.LastView).FirstOrDefault();
+                    }
+                    else
+                    {
+                        imgX = scopegen.OrderBy(e => e.Name).FirstOrDefault();
+                    }
+
                     nameX = imgX.Name;
                     AppVars.ImgPanel[0] = GetImgPanel(nameX);
                     if (AppVars.ImgPanel[0] == null)

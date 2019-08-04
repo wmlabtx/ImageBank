@@ -11,6 +11,7 @@ namespace ImageBank
             {
                 var sb = new StringBuilder();
                 sb.Append("UPDATE Images SET ");
+                sb.Append($"{AppConsts.AttrGen} = @{AppConsts.AttrGen}, ");
                 sb.Append($"{AppConsts.AttrNextName} = @{AppConsts.AttrNextName}, ");
                 sb.Append($"{AppConsts.AttrSim} = @{AppConsts.AttrSim}, ");
                 sb.Append($"{AppConsts.AttrLastChecked} = @{AppConsts.AttrLastChecked} ");
@@ -19,6 +20,7 @@ namespace ImageBank
                 var sqltext = sb.ToString();
                 using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
                 {
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrGen}", img.Gen);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrNextName}", img.NextName);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrSim}", img.Sim);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastChecked}", img.LastChecked);
@@ -60,6 +62,25 @@ namespace ImageBank
                 using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
                 {
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrNode}", img.Node);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrName}", img.Name);
+                    sqlCommand.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void UpdateGen(Img img)
+        {
+            lock (_sqlLock)
+            {
+                var sb = new StringBuilder();
+                sb.Append("UPDATE Images SET ");
+                sb.Append($"{AppConsts.AttrGen} = @{AppConsts.AttrGen} ");
+                sb.Append("WHERE ");
+                sb.Append($"{AppConsts.AttrName} = @{AppConsts.AttrName}");
+                var sqltext = sb.ToString();
+                using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
+                {
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrGen}", img.Gen);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrName}", img.Name);
                     sqlCommand.ExecuteNonQuery();
                 }

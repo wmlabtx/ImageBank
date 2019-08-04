@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Text;
 
 namespace ImageBank
@@ -14,14 +15,15 @@ namespace ImageBank
                 sb.Append("SELECT ");
                 sb.Append($"{AppConsts.AttrName}, "); // 0
                 sb.Append($"{AppConsts.AttrNode}, "); // 1
-                sb.Append($"{AppConsts.AttrLastView}, "); // 2
-                sb.Append($"{AppConsts.AttrLastChecked}, "); // 3
-                sb.Append($"{AppConsts.AttrDescriptors}, "); // 4
-                sb.Append($"{AppConsts.AttrNextName}, "); // 5
-                sb.Append($"{AppConsts.AttrSim}, "); // 6
-                sb.Append($"{AppConsts.AttrOffset}, "); // 7
-                sb.Append($"{AppConsts.AttrLenght}, "); // 8
-                sb.Append($"{AppConsts.AttrCrc} "); // 9
+                sb.Append($"{AppConsts.AttrGen}, "); // 2
+                sb.Append($"{AppConsts.AttrLastView}, "); // 3
+                sb.Append($"{AppConsts.AttrLastChecked}, "); // 4
+                sb.Append($"{AppConsts.AttrDescriptors}, "); // 5
+                sb.Append($"{AppConsts.AttrNextName}, "); // 6
+                sb.Append($"{AppConsts.AttrSim}, "); // 7
+                sb.Append($"{AppConsts.AttrOffset}, "); // 8
+                sb.Append($"{AppConsts.AttrLenght}, "); // 9
+                sb.Append($"{AppConsts.AttrCrc} "); // 10
                 sb.Append("FROM Images");
                 var sqltext = sb.ToString();
                 using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
@@ -34,17 +36,18 @@ namespace ImageBank
                         {
                             var name = reader.GetString(0);
                             var node = reader.GetString(1);
-                            var lastview = reader.GetDateTime(2);
-                            var lastchecked = reader.GetDateTime(3);
-                            var buffer = (byte[])reader[4];
+                            var gen = reader.GetInt32(2);
+                            var lastview = reader.GetDateTime(3);
+                            var lastchecked = reader.GetDateTime(4);
+                            var buffer = (byte[])reader[5];
                             var udescriptors = HelperDescriptors.ConvertToDescriptors(buffer);
-                            var nextname = reader.GetString(5);
-                            var sim = (float)reader.GetDouble(6);
-                            var offset = reader.GetInt64(7);
-                            var lenght = reader.GetInt32(8);
-                            var crc = reader.GetString(9);
+                            var nextname = reader.GetString(6);
+                            var sim = (float)reader.GetDouble(7);
+                            var offset = reader.GetInt64(8);
+                            var lenght = reader.GetInt32(9);
+                            var crc = reader.GetString(10);
 
-                            var img = new Img(name, node, lastview, lastchecked, udescriptors, nextname, sim, offset, lenght, crc);
+                            var img = new Img(name, node, gen, lastview, lastchecked, udescriptors, nextname, sim, offset, lenght, crc);
                             _imgList.TryAdd(name, img);
 
                             if (DateTime.Now.Subtract(dt).TotalMilliseconds > AppConsts.TimeLapse)
@@ -57,49 +60,19 @@ namespace ImageBank
                         progress.Report("Database loaded");
                     }
                 }
-            }
 
-            /*
-            var scope = _imgList.Select(e => e.Value).ToArray();
-            foreach (var img in scope)
-            {
-                if (img.Node.StartsWith("Ls."))
+                /*
+                var scope = _imgList.Select(e => e.Value).ToArray();
+                foreach (var img in scope)
                 {
-                    img.Node = "Ls";
-                    UpdateNode(img);
-                }
-
-                if (img.Node.StartsWith("Kandid.Baku.School 177.Ay"))
-                {
-                    img.Node = "Kandid.Aygun";
-                    UpdateNode(img);
-                }
-                else
-                {
-                    if (img.Node.StartsWith("Kandid.Baku.Ankara.Po"))
+                    if (img.Node.Equals("Ls") || img.Node.Equals("Bd"))
                     {
-                        img.Node = "Kandid.Polina";
+                        img.Node = string.Empty;
                         UpdateNode(img);
                     }
-                    else
-                    {
-                        if (img.Node.StartsWith("Kandid.Baku.School 160.Na"))
-                        {
-                            img.Node = "Kandid.Narmina";
-                            UpdateNode(img);
-                        }
-                        else
-                        {
-                            if (img.Node.StartsWith("Kandid.Ba") || img.Node.StartsWith("Kandid.Ar") || img.Node.StartsWith("Kandid.Ka"))
-                            {
-                                img.Node = "Kandid";
-                                UpdateNode(img);
-                            }
-                        }
-                    }
                 }
+                */
             }
-            */
         }
     }
 }
