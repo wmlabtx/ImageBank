@@ -61,17 +61,15 @@ namespace ImageBank
                     }
                 }
 
-                /*
                 var scope = _imgList.Select(e => e.Value).ToArray();
                 foreach (var img in scope)
                 {
-                    if (img.Node.Equals("Ls") || img.Node.Equals("Bd"))
+                    if (img.Node.StartsWith("twlba"))
                     {
                         img.Node = string.Empty;
                         UpdateNode(img);
                     }
                 }
-                */
             }
         }
     }

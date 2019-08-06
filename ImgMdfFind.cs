@@ -27,13 +27,13 @@ namespace ImageBank
                     var mingen = scope.Min(e => e.Gen);
                     var scopegen = scope.Where(e => e.Gen == mingen).ToArray();
                     Img imgX;
-                    if (mingen > 0)
+                    if (mingen == Img.GenViewed)
                     {
                         imgX = scopegen.OrderBy(e => e.LastView).FirstOrDefault();
                     }
                     else
                     {
-                        imgX = scopegen.OrderBy(e => e.Name).FirstOrDefault();
+                        imgX = scopegen.OrderByDescending(e => e.Sim).FirstOrDefault();
                     }
 
                     nameX = imgX.Name;

@@ -16,10 +16,53 @@ namespace ImageBank
                 return null;
             }
 
-            var imgX = _imgList
-                .OrderBy(e => e.Value.LastChecked)
-                .FirstOrDefault()
-                .Value;
+            Img imgX = null;
+            var scopeWrongNew = _imgList
+                .Where(e => e.Value.Gen == Img.GenNew && !_imgList.ContainsKey(e.Value.NextName))
+                .ToArray();
+
+            if (scopeWrongNew.Length > 0)
+            {
+                imgX = scopeWrongNew.FirstOrDefault().Value;
+            }
+            else
+            {
+                var scopeWrong = _imgList
+                    .Where(e => !_imgList.ContainsKey(e.Value.NextName))
+                    .ToArray();
+
+                if (scopeWrong.Length > 0)
+                {
+                    imgX = scopeWrong.FirstOrDefault().Value;
+                }
+                else
+                {
+                    foreach(var img in _imgList)
+                    {
+                        var imgNext = GetImgByName(img.Value.NextName);
+                        if (imgNext == null)
+                        {
+                            imgX = img.Value;
+                            break;
+                        }
+
+                        if (!HelperPath.NodesComparable(img.Value.Node, imgNext.Node))
+                        {
+                            imgX = img.Value;
+                            break;
+                        }
+                    }
+
+                    if (imgX == null)
+                    {
+                        imgX = _imgList
+                            .OrderBy(e => e.Value.LastChecked)
+                            .FirstOrDefault()
+                            .Value;
+                    }
+
+                }
+            }
 
             if (imgX == null)
             {
@@ -50,15 +93,12 @@ namespace ImageBank
                 _avgTimes = _findTimes.Average();
             }
 
-            /*
-            imgX.LastView = DateTime.Now;
-            SqlUpdateLastView(imgX.Name, imgX.LastView);
-            */
-
             var sb = new StringBuilder();
             var count = _imgList.Count();
-            var modified = _imgList.Count(e => e.Value.Gen == 0);
-            sb.Append($"{modified}/{count}: {_avgTimes:F2}s ");
+            var genew = _imgList.Count(e => e.Value.Gen == Img.GenNew);
+            var genmodified = _imgList.Count(e => e.Value.Gen == Img.GenModified);
+            var genviewed= _imgList.Count(e => e.Value.Gen == Img.GenViewed);
+            sb.Append($"{genew}/{genmodified}/{genviewed}/{count}: {_avgTimes:F2}s ");
 
             if (updates > 0)
             {
@@ -68,15 +108,8 @@ namespace ImageBank
             sb.Append($"{oldsim:F2}");
             if (!imgX.Name.Equals(oldname) && !imgX.NextName.Equals(oldname))
             {
-                imgX.Gen = 0;                
                 sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F2}");
             }
-            else
-            {
-                imgX.Gen++;
-            }
-
-            UpdateGen(imgX);
 
             sb.Append(" / ");
             sb.Append($"{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(imgX.LastView))} ago");

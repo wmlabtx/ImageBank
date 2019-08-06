@@ -41,6 +41,7 @@
                 <MenuItem Header="Kandid">
                     <MenuItem Header="Kandid" Tag="Kandid" Click="MoveToNodeClick" />
                     <MenuItem Header="Aygun" Tag="Kandid.Aygun" Click="MoveToNodeClick"  />
+                    <MenuItem Header="Narmina" Tag="Kandid.Narmina" Click="MoveToNodeClick"  />
                     <MenuItem Header="Polina" Tag="Kandid.Polina" Click="MoveToNodeClick"  />
                 </MenuItem>
                 <MenuItem Header="Hentai" Tag="Hentai" Click="MoveToNodeClick" />

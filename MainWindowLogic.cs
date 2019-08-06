@@ -141,11 +141,8 @@ namespace ImageBank
 
         private async void ButtonLeftNextMouseClick()
         {
-            AppVars.ImgPanel[0].Img.LastView = DateTime.Now;
-            AppVars.Collection.UpdateLastView(AppVars.ImgPanel[0].Img);
-            AppVars.ImgPanel[0].Img.Gen++;
-            AppVars.Collection.UpdateGen(AppVars.ImgPanel[0].Img);
-
+            AppVars.ImgPanel[0].Img.SetViewed();
+            AppVars.Collection.UpdateNameNext(AppVars.ImgPanel[0].Img);
 
             DisableElements();
             await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });

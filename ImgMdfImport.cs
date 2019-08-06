@@ -74,7 +74,7 @@ namespace ImageBank
                 var img = new Img(
                     name,
                     node,
-                    0,
+                    Img.GenNew,
                     lastview,                    
                     lastchecked,
                     descriptors,

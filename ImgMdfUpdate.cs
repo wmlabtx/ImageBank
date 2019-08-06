@@ -5,7 +5,7 @@ namespace ImageBank
 {
     public partial class ImgMdf
     {
-        public void UpdateLink(Img img)
+        public void UpdateNameNext(Img img)
         {
             lock (_sqlLock)
             {
@@ -68,6 +68,7 @@ namespace ImageBank
             }
         }
 
+        /*
         public void UpdateGen(Img img)
         {
             lock (_sqlLock)
@@ -86,6 +87,7 @@ namespace ImageBank
                 }
             }
         }
+        */
 
         private void UpdateDescriptors(Img img)
         {
