@@ -115,12 +115,11 @@
     <Compile Include="ImgMdfDateTime.cs" />
     <Compile Include="ImgMdfDelete.cs" />
     <Compile Include="ImgMdfFindNextName.cs" />
-    <Compile Include="ImgMdfGetNodeSize.cs" />
+    <Compile Include="ImgMdfClusters.cs" />
     <Compile Include="ImgMdfGetImgByName.cs" />
     <Compile Include="ImgMdfFind.cs" />
     <Compile Include="ImgMdfImport.cs" />
     <Compile Include="ImgMdfLoad.cs" />
-    <Compile Include="ImgMdfMoveTo.cs" />
     <Compile Include="ImgMdfGetImgPanel.cs" />
     <Compile Include="ImgMdfUpdate.cs" />
     <Compile Include="ImgPanel.cs" />

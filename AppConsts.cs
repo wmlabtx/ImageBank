@@ -21,7 +21,7 @@
         public const double TimeLapse = 500.0;
 
         public const string AttrName = "Name";
-        public const string AttrNode = "Node";
+        public const string AttrCluster = "Cluster";
         public const string AttrGen = "Gen";
         public const string AttrLastView = "LastView";
         public const string AttrLastChecked = "LastChecked";

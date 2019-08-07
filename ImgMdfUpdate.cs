@@ -49,45 +49,24 @@ namespace ImageBank
             }
         }
 
-        public void UpdateNode(Img img)
+        public void UpdateCluster(Img img)
         {
             lock (_sqlLock)
             {
                 var sb = new StringBuilder();
                 sb.Append("UPDATE Images SET ");
-                sb.Append($"{AppConsts.AttrNode} = @{AppConsts.AttrNode} ");
+                sb.Append($"{AppConsts.AttrCluster} = @{AppConsts.AttrCluster} ");
                 sb.Append("WHERE ");
                 sb.Append($"{AppConsts.AttrName} = @{AppConsts.AttrName}");
                 var sqltext = sb.ToString();
                 using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
                 {
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrNode}", img.Node);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrCluster}", img.Cluster);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrName}", img.Name);
                     sqlCommand.ExecuteNonQuery();
                 }
             }
         }
-
-        /*
-        public void UpdateGen(Img img)
-        {
-            lock (_sqlLock)
-            {
-                var sb = new StringBuilder();
-                sb.Append("UPDATE Images SET ");
-                sb.Append($"{AppConsts.AttrGen} = @{AppConsts.AttrGen} ");
-                sb.Append("WHERE ");
-                sb.Append($"{AppConsts.AttrName} = @{AppConsts.AttrName}");
-                var sqltext = sb.ToString();
-                using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
-                {
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrGen}", img.Gen);
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrName}", img.Name);
-                    sqlCommand.ExecuteNonQuery();
-                }
-            }
-        }
-        */
 
         private void UpdateDescriptors(Img img)
         {

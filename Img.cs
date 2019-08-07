@@ -5,7 +5,7 @@ namespace ImageBank
     public class Img
     {
         public string Name { get; }
-        public string Node { get; set; }
+        public int Cluster { get; set; }
         public int Gen { get; private set; }
         public DateTime LastView { get; set; }
         public DateTime LastChecked { get; private set; }
@@ -22,7 +22,7 @@ namespace ImageBank
 
         public Img(
             string name,
-            string node,
+            int cluster,
             int gen,
             DateTime lastview,
             DateTime lastchecked,
@@ -34,7 +34,7 @@ namespace ImageBank
             string crc)
         {
             Name = name;
-            Node = node;
+            Cluster = cluster;
             Gen = gen;
             LastView = lastview;
             LastChecked = lastchecked;

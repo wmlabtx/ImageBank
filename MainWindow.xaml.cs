@@ -76,19 +76,14 @@ namespace ImageBank
             RotateRightClick();
         }
 
-        private void MirrorHorizontalClick(object sender, EventArgs e)
+        private void MirrorHorizontalClick(object sender, RoutedEventArgs e)
         {
             MirrorHorizontalClick();
         }
 
-        private void MoveToRightClick(object sender, RoutedEventArgs e)
+        private void CombineClustersClick(object sender, RoutedEventArgs e)
         {
-            MoveToRightClick();
-        }
-
-        private void MoveToNodeClick(object sender, RoutedEventArgs e)
-        {
-            MoveToNodeClick((string)((System.Windows.Controls.MenuItem)sender).Tag);
+            CombineClustersClick();
         }
     }
 }

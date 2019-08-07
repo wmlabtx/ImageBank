@@ -17,51 +17,34 @@ namespace ImageBank
             }
 
             Img imgX = null;
-            var scopeWrongNew = _imgList
-                .Where(e => e.Value.Gen == Img.GenNew && !_imgList.ContainsKey(e.Value.NextName))
-                .ToArray();
-
-            if (scopeWrongNew.Length > 0)
+            foreach(var img in _imgList)
             {
-                imgX = scopeWrongNew.FirstOrDefault().Value;
+                if (img.Value.Name.Equals(img.Value.NextName))
+                {
+                    imgX = img.Value;
+                    break;
+                }
+
+                var imgNext = GetImgByName(img.Value.NextName);
+                if (imgNext == null)
+                {
+                    imgX = img.Value;
+                    break;
+                }
+
+                if (img.Value.Cluster != 0 && img.Value.Cluster == imgNext.Cluster)
+                {
+                    imgX = img.Value;
+                    break;
+                }
             }
-            else
+
+            if (imgX == null)
             {
-                var scopeWrong = _imgList
-                    .Where(e => !_imgList.ContainsKey(e.Value.NextName))
-                    .ToArray();
-
-                if (scopeWrong.Length > 0)
-                {
-                    imgX = scopeWrong.FirstOrDefault().Value;
-                }
-                else
-                {
-                    foreach(var img in _imgList)
-                    {
-                        var imgNext = GetImgByName(img.Value.NextName);
-                        if (imgNext == null)
-                        {
-                            imgX = img.Value;
-                            break;
-                        }
-
-                        if (!HelperPath.NodesComparable(img.Value.Node, imgNext.Node))
-                        {
-                            imgX = img.Value;
-                            break;
-                        }
-                    }
-
-                    if (imgX == null)
-                    {
-                        imgX = _imgList
-                            .OrderBy(e => e.Value.LastChecked)
-                            .FirstOrDefault()
-                            .Value;
-                    }
-
-                }
+                imgX = _imgList
+                    .OrderBy(e => e.Value.LastChecked)
+                    .FirstOrDefault()
+                    .Value;
             }
 
             if (imgX == null)

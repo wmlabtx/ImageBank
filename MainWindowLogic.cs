@@ -115,16 +115,10 @@ namespace ImageBank
             */
         }
 
-        private void MoveToRightClick()
-        {
-            var nodeY = AppVars.ImgPanel[1].Img.Node;
-            MoveToNodeClick(nodeY);
-        }
-
-        private async void MoveToNodeClick(string node)
+        private async void CombineClustersClick()
         {
             DisableElements();
-            await Task.Run(() => { AppVars.Collection.MoveTo(AppVars.ImgPanel[0].Img, node); });
+            await Task.Run(() => { AppVars.Collection.CombineClusters(AppVars.ImgPanel[0].Img, AppVars.ImgPanel[1].Img); });
             DrawCanvas();
             EnableElements();
         }
@@ -215,17 +209,11 @@ namespace ImageBank
                 pBoxes[index].Source = HelperImages.ImageSourceFromBitmap(AppVars.ImgPanel[index].Bitmap);
 
                 var sb = new StringBuilder();
-                if (!string.IsNullOrEmpty(AppVars.ImgPanel[index].Img.Node))
+                sb.Append($"{AppVars.ImgPanel[index].Img.Cluster}\\{AppVars.ImgPanel[index].Img.Name}");
+                var clustersize = AppVars.Collection.GetClusterSize(AppVars.ImgPanel[index].Img.Cluster);
+                if (clustersize > 0)
                 {
-                    sb.Append($"{AppVars.ImgPanel[index].Img.Node}\\");
-                }
-
-                sb.Append($"{AppVars.ImgPanel[index].Img.Name}");
-
-                var nodesize = AppVars.Collection.GetNodeSize(AppVars.ImgPanel[index].Img.Node);
-                if (nodesize > 0)
-                {
-                    sb.Append($" [{nodesize}]");
+                    sb.Append($" [{clustersize}]");
                 }
 
                 sb.Append($" {AppVars.ImgPanel[index].Img.Sim:F2}");
@@ -244,13 +232,10 @@ namespace ImageBank
                 sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].Img.LastChecked))} ago]");
 
                 pLabels[index].Text = sb.ToString();
-                pLabels[index].Background =
-                    string.IsNullOrEmpty(AppVars.ImgPanel[index].Img.Node) ?
-                    System.Windows.Media.Brushes.White :
-                    System.Windows.Media.Brushes.Bisque;
+                pLabels[index].Background = AppVars.ImgPanel[index].Img.Cluster != 0 ? System.Windows.Media.Brushes.Bisque : System.Windows.Media.Brushes.White;
             }
 
-            if (!string.IsNullOrEmpty(AppVars.ImgPanel[0].Img.Node) && AppVars.ImgPanel[0].Img.Node.Equals(AppVars.ImgPanel[1].Img.Node))
+            if (AppVars.ImgPanel[0].Img.Cluster != 0 && AppVars.ImgPanel[0].Img.Cluster == AppVars.ImgPanel[1].Img.Cluster)
             {
                 pLabels[0].Background = System.Windows.Media.Brushes.LightGreen;
                 pLabels[1].Background = System.Windows.Media.Brushes.LightGreen;

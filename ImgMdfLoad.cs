@@ -14,7 +14,7 @@ namespace ImageBank
                 var sb = new StringBuilder();
                 sb.Append("SELECT ");
                 sb.Append($"{AppConsts.AttrName}, "); // 0
-                sb.Append($"{AppConsts.AttrNode}, "); // 1
+                sb.Append($"{AppConsts.AttrCluster}, "); // 1
                 sb.Append($"{AppConsts.AttrGen}, "); // 2
                 sb.Append($"{AppConsts.AttrLastView}, "); // 3
                 sb.Append($"{AppConsts.AttrLastChecked}, "); // 4
@@ -35,7 +35,7 @@ namespace ImageBank
                         while (reader.Read())
                         {
                             var name = reader.GetString(0);
-                            var node = reader.GetString(1);
+                            var cluster = reader.GetInt32(1);
                             var gen = reader.GetInt32(2);
                             var lastview = reader.GetDateTime(3);
                             var lastchecked = reader.GetDateTime(4);
@@ -47,7 +47,7 @@ namespace ImageBank
                             var lenght = reader.GetInt32(9);
                             var crc = reader.GetString(10);
 
-                            var img = new Img(name, node, gen, lastview, lastchecked, udescriptors, nextname, sim, offset, lenght, crc);
+                            var img = new Img(name, cluster, gen, lastview, lastchecked, udescriptors, nextname, sim, offset, lenght, crc);
                             _imgList.TryAdd(name, img);
 
                             if (DateTime.Now.Subtract(dt).TotalMilliseconds > AppConsts.TimeLapse)
@@ -61,6 +61,7 @@ namespace ImageBank
                     }
                 }
 
+                /*
                 var scope = _imgList.Select(e => e.Value).ToArray();
                 foreach (var img in scope)
                 {
@@ -70,6 +71,7 @@ namespace ImageBank
                         UpdateNode(img);
                     }
                 }
+                */
             }
         }
     }

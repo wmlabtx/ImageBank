@@ -40,20 +40,9 @@ namespace ImageBank
                 }
 
                 var name = HelperCrc.GetCrc(jpgdata);
-                var node = HelperPath.GetNode(filename);
                 if (_imgList.TryGetValue(name, out var imgFound))
                 {
-                    if (!string.IsNullOrEmpty(node))
-                    {
-                        imgFound.Node = node;
-                        UpdateNode(imgFound);
-                        moved++;
-                    }
-                    else
-                    {
-                        skipped++;
-                    }
-                    
+                    skipped++;
                     HelperRecycleBin.Delete(filename);
                     continue;
                 }
@@ -73,7 +62,7 @@ namespace ImageBank
 
                 var img = new Img(
                     name,
-                    node,
+                    0,
                     Img.GenNew,
                     lastview,                    
                     lastchecked,

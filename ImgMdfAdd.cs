@@ -17,7 +17,7 @@ namespace ImageBank
                 var sb = new StringBuilder();
                 sb.Append("INSERT INTO Images (");
                 sb.Append($"{AppConsts.AttrName}, ");
-                sb.Append($"{AppConsts.AttrNode}, ");
+                sb.Append($"{AppConsts.AttrCluster}, ");
                 sb.Append($"{AppConsts.AttrGen}, ");
                 sb.Append($"{AppConsts.AttrLastView}, ");
                 sb.Append($"{AppConsts.AttrLastChecked}, ");
@@ -29,7 +29,7 @@ namespace ImageBank
                 sb.Append($"{AppConsts.AttrCrc}");
                 sb.Append(") VALUES (");
                 sb.Append($"@{AppConsts.AttrName}, ");
-                sb.Append($"@{AppConsts.AttrNode}, ");
+                sb.Append($"@{AppConsts.AttrCluster}, ");
                 sb.Append($"@{AppConsts.AttrGen}, ");
                 sb.Append($"@{AppConsts.AttrLastView}, ");
                 sb.Append($"@{AppConsts.AttrLastChecked}, ");
@@ -44,7 +44,7 @@ namespace ImageBank
                 using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
                 {
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrName}", img.Name);
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrNode}", img.Node);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrCluster}", img.Cluster);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrGen}", img.Gen);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastView}", img.LastView);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastChecked}", img.LastChecked);

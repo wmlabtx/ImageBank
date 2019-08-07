@@ -62,6 +62,7 @@ namespace ImageBank
             }
         }
 
+        /*
         private Img FindInRotation(Img[] scope)
         {
             var nodes = new SortedDictionary<string, DateTime>();
@@ -103,5 +104,6 @@ namespace ImageBank
 
             return imgX;
         }
+        */
     }
 }
