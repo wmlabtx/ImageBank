@@ -18,9 +18,6 @@
                 <MenuItem Header="Rotate right" Click="RotateRightClick" />
                 <MenuItem Header="Mirror horizontal" Click="MirrorHorizontalClick" />
             </MenuItem>
-            <MenuItem Header="Cluster">
-                <MenuItem Header="Combine clusters" Click="CombineClustersClick" />
-            </MenuItem>
         </Menu>
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBar.ItemsPanel>

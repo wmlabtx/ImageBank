@@ -55,6 +55,7 @@ namespace ImageBank
 
                 var lastview = GetMinLastView();
                 var lastchecked = GetMinLastChecked();
+                var lastchanged = lastchecked;
                 var array = HelperEncrypting.Encrypt(jpgdata, name);
                 var crc = HelperCrc.GetCrc(array);
                 var offset = GetSuggestedOffset(array.Length);
@@ -63,9 +64,9 @@ namespace ImageBank
                 var img = new Img(
                     name,
                     0,
-                    Img.GenNew,
                     lastview,                    
                     lastchecked,
+                    lastchanged,
                     descriptors,
                     name,
                     0f,

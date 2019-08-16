@@ -115,14 +115,6 @@ namespace ImageBank
             */
         }
 
-        private async void CombineClustersClick()
-        {
-            DisableElements();
-            await Task.Run(() => { AppVars.Collection.CombineClusters(AppVars.ImgPanel[0].Img, AppVars.ImgPanel[1].Img); });
-            DrawCanvas();
-            EnableElements();
-        }
-
         private void PictureLeftBoxMouseClick()
         {
             ImgPanelDelete(0);
@@ -136,7 +128,8 @@ namespace ImageBank
         private async void ButtonLeftNextMouseClick()
         {
             AppVars.ImgPanel[0].Img.SetViewed();
-            AppVars.Collection.UpdateNameNext(AppVars.ImgPanel[0].Img);
+            AppVars.Collection.UpdateLastView(AppVars.ImgPanel[0].Img);
+            AppVars.Collection.UpdateStars(AppVars.ImgPanel[0].Img);
 
             DisableElements();
             await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
@@ -209,14 +202,13 @@ namespace ImageBank
                 pBoxes[index].Source = HelperImages.ImageSourceFromBitmap(AppVars.ImgPanel[index].Bitmap);
 
                 var sb = new StringBuilder();
-                sb.Append($"{AppVars.ImgPanel[index].Img.Cluster}\\{AppVars.ImgPanel[index].Img.Name}");
-                var clustersize = AppVars.Collection.GetClusterSize(AppVars.ImgPanel[index].Img.Cluster);
-                if (clustersize > 0)
+                sb.Append($"{AppVars.ImgPanel[index].Img.Name}");
+                if (AppVars.ImgPanel[index].Img.Stars > 0)
                 {
-                    sb.Append($" [{clustersize}]");
+                    sb.Append($" [{AppVars.ImgPanel[index].Img.Stars}]");
                 }
 
-                sb.Append($" {AppVars.ImgPanel[index].Img.Sim:F2}");
+                sb.Append($" {AppVars.ImgPanel[index].Img.Sim:F4}");
 
                 sb.AppendLine();
                 sb.Append($"{HelperConvertors.SizeToString(AppVars.ImgPanel[index].Size)} ({AppVars.ImgPanel[index].Bitmap.Width:F0}x{AppVars.ImgPanel[index].Bitmap.Height:F0})");
@@ -229,16 +221,10 @@ namespace ImageBank
 
                 sb.AppendLine();
                 sb.Append($"{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].Img.LastView))} ago");
-                sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].Img.LastChecked))} ago]");
+                sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].Img.LastChanged))} ago]");
 
                 pLabels[index].Text = sb.ToString();
-                pLabels[index].Background = AppVars.ImgPanel[index].Img.Cluster != 0 ? System.Windows.Media.Brushes.Bisque : System.Windows.Media.Brushes.White;
-            }
-
-            if (AppVars.ImgPanel[0].Img.Cluster != 0 && AppVars.ImgPanel[0].Img.Cluster == AppVars.ImgPanel[1].Img.Cluster)
-            {
-                pLabels[0].Background = System.Windows.Media.Brushes.LightGreen;
-                pLabels[1].Background = System.Windows.Media.Brushes.LightGreen;
+                pLabels[index].Background = AppVars.ImgPanel[index].Img.Stars > 0 ? System.Windows.Media.Brushes.Bisque : System.Windows.Media.Brushes.White;
             }
 
             if (AppVars.ImgPanel[0].Img.Name.Equals(AppVars.ImgPanel[1].Img.Name))

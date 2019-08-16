@@ -80,10 +80,5 @@ namespace ImageBank
         {
             MirrorHorizontalClick();
         }
-
-        private void CombineClustersClick(object sender, RoutedEventArgs e)
-        {
-            CombineClustersClick();
-        }
     }
 }

@@ -17,10 +17,10 @@ namespace ImageBank
                 var sb = new StringBuilder();
                 sb.Append("INSERT INTO Images (");
                 sb.Append($"{AppConsts.AttrName}, ");
-                sb.Append($"{AppConsts.AttrCluster}, ");
-                sb.Append($"{AppConsts.AttrGen}, ");
+                sb.Append($"{AppConsts.AttrStars}, ");
                 sb.Append($"{AppConsts.AttrLastView}, ");
                 sb.Append($"{AppConsts.AttrLastChecked}, ");
+                sb.Append($"{AppConsts.AttrLastChanged}, ");
                 sb.Append($"{AppConsts.AttrDescriptors}, ");
                 sb.Append($"{AppConsts.AttrNextName}, ");
                 sb.Append($"{AppConsts.AttrSim}, ");
@@ -29,10 +29,10 @@ namespace ImageBank
                 sb.Append($"{AppConsts.AttrCrc}");
                 sb.Append(") VALUES (");
                 sb.Append($"@{AppConsts.AttrName}, ");
-                sb.Append($"@{AppConsts.AttrCluster}, ");
-                sb.Append($"@{AppConsts.AttrGen}, ");
+                sb.Append($"@{AppConsts.AttrStars}, ");
                 sb.Append($"@{AppConsts.AttrLastView}, ");
                 sb.Append($"@{AppConsts.AttrLastChecked}, ");
+                sb.Append($"@{AppConsts.AttrLastChanged}, ");
                 sb.Append($"@{AppConsts.AttrDescriptors}, ");
                 sb.Append($"@{AppConsts.AttrNextName}, ");
                 sb.Append($"@{AppConsts.AttrSim}, ");
@@ -44,10 +44,10 @@ namespace ImageBank
                 using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
                 {
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrName}", img.Name);
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrCluster}", img.Cluster);
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrGen}", img.Gen);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrStars}", img.Stars);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastView}", img.LastView);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastChecked}", img.LastChecked);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastChanged}", img.LastChanged);
                     var buffer = HelperDescriptors.ConvertToByteArray(img.Descriptors);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrDescriptors}", buffer);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrNextName}", img.NextName);

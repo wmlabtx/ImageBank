@@ -11,19 +11,19 @@ namespace ImageBank
             {
                 var sb = new StringBuilder();
                 sb.Append("UPDATE Images SET ");
-                sb.Append($"{AppConsts.AttrGen} = @{AppConsts.AttrGen}, ");
                 sb.Append($"{AppConsts.AttrNextName} = @{AppConsts.AttrNextName}, ");
                 sb.Append($"{AppConsts.AttrSim} = @{AppConsts.AttrSim}, ");
-                sb.Append($"{AppConsts.AttrLastChecked} = @{AppConsts.AttrLastChecked} ");
+                sb.Append($"{AppConsts.AttrLastChecked} = @{AppConsts.AttrLastChecked}, ");
+                sb.Append($"{AppConsts.AttrLastChanged} = @{AppConsts.AttrLastChanged} ");
                 sb.Append("WHERE ");
                 sb.Append($"{AppConsts.AttrName} = @{AppConsts.AttrName}");
                 var sqltext = sb.ToString();
                 using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
                 {
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrGen}", img.Gen);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrNextName}", img.NextName);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrSim}", img.Sim);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastChecked}", img.LastChecked);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastChanged}", img.LastChanged);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrName}", img.Name);
                     sqlCommand.ExecuteNonQuery();
                 }
@@ -49,19 +49,19 @@ namespace ImageBank
             }
         }
 
-        public void UpdateCluster(Img img)
+        public void UpdateStars(Img img)
         {
             lock (_sqlLock)
             {
                 var sb = new StringBuilder();
                 sb.Append("UPDATE Images SET ");
-                sb.Append($"{AppConsts.AttrCluster} = @{AppConsts.AttrCluster} ");
+                sb.Append($"{AppConsts.AttrStars} = @{AppConsts.AttrStars} ");
                 sb.Append("WHERE ");
                 sb.Append($"{AppConsts.AttrName} = @{AppConsts.AttrName}");
                 var sqltext = sb.ToString();
                 using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
                 {
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrCluster}", img.Cluster);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrStars}", img.Stars);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrName}", img.Name);
                     sqlCommand.ExecuteNonQuery();
                 }

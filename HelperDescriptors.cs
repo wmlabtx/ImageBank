@@ -110,7 +110,8 @@ namespace ImageBank
                 var mind = list[0].D;
                 var minx = list[0].X;
                 var miny = list[0].Y;
-                sum += (float)(1.0 / Math.Pow(Math.Exp(mind / AppConsts.MaxHammingDistance), 2.0));
+                var k = (float)Math.Pow(((AppConsts.MaxHammingDistance - mind) / (double)AppConsts.MaxHammingDistance), 2.0);
+                sum += k;
                 var pos = list.Count - 1;
                 while (pos >= 0)
                 {
@@ -123,7 +124,8 @@ namespace ImageBank
                 }
             }
 
-            return sum * 4f / x.Length;
+            var sim = sum * 4f / x.Length;
+            return sim;
         }
 
         public static ulong[] ConvertToDescriptors(byte[] buffer)

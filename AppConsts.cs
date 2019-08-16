@@ -21,10 +21,10 @@
         public const double TimeLapse = 500.0;
 
         public const string AttrName = "Name";
-        public const string AttrCluster = "Cluster";
-        public const string AttrGen = "Gen";
+        public const string AttrStars = "Stars";
         public const string AttrLastView = "LastView";
         public const string AttrLastChecked = "LastChecked";
+        public const string AttrLastChanged = "LastChanged";
         public const string AttrDescriptors = "Descriptors";
         public const string AttrNextName = "NextName";
         public const string AttrSim = "Sim";

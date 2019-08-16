@@ -31,12 +31,6 @@ namespace ImageBank
                     imgX = img.Value;
                     break;
                 }
-
-                if (img.Value.Cluster != 0 && img.Value.Cluster == imgNext.Cluster)
-                {
-                    imgX = img.Value;
-                    break;
-                }
             }
 
             if (imgX == null)
@@ -78,20 +72,19 @@ namespace ImageBank
 
             var sb = new StringBuilder();
             var count = _imgList.Count();
-            var genew = _imgList.Count(e => e.Value.Gen == Img.GenNew);
-            var genmodified = _imgList.Count(e => e.Value.Gen == Img.GenModified);
-            var genviewed= _imgList.Count(e => e.Value.Gen == Img.GenViewed);
-            sb.Append($"{genew}/{genmodified}/{genviewed}/{count}: {_avgTimes:F2}s ");
+            var counttoview = _imgList.Count(e => e.Value.LastView < e.Value.LastChanged);
+            var countold = _imgList.Count(e => DateTime.Now.Subtract(e.Value.LastChecked).TotalDays > 200);
+            sb.Append($"{counttoview}/{countold}/{count}: {_avgTimes:F2}s ");
 
             if (updates > 0)
             {
                 sb.Append($"({updates}) ");
             }
 
-            sb.Append($"{oldsim:F2}");
-            if (!imgX.Name.Equals(oldname) && !imgX.NextName.Equals(oldname))
+            sb.Append($"{oldsim:F4}");
+            if (!imgX.NextName.Equals(oldname) || Math.Abs(oldsim - imgX.Sim) > 0.0001)
             {
-                sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F2}");
+                sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F4}");
             }
 
             sb.Append(" / ");

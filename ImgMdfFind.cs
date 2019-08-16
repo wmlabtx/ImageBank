@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace ImageBank
@@ -19,23 +18,13 @@ namespace ImageBank
                     }
 
                     var scope = _imgList
-                        .Where(e => _imgList.ContainsKey(e.Value.NextName))
+                        .Where(e => _imgList.ContainsKey(e.Value.NextName) && !e.Value.Name.Equals(e.Value.NextName) && e.Value.LastView < e.Value.LastChanged)
                         .Select(e => e.Value)
-                        .OrderBy(e => e.LastView)
+                        .OrderByDescending(e => e.Sim)
                         .ToArray();
 
-                    var mingen = scope.Min(e => e.Gen);
-                    var scopegen = scope.Where(e => e.Gen == mingen).ToArray();
-                    Img imgX;
-                    if (mingen == Img.GenViewed)
-                    {
-                        imgX = scopegen.OrderBy(e => e.LastView).FirstOrDefault();
-                    }
-                    else
-                    {
-                        imgX = scopegen.OrderByDescending(e => e.Sim).FirstOrDefault();
-                    }
-
+                    var minstars = scope.Min(e => e.Stars);
+                    var imgX = scope.Where(e => e.Stars == minstars).FirstOrDefault();
                     nameX = imgX.Name;
                     AppVars.ImgPanel[0] = GetImgPanel(nameX);
                     if (AppVars.ImgPanel[0] == null)

@@ -5,27 +5,23 @@ namespace ImageBank
     public class Img
     {
         public string Name { get; }
-        public int Cluster { get; set; }
-        public int Gen { get; private set; }
+        public int Stars { get; set; }
         public DateTime LastView { get; set; }
-        public DateTime LastChecked { get; private set; }
+        public DateTime LastChecked { get; set; }
+        public DateTime LastChanged { get; set; }
         public ulong[] Descriptors { get; set; }
-        public string NextName { get; private set; }
-        public float Sim { get; private set; }
+        public string NextName { get; set; }
+        public float Sim { get; set; }
         public long Offset { get; set; }
         public int Lenght { get; set; }
         public string Crc { get; set; }
 
-        public const int GenNew = 0;
-        public const int GenModified = 1;
-        public const int GenViewed = 2;
-
         public Img(
             string name,
-            int cluster,
-            int gen,
+            int stars,
             DateTime lastview,
             DateTime lastchecked,
+            DateTime lastchanged,
             ulong[] descriptors,
             string nextname,
             float sim,
@@ -34,10 +30,10 @@ namespace ImageBank
             string crc)
         {
             Name = name;
-            Cluster = cluster;
-            Gen = gen;
+            Stars = stars;
             LastView = lastview;
             LastChecked = lastchecked;
+            LastChanged = lastchanged;
             Descriptors = descriptors;
             NextName = nextname;
             Sim = sim;
@@ -46,37 +42,10 @@ namespace ImageBank
             Crc = crc;
         }
 
-        public void SetNextName(string nextname, float sim)
-        {
-            NextName = nextname;
-            Sim = sim;
-            LastChecked = DateTime.Now;
-            if (Gen == GenViewed)
-            {
-                Gen = GenModified;
-            }
-        }
-
-        public void SetNextName(string nextname, DateTime min)
-        {
-            NextName = nextname;
-            LastChecked = min;
-            Sim = 0f;
-            if (Gen == GenViewed)
-            {
-                Gen = GenModified;
-            }
-        }
-
-        public void SetNextName()
-        {
-            LastChecked = DateTime.Now;
-        }
-
         public void SetViewed()
         {
             LastView = DateTime.Now;
-            Gen = GenViewed;
+            Stars++;
         }
     }
 }
