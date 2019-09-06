@@ -73,8 +73,7 @@ namespace ImageBank
             var sb = new StringBuilder();
             var count = _imgList.Count();
             var counttoview = _imgList.Count(e => e.Value.LastView < e.Value.LastChanged);
-            var countold = _imgList.Count(e => DateTime.Now.Subtract(e.Value.LastChecked).TotalDays > 200);
-            sb.Append($"{counttoview}/{countold}/{count}: {_avgTimes:F2}s ");
+            sb.Append($"{counttoview}/{count}: {_avgTimes:F2}s ");
 
             if (updates > 0)
             {
@@ -84,6 +83,7 @@ namespace ImageBank
             sb.Append($"{oldsim:F4}");
             if (!imgX.NextName.Equals(oldname) || Math.Abs(oldsim - imgX.Sim) > 0.0001)
             {
+                imgX.Stars = 0;
                 sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F4}");
             }
 

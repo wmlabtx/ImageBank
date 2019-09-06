@@ -2,7 +2,7 @@
 {
     public static class AppConsts
     {
-        public const string PathRoot = @"D:\Users\Murad\Documents\World of Warcraft\_retail_\Cache\SDB\";
+        public const string PathRoot = @"D:\Users\Murad\Documents\SDB\";
         public const string PathSource = PathRoot + @"hp\";
         public const string FileDatabase = PathRoot + @"db\images.mdf";
         public const string FileData = PathRoot + @"db\images_data.ddf";

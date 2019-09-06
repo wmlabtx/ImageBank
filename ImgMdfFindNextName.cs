@@ -17,7 +17,12 @@ namespace ImageBank
         {
             var oldnextname = imgX.NextName;
             var oldsim = imgX.Sim;
+
+            imgX.NextName = imgX.Name;
             imgX.Sim = 0f;
+            imgX.LastChecked = DateTime.Now;
+            UpdateNameNext(imgX);
+
             var scope = _imgList
                 .Where(e => !e.Value.Name.Equals(imgX.Name))
                 .Select(e => e.Value)
@@ -38,6 +43,8 @@ namespace ImageBank
                 {
                     imgX.NextName = imgY.Name;
                     imgX.Sim = sim;
+                    imgX.LastChecked = DateTime.Now;
+                    UpdateNameNext(imgX);
                 }
 
                 if (sim > imgY.Sim)
@@ -50,7 +57,6 @@ namespace ImageBank
                 }
             }
 
-            imgX.LastChecked = DateTime.Now;
             if (!imgX.NextName.Equals(oldname) || Math.Abs(oldsim - imgX.Sim) > 0.0001)
             {
                 imgX.LastChanged = DateTime.Now;

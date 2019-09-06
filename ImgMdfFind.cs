@@ -23,9 +23,15 @@ namespace ImageBank
                         .OrderByDescending(e => e.Sim)
                         .ToArray();
 
+                    //var imgX = scope.OrderBy(e => e.LastView).FirstOrDefault();
+
+                    
                     var minstars = scope.Min(e => e.Stars);
                     var imgX = scope.Where(e => e.Stars == minstars).FirstOrDefault();
-                    nameX = imgX.Name;
+                  
+
+                    nameX = imgX.Name;                    
+
                     AppVars.ImgPanel[0] = GetImgPanel(nameX);
                     if (AppVars.ImgPanel[0] == null)
                     {
