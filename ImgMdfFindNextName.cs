@@ -53,6 +53,12 @@ namespace ImageBank
                     imgY.Sim = sim;
                     imgY.LastChanged = DateTime.Now;
                     UpdateNameNext(imgY);
+                    if (imgY.Stars > 0)
+                    {
+                        imgY.Stars = 0;
+                        UpdateStars(imgY);
+                    }
+
                     updates++;
                 }
             }
