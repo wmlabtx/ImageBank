@@ -35,10 +35,20 @@ namespace ImageBank
 
             if (imgX == null)
             {
+                var scope = _imgList
+                    .Select(e => e.Value)
+                    .ToArray();
+
+                imgX = scope
+                    .OrderBy(e => e.LastChecked)
+                    .FirstOrDefault();
+
+                /*
                 imgX = _imgList
                     .OrderBy(e => e.Value.LastChecked)
                     .FirstOrDefault()
                     .Value;
+                */
             }
 
             if (imgX == null)

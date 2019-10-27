@@ -23,14 +23,26 @@ namespace ImageBank
                     var scope = _imgList
                         .Where(e => _imgList.ContainsKey(e.Value.NextName) && !e.Value.Name.Equals(e.Value.NextName) && e.Value.LastView < e.Value.LastChanged)
                         .Select(e => e.Value)
-                        .OrderByDescending(e => e.Sim)
                         .ToArray();
 
                     var minstars = scope.Min(e => e.Stars);
-                    scope = scope.Where(e => e.Stars == minstars).OrderBy(e => e.LastView).Take(10000).ToArray();
+
+                    var imgX = flagNext ?
+                        scope.Where(e => e.Stars == minstars).OrderByDescending(e => e.Sim).FirstOrDefault() :
+                        scope.OrderBy(e => e.LastView).FirstOrDefault();
+
+                    //.OrderByDescending(e => e.Sim)
+
+                    //scope = scope.Where(e => e.Stars == minstars).OrderByDescending(e => e.LastChecked).ToArray();
+
+                    //var imgX = scope.Where(e => e.Stars == minstars).OrderByDescending(e => e.Sim).FirstOrDefault();
+
+                    // var imgX = scope.Where(e => e.Stars == minstars).OrderByDescending(e => e.LastChecked).FirstOrDefault();
+
+                    /*
                     var index = (int)(scope.Length * Math.Pow(random.Next(100000) / 100000.0, 4));
                     var imgX = scope[index];
-
+                    */
 
                     /*
                     Img imgX;
@@ -45,8 +57,7 @@ namespace ImageBank
                     }
                     */
 
-                    //flagNext = !flagNext;
-
+                    flagNext = !flagNext;
                     nameX = imgX.Name;                    
 
                     AppVars.ImgPanel[0] = GetImgPanel(nameX);
