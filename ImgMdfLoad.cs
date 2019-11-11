@@ -23,7 +23,8 @@ namespace ImageBank
                 sb.Append($"{AppConsts.AttrSim}, "); // 7
                 sb.Append($"{AppConsts.AttrOffset}, "); // 8
                 sb.Append($"{AppConsts.AttrLenght}, "); // 9
-                sb.Append($"{AppConsts.AttrCrc} "); // 10
+                sb.Append($"{AppConsts.AttrCrc}, "); // 10
+                sb.Append($"{AppConsts.AttrNode} "); // 11
                 sb.Append("FROM Images");
                 var sqltext = sb.ToString();
                 using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
@@ -46,8 +47,9 @@ namespace ImageBank
                             var offset = reader.GetInt64(8);
                             var lenght = reader.GetInt32(9);
                             var crc = reader.GetString(10);
+                            var node = reader.GetString(11);
 
-                            var img = new Img(name, stars, lastview, lastchecked, lastchanged, udescriptors, nextname, sim, offset, lenght, crc);
+                            var img = new Img(name, stars, lastview, lastchecked, lastchanged, udescriptors, nextname, sim, offset, lenght, crc, node);
                             _imgList.TryAdd(name, img);
 
                             if (DateTime.Now.Subtract(dt).TotalMilliseconds > AppConsts.TimeLapse)
@@ -60,18 +62,6 @@ namespace ImageBank
                         progress.Report("Database loaded");
                     }
                 }
-
-                /*
-                var scope = _imgList.Select(e => e.Value).ToArray();
-                foreach (var img in scope)
-                {
-                    if (img.Node.StartsWith("twlba"))
-                    {
-                        img.Node = string.Empty;
-                        UpdateNode(img);
-                    }
-                }
-                */
             }
         }
     }

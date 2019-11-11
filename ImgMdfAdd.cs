@@ -26,7 +26,8 @@ namespace ImageBank
                 sb.Append($"{AppConsts.AttrSim}, ");
                 sb.Append($"{AppConsts.AttrOffset}, ");
                 sb.Append($"{AppConsts.AttrLenght}, ");
-                sb.Append($"{AppConsts.AttrCrc}");
+                sb.Append($"{AppConsts.AttrCrc}, ");
+                sb.Append($"{AppConsts.AttrNode}");
                 sb.Append(") VALUES (");
                 sb.Append($"@{AppConsts.AttrName}, ");
                 sb.Append($"@{AppConsts.AttrStars}, ");
@@ -38,7 +39,8 @@ namespace ImageBank
                 sb.Append($"@{AppConsts.AttrSim}, ");
                 sb.Append($"@{AppConsts.AttrOffset}, ");
                 sb.Append($"@{AppConsts.AttrLenght}, ");
-                sb.Append($"@{AppConsts.AttrCrc}");
+                sb.Append($"@{AppConsts.AttrCrc}, ");
+                sb.Append($"@{AppConsts.AttrNode}");
                 sb.Append(")");
                 var sqltext = sb.ToString();
                 using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
@@ -55,6 +57,7 @@ namespace ImageBank
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrOffset}", img.Offset);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLenght}", img.Lenght);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrCrc}", img.Crc);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrNode}", img.Node);
                     sqlCommand.ExecuteNonQuery();
                 }
             }

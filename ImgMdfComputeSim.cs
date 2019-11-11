@@ -11,56 +11,22 @@ namespace ImageBank
         {
             AppVars.SuspendEvent.WaitOne(Timeout.Infinite);
 
+            var dt = DateTime.Now;
+
             if (_imgList.Count == 0)
             {
                 return null;
             }
 
-            Img imgX = null;
-            foreach(var img in _imgList)
-            {
-                if (img.Value.Name.Equals(img.Value.NextName))
-                {
-                    imgX = img.Value;
-                    break;
-                }
+            var imgX = _imgList
+                .Select(e => e.Value)
+                .OrderBy(e => e.LastChecked)
+                .FirstOrDefault();
 
-                var imgNext = GetImgByName(img.Value.NextName);
-                if (imgNext == null)
-                {
-                    imgX = img.Value;
-                    break;
-                }
-            }
-
-            if (imgX == null)
-            {
-                var scope = _imgList
-                    .Select(e => e.Value)
-                    .ToArray();
-
-                imgX = scope
-                    .OrderBy(e => e.LastChecked)
-                    .FirstOrDefault();
-
-                /*
-                imgX = _imgList
-                    .OrderBy(e => e.Value.LastChecked)
-                    .FirstOrDefault()
-                    .Value;
-                */
-            }
-
-            if (imgX == null)
-            {
-                return null;
-            }
-
-            var oldname = imgX.NextName;
+            var oldnextname = imgX.NextName;
             var oldchecked = imgX.LastChecked;
             var oldsim = imgX.Sim;
-
-            var dt = DateTime.Now;
+            
             var updates = FindNextName(imgX);
 
             var imgY = GetImgByName(imgX.NextName);
@@ -68,6 +34,26 @@ namespace ImageBank
             {
                 return null;
             }
+
+            var sb = new StringBuilder();
+            var count = _imgList.Count();
+            var countzero = _imgList.Count(e => e.Value.LastView < e.Value.LastChanged);
+            sb.Append($"{countzero}/{count}: {_avgTimes:F2}s ");
+
+            if (updates > 0)
+            {
+                sb.Append($"({updates}) ");
+            }
+
+            sb.Append($"{oldsim:F4}");
+            if (!imgX.NextName.Equals(oldnextname) || Math.Abs(oldsim - imgX.Sim) > 0.0001)
+            {
+                sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F4}");
+            }
+
+            sb.Append(" / ");
+            sb.Append($"{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(imgX.LastView))} ago");
+            sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(oldchecked))} ago]");
 
             _findTimes.Enqueue(DateTime.Now.Subtract(dt).TotalSeconds);
             if (_findTimes.Count > 100)
@@ -80,31 +66,6 @@ namespace ImageBank
                 _avgTimes = _findTimes.Average();
             }
 
-            var sb = new StringBuilder();
-            var count = _imgList.Count();
-            var countzero = _imgList.Count(e => e.Value.Stars == 0);
-            sb.Append($"{countzero}/{count}: {_avgTimes:F2}s ");
-
-            if (updates > 0)
-            {
-                sb.Append($"({updates}) ");
-            }
-
-            sb.Append($"{oldsim:F4}");
-            if (!imgX.NextName.Equals(oldname) || Math.Abs(oldsim - imgX.Sim) > 0.0001)
-            {
-                if (imgX.Stars > 0)
-                {
-                    imgX.Stars = 0;
-                    UpdateStars(imgX);
-                }
-
-                sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F4}");
-            }
-
-            sb.Append(" / ");
-            sb.Append($"{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(imgX.LastView))} ago");
-            sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(oldchecked))} ago]");
             return sb.ToString();
         }
     }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Linq;
 
 namespace ImageBank
@@ -20,55 +21,58 @@ namespace ImageBank
 
             imgX.NextName = imgX.Name;
             imgX.Sim = 0f;
-            imgX.LastChecked = DateTime.Now;
-            UpdateNameNext(imgX);
+            imgX.LastChecked = DateTime.Now;            
+
+            if (imgX.Descriptors.Length == 0)
+            {
+                var jpgdata = GetJpgData(imgX);
+                if (jpgdata == null || jpgdata.Length == 0)
+                {
+                    DeleteImg(imgX);
+                    return 0;
+                }
+
+                var crcname = HelperCrc.GetCrc(jpgdata);
+                Assert.IsTrue(crcname.Equals(imgX.Name));
+                if (HelperDescriptors.ComputeDescriptors(jpgdata, out var descriptors))
+                {
+                    imgX.Descriptors = descriptors;
+                    UpdateDescriptors(imgX);
+                }
+            }
 
             var scope = _imgList
-                .Where(e => !e.Value.Name.Equals(imgX.Name))
-                .Select(e => e.Value)
+                .Where(e => !e.Value.Name.Equals(imgX.Name) && e.Value.Descriptors.Length > 0)
+                .Select(e => e.Value)                
                 .ToArray();
 
             if (scope.Length == 0)
             {
-                imgX.LastChecked = DateTime.Now;
+                UpdateNameNext(imgX);
                 return 0;
             }
 
-            var updates = 0;
-            var oldname = imgX.NextName;
+            var updates = 0;            
             foreach (var imgY in scope)
             {
-                var sim = HelperDescriptors.GetSim(imgX.Descriptors, imgY.Descriptors);
-                if (sim > imgX.Sim)
+                if (string.IsNullOrEmpty(imgX.Node) || (!string.IsNullOrEmpty(imgX.Node) && !string.IsNullOrEmpty(imgY.Node) && imgY.Node.StartsWith(imgX.Node)))
                 {
-                    imgX.NextName = imgY.Name;
-                    imgX.Sim = sim;
-                    imgX.LastChecked = DateTime.Now;
-                    UpdateNameNext(imgX);
-                }
-
-                if (sim > imgY.Sim)
-                {
-                    imgY.NextName = imgX.Name;
-                    imgY.Sim = sim;
-                    imgY.LastChanged = DateTime.Now;
-                    UpdateNameNext(imgY);
-                    if (imgY.Stars > 0)
+                    var sim = HelperDescriptors.GetSim(imgX.Descriptors, imgY.Descriptors);
+                    if (sim > imgX.Sim)
                     {
-                        imgY.Stars = 0;
-                        UpdateStars(imgY);
+                        imgX.NextName = imgY.Name;
+                        imgX.Sim = sim;
+                        imgX.LastChecked = DateTime.Now;                        
                     }
-
-                    updates++;
                 }
             }
 
-            if (!imgX.NextName.Equals(oldname) || Math.Abs(oldsim - imgX.Sim) > 0.0001)
-            {
+            if (!imgX.NextName.Equals(oldnextname) || Math.Abs(oldsim - imgX.Sim) > 0.0001)
+            {                
                 imgX.LastChanged = DateTime.Now;
-                UpdateNameNext(imgX);
             }
 
+            UpdateNameNext(imgX);
             return updates;
         }
     }

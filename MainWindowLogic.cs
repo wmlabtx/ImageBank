@@ -208,6 +208,11 @@ namespace ImageBank
                     sb.Append($" [{AppVars.ImgPanel[index].Img.Stars}]");
                 }
 
+                if (!string.IsNullOrEmpty(AppVars.ImgPanel[index].Img.Node))
+                {
+                    sb.Append($" {AppVars.ImgPanel[index].Img.Node}");
+                }
+
                 sb.Append($" {AppVars.ImgPanel[index].Img.Sim:F4}");
 
                 sb.AppendLine();
@@ -225,6 +230,12 @@ namespace ImageBank
 
                 pLabels[index].Text = sb.ToString();
                 pLabels[index].Background = AppVars.ImgPanel[index].Img.Stars > 0 ? System.Windows.Media.Brushes.Bisque : System.Windows.Media.Brushes.White;
+            }
+
+            if (!string.IsNullOrEmpty(AppVars.ImgPanel[0].Img.Node) && AppVars.ImgPanel[0].Img.Node.Equals(AppVars.ImgPanel[1].Img.Node))
+            {
+                pLabels[0].Background = System.Windows.Media.Brushes.LightGreen;
+                pLabels[1].Background = System.Windows.Media.Brushes.LightGreen;
             }
 
             if (AppVars.ImgPanel[0].Img.Name.Equals(AppVars.ImgPanel[1].Img.Name))
@@ -275,6 +286,15 @@ namespace ImageBank
             DisableElements();
             await Task.Run(() => { AppVars.Collection.DeleteImg(AppVars.ImgPanel[index].Img); });
             await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
+            DrawCanvas();
+            EnableElements();
+        }
+
+        private void NodeClick(string node)
+        {
+            AppVars.Collection.SetNode(node);
+
+            DisableElements();
             DrawCanvas();
             EnableElements();
         }

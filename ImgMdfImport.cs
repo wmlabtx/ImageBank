@@ -9,7 +9,6 @@ namespace ImageBank
         private void Import(int maxadd, IProgress<string> progress)
         {
             var directoryInfo = new DirectoryInfo(AppConsts.PathSource);
-            var fileInfos = directoryInfo.GetFiles("*.*", SearchOption.AllDirectories).ToList();
 
             AppVars.SuspendEvent.Reset();
 
@@ -18,70 +17,89 @@ namespace ImageBank
             var skipped = 0;
             var counter = 0;
             var dt = DateTime.Now;
-            foreach (var fileInfo in fileInfos)
+
+            var dirInfos = directoryInfo.GetDirectories("*.*", SearchOption.AllDirectories).ToArray();
+            foreach (var dirInfo in dirInfos)
             {
-                counter++;
+                var node = dirInfo.FullName.Substring(AppConsts.PathSource.Length);
+                var fileInfos = dirInfo.GetFiles("*.*", SearchOption.AllDirectories).ToList();
 
-                if (DateTime.Now.Subtract(dt).TotalMilliseconds > AppConsts.TimeLapse)
+                foreach (var fileInfo in fileInfos)
                 {
-                    dt = DateTime.Now;
-                    if (progress != null)
+                    counter++;
+
+                    if (DateTime.Now.Subtract(dt).TotalMilliseconds > AppConsts.TimeLapse)
                     {
-                        progress.Report($"{_imgList.Count}: analysing files (a:{added}/m:{moved}/s:{skipped}/{counter})...");
+                        dt = DateTime.Now;
+                        if (progress != null)
+                        {
+                            progress.Report($"{_imgList.Count}: analysing files (a:{added}/m:{moved}/s:{skipped}/{counter})...");
+                        }
                     }
-                }
 
-                var filename = fileInfo.FullName;
-                
-                if (!HelperImages.GetJpgFromFile(filename, out var jpgdata))
-                {
-                    skipped++;
-                    continue;
-                }
+                    var filename = fileInfo.FullName;
 
-                var name = HelperCrc.GetCrc(jpgdata);
-                if (_imgList.TryGetValue(name, out var imgFound))
-                {
-                    skipped++;
+                    if (!HelperImages.GetJpgFromFile(filename, out var jpgdata))
+                    {
+                        skipped++;
+                        continue;
+                    }
+
+                    var name = HelperCrc.GetCrc(jpgdata);
+                    if (_imgList.TryGetValue(name, out var imgFound))
+                    {
+                        imgFound.Node = node;
+                        UpdateNode(imgFound);
+                        skipped++;
+                        HelperRecycleBin.Delete(filename);
+                        continue;
+                    }
+
+                    var orgname = Path.GetFileNameWithoutExtension(filename);
+                    if (!orgname.StartsWith("-"))
+                    {
+                        var newfilename = Path.Combine(Path.GetDirectoryName(filename), "-" + Path.GetFileName(filename));
+                        File.Move(filename, newfilename);
+                        continue;
+                    }
+
+                    if (!HelperDescriptors.ComputeDescriptors(jpgdata, out var descriptors))
+                    {
+                        skipped++;
+                        continue;
+                    }
+
+                    var lastview = GetMinLastView();
+                    var lastchecked = GetMinLastChecked();
+                    var lastchanged = lastchecked;
+                    var array = HelperEncrypting.Encrypt(jpgdata, name);
+                    var crc = HelperCrc.GetCrc(array);
+                    var offset = GetSuggestedOffset(array.Length);
+                    WriteData(offset, array);
+
+                    var img = new Img(
+                        name,
+                        0,
+                        lastview,
+                        lastchecked,
+                        lastchanged,
+                        descriptors,
+                        name,
+                        0f,
+                        offset,
+                        array.Length,
+                        crc,
+                        node);
+
+                    Add(img);
+                    ResetNextName(img);
+                    added++;
                     HelperRecycleBin.Delete(filename);
-                    continue;
-                }
 
-                if (!HelperDescriptors.ComputeDescriptors(jpgdata, out var descriptors))
-                {
-                    skipped++;
-                    continue;
-                }
-
-                var lastview = GetMinLastView();
-                var lastchecked = GetMinLastChecked();
-                var lastchanged = lastchecked;
-                var array = HelperEncrypting.Encrypt(jpgdata, name);
-                var crc = HelperCrc.GetCrc(array);
-                var offset = GetSuggestedOffset(array.Length);
-                WriteData(offset, array);
-
-                var img = new Img(
-                    name,
-                    0,
-                    lastview,                    
-                    lastchecked,
-                    lastchanged,
-                    descriptors,
-                    name,
-                    0f,
-                    offset,
-                    array.Length,
-                    crc);
-
-                Add(img);
-                ResetNextName(img);
-                added++;
-                HelperRecycleBin.Delete(filename);
-
-                if (added >= maxadd)
-                {
-                    break;
+                    if (added >= maxadd)
+                    {
+                        break;
+                    }
                 }
             }
 

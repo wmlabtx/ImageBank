@@ -5,9 +5,6 @@ namespace ImageBank
 {
     public partial class ImgMdf
     {
-        static bool flagNext = false;
-        static Random random = new Random();
-
         public void Find(string nameX, IProgress<string> progress)
         {
             progress.Report(string.Empty);
@@ -20,44 +17,30 @@ namespace ImageBank
                         return;
                     }
 
-                    var scope = _imgList
-                        .Where(e => _imgList.ContainsKey(e.Value.NextName) && !e.Value.Name.Equals(e.Value.NextName) && e.Value.LastView < e.Value.LastChanged)
+                    Img imgX;
+
+                    var scope1 = _imgList
+                        .Where(e => _imgList.ContainsKey(e.Value.NextName)) 
                         .Select(e => e.Value)
                         .ToArray();
 
-                    var minstars = scope.Min(e => e.Stars);
+                    var scope2 = scope1
+                        .Where(e => e.LastView < e.LastChanged)
+                        .ToArray();
 
-                    var imgX = flagNext ?
-                        scope.Where(e => e.Stars == minstars).OrderByDescending(e => e.Sim).FirstOrDefault() :
-                        scope.OrderBy(e => e.LastView).FirstOrDefault();
-
-                    //.OrderByDescending(e => e.Sim)
-
-                    //scope = scope.Where(e => e.Stars == minstars).OrderByDescending(e => e.LastChecked).ToArray();
-
-                    //var imgX = scope.Where(e => e.Stars == minstars).OrderByDescending(e => e.Sim).FirstOrDefault();
-
-                    // var imgX = scope.Where(e => e.Stars == minstars).OrderByDescending(e => e.LastChecked).FirstOrDefault();
-
-                    /*
-                    var index = (int)(scope.Length * Math.Pow(random.Next(100000) / 100000.0, 4));
-                    var imgX = scope[index];
-                    */
-
-                    /*
-                    Img imgX;
-                    if (flagNext)
+                    if (scope2.Length > 0)
                     {
-                        imgX = scope.OrderBy(e => e.LastView).FirstOrDefault();
+                        imgX = scope2
+                            .OrderByDescending(e => e.Sim)
+                            .FirstOrDefault();
                     }
                     else
                     {
-                        var minstars = scope.Min(e => e.Stars);
-                        imgX = scope.Where(e => e.Stars == minstars).FirstOrDefault();
+                        imgX = scope1
+                            .OrderBy(e => e.LastView)
+                            .FirstOrDefault();
                     }
-                    */
 
-                    flagNext = !flagNext;
                     nameX = imgX.Name;                    
 
                     AppVars.ImgPanel[0] = GetImgPanel(nameX);

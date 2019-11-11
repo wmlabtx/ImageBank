@@ -18,6 +18,11 @@
                 <MenuItem Header="Rotate right" Click="RotateRightClick" />
                 <MenuItem Header="Mirror horizontal" Click="MirrorHorizontalClick" />
             </MenuItem>
+            <MenuItem Header="Node">
+                <MenuItem Header="Ls" Tag="ls" Click="NodeClick" />
+                <Separator />
+                <MenuItem Header="Reset" Tag="" Click="RotateLeftClick" />
+            </MenuItem>            
         </Menu>
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBar.ItemsPanel>
