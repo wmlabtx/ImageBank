@@ -21,9 +21,7 @@ namespace ImageBank
             var dirInfos = directoryInfo.GetDirectories("*.*", SearchOption.AllDirectories).ToArray();
             foreach (var dirInfo in dirInfos)
             {
-                var node = dirInfo.FullName.Substring(AppConsts.PathSource.Length);
                 var fileInfos = dirInfo.GetFiles("*.*", SearchOption.AllDirectories).ToList();
-
                 foreach (var fileInfo in fileInfos)
                 {
                     counter++;
@@ -48,18 +46,8 @@ namespace ImageBank
                     var name = HelperCrc.GetCrc(jpgdata);
                     if (_imgList.TryGetValue(name, out var imgFound))
                     {
-                        imgFound.Node = node;
-                        UpdateNode(imgFound);
                         skipped++;
                         HelperRecycleBin.Delete(filename);
-                        continue;
-                    }
-
-                    var orgname = Path.GetFileNameWithoutExtension(filename);
-                    if (!orgname.StartsWith("-"))
-                    {
-                        var newfilename = Path.Combine(Path.GetDirectoryName(filename), "-" + Path.GetFileName(filename));
-                        File.Move(filename, newfilename);
                         continue;
                     }
 
@@ -89,7 +77,7 @@ namespace ImageBank
                         offset,
                         array.Length,
                         crc,
-                        node);
+                        string.Empty);
 
                     Add(img);
                     ResetNextName(img);

@@ -34,5 +34,16 @@ namespace ImageBank
 
             AppVars.ImgPanel[1] = GetImgPanel(imgY.Name);
         }
+
+        public int NodeSize(string node)
+        {
+            if (string.IsNullOrEmpty(node))
+            {
+                return 0;
+            }
+
+            var nodesize = _imgList.Count(e => e.Value.Node.Equals(node) && e.Value.Descriptors.Size.Height > 0);
+            return nodesize;
+        }
     }
 }

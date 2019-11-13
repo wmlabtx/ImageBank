@@ -41,7 +41,7 @@ namespace ImageBank
                             var lastchecked = reader.GetDateTime(3);
                             var lastchanged = reader.GetDateTime(4);
                             var buffer = (byte[])reader[5];
-                            var udescriptors = HelperDescriptors.ConvertToDescriptors(buffer);
+                            var matdescriptors = HelperDescriptors.ConvertToMatDescriptors(buffer);
                             var nextname = reader.GetString(6);
                             var sim = (float)reader.GetDouble(7);
                             var offset = reader.GetInt64(8);
@@ -49,7 +49,7 @@ namespace ImageBank
                             var crc = reader.GetString(10);
                             var node = reader.GetString(11);
 
-                            var img = new Img(name, stars, lastview, lastchecked, lastchanged, udescriptors, nextname, sim, offset, lenght, crc, node);
+                            var img = new Img(name, stars, lastview, lastchecked, lastchanged, matdescriptors, nextname, sim, offset, lenght, crc, node);
                             _imgList.TryAdd(name, img);
 
                             if (DateTime.Now.Subtract(dt).TotalMilliseconds > AppConsts.TimeLapse)

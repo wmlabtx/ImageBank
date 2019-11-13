@@ -1,5 +1,8 @@
-﻿using OpenCvSharp;
+﻿using Emgu.CV;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Util;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -56,23 +59,24 @@ namespace ImageBank
                     extension.Equals(AppConsts.WebpExtension, StringComparison.InvariantCultureIgnoreCase)
                    )
                 {
-                    using (var mat = Cv2.ImDecode(jpgdata, ImreadModes.AnyColor))
+                    try
                     {
-                        try
+                        var mat = new Mat();
+                        CvInvoke.Imdecode(jpgdata, ImreadModes.AnyColor, mat);
+                        var bitmap = mat.Bitmap;
+                        if (!extension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase) &&
+                            !extension.Equals(AppConsts.JpegExtension, StringComparison.InvariantCultureIgnoreCase))
                         {
-                            var bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(mat);
-                            if (!extension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase) &&
-                                !extension.Equals(AppConsts.JpegExtension, StringComparison.InvariantCultureIgnoreCase))
-                            {
-                                var iep = new ImageEncodingParam(ImwriteFlags.JpegQuality, 90);
-                                Cv2.ImEncode(AppConsts.JpgExtension, mat, out jpgdata, iep);
-                            }
+                            var iep = new KeyValuePair<ImwriteFlags, int>[] { new KeyValuePair<ImwriteFlags, int>(ImwriteFlags.JpegQuality, 90) };
+                            var data = new VectorOfByte();
+                            CvInvoke.Imencode(AppConsts.JpgExtension, mat, data, iep);
+                            jpgdata = data.ToArray();
                         }
-                        catch (ArgumentException)
-                        {
-                            jpgdata = null;
-                            return false;
-                        }
+                    }
+                    catch (ArgumentException)
+                    {
+                        jpgdata = null;
+                        return false;
                     }
                 }
             }
@@ -82,17 +86,17 @@ namespace ImageBank
 
         public static bool GetBitmap(byte[] jpgdata, out Bitmap bitmap)
         {
-            using (var mat = Cv2.ImDecode(jpgdata, ImreadModes.AnyColor))
+            try
             {
-                try
+                using (var ms = new MemoryStream(jpgdata))
                 {
-                    bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(mat);
+                    bitmap = (Bitmap)Image.FromStream(ms);
                 }
-                catch (ArgumentException)
-                {
-                    bitmap = null;
-                    return false;
-                }
+            }
+            catch (ArgumentException)
+            {
+                bitmap = null;
+                return false;
             }
 
             return true;

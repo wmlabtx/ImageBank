@@ -203,14 +203,11 @@ namespace ImageBank
 
                 var sb = new StringBuilder();
                 sb.Append($"{AppVars.ImgPanel[index].Img.Name}");
-                if (AppVars.ImgPanel[index].Img.Stars > 0)
-                {
-                    sb.Append($" [{AppVars.ImgPanel[index].Img.Stars}]");
-                }
 
                 if (!string.IsNullOrEmpty(AppVars.ImgPanel[index].Img.Node))
                 {
-                    sb.Append($" {AppVars.ImgPanel[index].Img.Node}");
+                    var nodesize = AppVars.Collection.NodeSize(AppVars.ImgPanel[index].Img.Node);
+                    sb.Append($" {AppVars.ImgPanel[index].Img.Node}[{nodesize}]");
                 }
 
                 sb.Append($" {AppVars.ImgPanel[index].Img.Sim:F4}");
@@ -218,7 +215,7 @@ namespace ImageBank
                 sb.AppendLine();
                 sb.Append($"{HelperConvertors.SizeToString(AppVars.ImgPanel[index].Size)} ({AppVars.ImgPanel[index].Bitmap.Width:F0}x{AppVars.ImgPanel[index].Bitmap.Height:F0})");
 
-                var points = AppVars.ImgPanel[index].Img.Descriptors != null ? AppVars.ImgPanel[index].Img.Descriptors.Length / 4 : 0;
+                var points = AppVars.ImgPanel[index].Img.Descriptors != null ? AppVars.ImgPanel[index].Img.Descriptors.Size.Height : 0;
                 if (points > 0)
                 {
                     sb.Append($" P{points}");
@@ -229,7 +226,7 @@ namespace ImageBank
                 sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].Img.LastChanged))} ago]");
 
                 pLabels[index].Text = sb.ToString();
-                pLabels[index].Background = AppVars.ImgPanel[index].Img.Stars > 0 ? System.Windows.Media.Brushes.Bisque : System.Windows.Media.Brushes.White;
+                pLabels[index].Background = !string.IsNullOrEmpty(AppVars.ImgPanel[index].Img.Node) ? System.Windows.Media.Brushes.Bisque : System.Windows.Media.Brushes.White;
             }
 
             if (!string.IsNullOrEmpty(AppVars.ImgPanel[0].Img.Node) && AppVars.ImgPanel[0].Img.Node.Equals(AppVars.ImgPanel[1].Img.Node))

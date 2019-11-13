@@ -17,28 +17,39 @@ namespace ImageBank
                         return;
                     }
 
-                    Img imgX;
+                    var imgX = _imgList
+                        .Where(e => e.Value.LastView < e.Value.LastChanged)
+                        .OrderByDescending(e => e.Value.Sim)
+                        .FirstOrDefault()
+                        .Value;
 
-                    var scope1 = _imgList
-                        .Where(e => _imgList.ContainsKey(e.Value.NextName)) 
-                        .Select(e => e.Value)
-                        .ToArray();
-
-                    var scope2 = scope1
-                        .Where(e => e.LastView < e.LastChanged)
-                        .ToArray();
-
-                    if (scope2.Length > 0)
+                    if (imgX.Descriptors.Size.Height == 0)
                     {
-                        imgX = scope2
-                            .OrderByDescending(e => e.Sim)
-                            .FirstOrDefault();
+                        var jpgdata = GetJpgData(imgX);
+                        if (jpgdata == null || jpgdata.Length == 0)
+                        {
+                            DeleteImg(imgX);
+                            continue;
+                        }
+
+                        var crcname = HelperCrc.GetCrc(jpgdata);
+                        if (!crcname.Equals(imgX.Name))
+                        {
+                            DeleteImg(imgX);
+                            continue;
+                        }
+
+                        if (HelperDescriptors.ComputeDescriptors(jpgdata, out var descriptors))
+                        {
+                            imgX.Descriptors = descriptors;
+                            UpdateDescriptors(imgX);
+                        }
                     }
-                    else
+
+                    var imgY = GetImgByName(imgX.NextName);
+                    if (imgX.Name.Equals(imgX.NextName) || imgY == null)
                     {
-                        imgX = scope1
-                            .OrderBy(e => e.LastView)
-                            .FirstOrDefault();
+                        FindNextName(imgX);
                     }
 
                     nameX = imgX.Name;                    

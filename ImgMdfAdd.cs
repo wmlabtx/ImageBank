@@ -50,7 +50,7 @@ namespace ImageBank
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastView}", img.LastView);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastChecked}", img.LastChecked);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastChanged}", img.LastChanged);
-                    var buffer = HelperDescriptors.ConvertToByteArray(img.Descriptors);
+                    var buffer = HelperDescriptors.ConvertToByteDescriptors(img.Descriptors);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrDescriptors}", buffer);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrNextName}", img.NextName);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrSim}", img.Sim);

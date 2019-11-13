@@ -19,9 +19,34 @@ namespace ImageBank
             }
 
             var imgX = _imgList
-                .Select(e => e.Value)
-                .OrderBy(e => e.LastChecked)
-                .FirstOrDefault();
+                //.OrderBy(e => e.Value.LastView)
+                //.Take(1000)
+                .OrderBy(e => e.Value.LastChecked)
+                .FirstOrDefault()
+                .Value;
+
+            if (imgX.Descriptors.Size.Height == 0)
+            {
+                var jpgdata = GetJpgData(imgX);
+                if (jpgdata == null || jpgdata.Length == 0)
+                {
+                    DeleteImg(imgX);
+                    return null;
+                }
+
+                var crcname = HelperCrc.GetCrc(jpgdata);
+                if (!crcname.Equals(imgX.Name))
+                {
+                    DeleteImg(imgX);
+                    return null;
+                }
+
+                if (HelperDescriptors.ComputeDescriptors(jpgdata, out var descriptors))
+                {
+                    imgX.Descriptors = descriptors;
+                    UpdateDescriptors(imgX);
+                }
+            }
 
             var oldnextname = imgX.NextName;
             var oldchecked = imgX.LastChecked;
@@ -37,7 +62,8 @@ namespace ImageBank
 
             var sb = new StringBuilder();
             var count = _imgList.Count();
-            var countzero = _imgList.Count(e => e.Value.LastView < e.Value.LastChanged);
+            var minlvdate = _imgList.Min(e => e.Value.LastView.Date);
+            var countzero = _imgList.Count(e => e.Value.Descriptors.Size.Height > 0);
             sb.Append($"{countzero}/{count}: {_avgTimes:F2}s ");
 
             if (updates > 0)

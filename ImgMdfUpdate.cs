@@ -80,7 +80,7 @@ namespace ImageBank
                 var sqltext = sb.ToString();
                 using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
                 {
-                    var buffer = HelperDescriptors.ConvertToByteArray(img.Descriptors);
+                    var buffer = HelperDescriptors.ConvertToByteDescriptors(img.Descriptors);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrDescriptors}", buffer);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrName}", img.Name);
                     sqlCommand.ExecuteNonQuery();

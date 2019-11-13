@@ -7,7 +7,7 @@
         public const string FileDatabase = PathRoot + @"db\images.mdf";
         public const string FileData = PathRoot + @"db\images_data.ddf";
 
-        public const int MaxOrbPointsInImage = 64; // 64*32 = 2048
+        public const int MaxOrbPointsInImage = 250; // 250*32 = 8000
         public const int MaxHammingDistance = 64;
 
         public const string DatExtension = ".dat";

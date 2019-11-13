@@ -1,145 +1,115 @@
-﻿using OpenCvSharp;
+﻿using Emgu.CV;
+using Emgu.CV.Cuda;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Features2D;
+using Emgu.CV.Util;
 using System;
-using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace ImageBank
 {
     public static class HelperDescriptors
     {
-        public static bool ComputeDescriptors(byte[] data, out ulong[] udescriptors)
+        private static readonly CudaBFMatcher _bfMatcher = new CudaBFMatcher(DistanceType.Hamming);
+
+        public static bool ComputeDescriptors(byte[] data, out GpuMat matdescriptors)
         {
-            udescriptors = null;
+            matdescriptors = null;
             if (data == null || data.Length == 0)
             {
                 return false;
             }
 
-            var orb = ORB.Create(AppConsts.MaxOrbPointsInImage);
-            try
+            using (var orb = new CudaORBDetector(AppConsts.MaxOrbPointsInImage))
             {
-                using (var matsource = Mat.FromImageData(data, ImreadModes.Grayscale))
+                try
                 {
-                    if (matsource.Width == 0 || matsource.Height == 0)
+                    using (var matsource = new Mat())                    
                     {
-                        return false;
-                    }
-
-                    const double fsample = 1024.0 * 768.0;
-                    var fx = Math.Sqrt(fsample / (matsource.Width * matsource.Height));
-                    using (var mat = matsource.Resize(Size.Zero, fx, fx, InterpolationFlags.Cubic))
-                    {
-                        var descriptors = new Mat();
-                        orb.DetectAndCompute(mat, null, out _, descriptors);
-                        if (descriptors.Cols != 32 || descriptors.Rows == 0)
+                        CvInvoke.Imdecode(data, ImreadModes.Grayscale, matsource);
+                        if (matsource.Width == 0 || matsource.Height == 0)
                         {
-                            throw new Exception();
+                            return false;
                         }
 
-                        while (descriptors.Rows > AppConsts.MaxOrbPointsInImage)
+                        using (var gpumat = new GpuMat(matsource))
                         {
-                            descriptors = descriptors.RowRange(0, AppConsts.MaxOrbPointsInImage);
-                        }
+                            const double fsample = 1024.0 * 768.0;
+                            var fx = Math.Sqrt(fsample / (matsource.Width * matsource.Height));
+                            using (var mat = new Mat())
+                            {
+                                CvInvoke.Resize(matsource, mat, Size.Empty, fx, fx, Inter.Cubic);
+                                matdescriptors = new GpuMat();
+                                using (var keypoints = new VectorOfKeyPoint())
+                                {
+                                    orb.DetectAndCompute(gpumat, null, keypoints, matdescriptors, false);
+                                    if (matdescriptors.Size.Width != 32 || matdescriptors.Size.Height == 0)
+                                    {
+                                        throw new Exception();
+                                    }
 
-                        var buffer = new byte[descriptors.Rows * descriptors.Cols];
-                        descriptors.GetArray(0, 0, buffer);
-                        udescriptors = ConvertToDescriptors(buffer);
+                                    while (matdescriptors.Size.Height > AppConsts.MaxOrbPointsInImage)
+                                    {
+                                        matdescriptors = matdescriptors.RowRange(0, AppConsts.MaxOrbPointsInImage - 1);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
-            }
-            catch (Exception)
-            {
-                udescriptors = null;
-                return false;
+                catch (Exception)
+                {
+                    matdescriptors = null;
+                    return false;
+                }
             }
 
             return true;
         }
 
-        private struct DistanceTwo
+        public static float GetSim(GpuMat x, GpuMat y)
         {
-            public int X;
-            public int Y;
-            public int D;
-        }
-
-        private static int Dcomparer(DistanceTwo x, DistanceTwo y)
-        {
-            return x.D.CompareTo(y.D);
-        }
-
-        private static int HammingDistance(IReadOnlyList<ulong> x, int xoffset, IReadOnlyList<ulong> y, int yoffset)
-        {
-            var distance = 0;
-            for (var i = 0; i < 4; i++)
+            if (x.Size.Height == 0)
             {
-                distance += Intrinsic.PopCnt(x[xoffset + i] ^ y[yoffset + i]);
-                if (distance >= AppConsts.MaxHammingDistance)
-                {
-                    break;
-                }
+
             }
 
-            return distance;
-        }
-
-        public static float GetSim(ulong[] x, ulong[] y)
-        {
-            var list = new List<DistanceTwo>();
-            var xoffset = 0;
-            while (xoffset < x.Length)
+            using (var bfmatches = new VectorOfDMatch())
             {
-                var yoffset = 0;
-                while (yoffset < y.Length)
-                {
-                    var distance = HammingDistance(x, xoffset, y, yoffset);
-                    if (distance < AppConsts.MaxHammingDistance)
-                    {
-                        list.Add(new DistanceTwo() { X = xoffset, Y = yoffset, D = distance });
-                    }
+                _bfMatcher.Match(x, y, bfmatches);
+                var matches = bfmatches.ToArray();
+                var distances = matches
+                    .Where(e => e.Distance < AppConsts.MaxHammingDistance)
+                    .Sum(e => AppConsts.MaxHammingDistance - e.Distance);
 
-                    yoffset += 4;
-                }
-
-                xoffset += 4;
+                var sim = (float)distances / x.Size.Height;
+                return sim;
             }
+        }
 
-            list.Sort(Dcomparer);
-            float sum = 0f;
-            while (list.Count > 0)
+        public static GpuMat ConvertToMatDescriptors(byte[] descriptors)
+        {
+            var rows = descriptors.Length / 32;
+            IntPtr data = Marshal.AllocHGlobal(descriptors.Length);
+            Marshal.Copy(descriptors, 0, data, descriptors.Length);
+            using (var mat = new Mat(rows, 32, DepthType.Cv8U, 1, data, 32))
             {
-                var mind = list[0].D;
-                var minx = list[0].X;
-                var miny = list[0].Y;
-                var k = (float)Math.Pow(((AppConsts.MaxHammingDistance - mind) / (double)AppConsts.MaxHammingDistance), 2.0);
-                sum += k;
-                var pos = list.Count - 1;
-                while (pos >= 0)
-                {
-                    if (list[pos].X == minx || list[pos].Y == miny)
-                    {
-                        list.RemoveAt(pos);
-                    }
-
-                    pos--;
-                }
+                var gpumat = new GpuMat(mat);
+                return gpumat;
             }
-
-            var sim = sum * 4f / x.Length;
-            return sim;
         }
 
-        public static ulong[] ConvertToDescriptors(byte[] buffer)
+        public static byte[] ConvertToByteDescriptors(GpuMat gpumat)
         {
-            var udescriptors = new ulong[buffer.Length / sizeof(ulong)];
-            Buffer.BlockCopy(buffer, 0, udescriptors, 0, buffer.Length);
-            return udescriptors;
-        }
-
-        public static byte[] ConvertToByteArray(ulong[] udescriptors)
-        {
-            var buffer = new byte[udescriptors.Length * sizeof(ulong)];
-            Buffer.BlockCopy(udescriptors, 0, buffer, 0, buffer.Length);
-            return buffer;
+            using (var mat = new Mat())
+            {
+                gpumat.Download(mat);
+                var descriptors = new byte[gpumat.Size.Width * gpumat.Size.Height];
+                Marshal.Copy(mat.DataPointer, descriptors, 0, descriptors.Length);
+                return descriptors;
+            }
         }
     }
 }

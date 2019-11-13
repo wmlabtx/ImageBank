@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Emgu.CV;
+using Emgu.CV.Cuda;
+using System;
 
 namespace ImageBank
 {
@@ -9,7 +11,7 @@ namespace ImageBank
         public DateTime LastView { get; set; }
         public DateTime LastChecked { get; set; }
         public DateTime LastChanged { get; set; }
-        public ulong[] Descriptors { get; set; }
+        public GpuMat Descriptors { get; set; }
         public string NextName { get; set; }
         public float Sim { get; set; }
         public long Offset { get; set; }
@@ -23,7 +25,7 @@ namespace ImageBank
             DateTime lastview,
             DateTime lastchecked,
             DateTime lastchanged,
-            ulong[] descriptors,
+            GpuMat descriptors,
             string nextname,
             float sim,
             long offset,
