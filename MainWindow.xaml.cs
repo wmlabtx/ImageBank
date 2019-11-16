@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace ImageBank
@@ -80,12 +79,6 @@ namespace ImageBank
         private void MirrorHorizontalClick(object sender, RoutedEventArgs e)
         {
             MirrorHorizontalClick();
-        }
-
-        private void NodeClick(object sender, RoutedEventArgs e)
-        {
-            var node = (string)((MenuItem)sender).Tag;
-            NodeClick(node);
         }
     }
 }

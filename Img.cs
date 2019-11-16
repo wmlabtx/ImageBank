@@ -17,7 +17,6 @@ namespace ImageBank
         public long Offset { get; set; }
         public int Lenght { get; set; }
         public string Crc { get; set; }
-        public string Node { get; set; }
 
         public Img(
             string name,
@@ -30,8 +29,7 @@ namespace ImageBank
             float sim,
             long offset,
             int lenght,
-            string crc,
-            string node)
+            string crc)
         {
             Name = name;
             Stars = stars;
@@ -44,7 +42,6 @@ namespace ImageBank
             Offset = offset;
             Lenght = lenght;
             Crc = crc;
-            Node = node;
         }
 
         public void SetViewed()

@@ -18,21 +18,6 @@
                 <MenuItem Header="Rotate right" Click="RotateRightClick" />
                 <MenuItem Header="Mirror horizontal" Click="MirrorHorizontalClick" />
             </MenuItem>
-            <MenuItem Header="Node">
-                <MenuItem Header="Ls">
-                    <MenuItem Header="Models" Tag="ls.models" Click="NodeClick" />
-                    <MenuItem Header="Magazine" Tag="ls.mag" Click="NodeClick" />
-                    <MenuItem Header="Charming Angels" Tag="ls.ca" Click="NodeClick" />
-                    <MenuItem Header="Home Lolita" Tag="ls.hl" Click="NodeClick" />
-                    <MenuItem Header="Lovely Nymphets" Tag="ls.ln" Click="NodeClick" />
-                    <MenuItem Header="Magic Lolita" Tag="ls.ml" Click="NodeClick" />
-                    <MenuItem Header="Natural Angels" Tag="ls.na" Click="NodeClick" />
-                    <MenuItem Header="Ukrainian Angels" Tag="ls.ua" Click="NodeClick" />
-                    <MenuItem Header="Ukrainian Nymphets" Tag="ls.un" Click="NodeClick" />
-                </MenuItem>
-                <Separator />
-                <MenuItem Header="Reset" Tag="" Click="NodeClick" />
-            </MenuItem>            
         </Menu>
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBar.ItemsPanel>

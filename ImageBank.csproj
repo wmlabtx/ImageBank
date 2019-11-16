@@ -116,7 +116,6 @@
     <Compile Include="ImgMdfImport.cs" />
     <Compile Include="ImgMdfLoad.cs" />
     <Compile Include="ImgMdfGetImgPanel.cs" />
-    <Compile Include="ImgMdfNode.cs" />
     <Compile Include="ImgMdfUpdate.cs" />
     <Compile Include="ImgPanel.cs" />
     <Compile Include="MainWindow.xaml.cs">
