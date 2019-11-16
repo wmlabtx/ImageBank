@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace ImageBank
@@ -64,6 +65,17 @@ namespace ImageBank
         private void ExitClick(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void SetPersonClick(object sender, EventArgs e)
+        {
+            var person = (string)((MenuItem)sender).Tag;
+            SetPerson(person);
+        }
+
+        private void CopyRightPersonClick(object sender, EventArgs e)
+        {
+            CopyRightPerson();
         }
 
         private void RotateLeftClick(object sender, EventArgs e)

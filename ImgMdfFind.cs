@@ -5,11 +5,13 @@ namespace ImageBank
 {
     public partial class ImgMdf
     {
+        private bool _flag = false;
+
         public void Find(string nameX, IProgress<string> progress)
         {
             progress.Report(string.Empty);
             while (true)
-            {                
+            {
                 if (string.IsNullOrEmpty(nameX))
                 {
                     if (_imgList.Count == 0)
@@ -17,42 +19,38 @@ namespace ImageBank
                         return;
                     }
 
-                    var imgX = _imgList
-                        .Where(e => e.Value.LastView < e.Value.LastChanged)
-                        .OrderByDescending(e => e.Value.Sim)
-                        .FirstOrDefault()
-                        .Value;
+                    Img imgX;
 
-                    if (imgX.Descriptors.Size.Height == 0)
+                    var scope1 = _imgList
+                        .Where(e => e.Value.PHash != 0 && _imgList.ContainsKey(e.Value.NextName))
+                        .Select(e => e.Value)
+                        .ToArray();
+
+                    if (scope1.Length == 0)
                     {
-                        var jpgdata = GetJpgData(imgX);
-                        if (jpgdata == null || jpgdata.Length == 0)
-                        {
-                            DeleteImg(imgX);
-                            continue;
-                        }
-
-                        var crcname = HelperCrc.GetCrc(jpgdata);
-                        if (!crcname.Equals(imgX.Name))
-                        {
-                            DeleteImg(imgX);
-                            continue;
-                        }
-
-                        if (HelperDescriptors.ComputeDescriptors(jpgdata, out var descriptors))
-                        {
-                            imgX.Descriptors = descriptors;
-                            UpdateDescriptors(imgX);
-                        }
+                        return;
                     }
 
-                    var imgY = GetImgByName(imgX.NextName);
-                    if (imgX.Name.Equals(imgX.NextName) || imgY == null)
+                    var scope2 = scope1
+                    .Where(e => e.LastView < e.LastChanged)
+                    .ToArray();
+
+                    if (scope2.Length > 0 && _flag)
                     {
-                        FindNextName(imgX);
+                        imgX = scope2
+                            .OrderBy(e => e.Distance)
+                            .FirstOrDefault();
+                    }
+                    else
+                    {
+                        imgX = scope1
+                            .OrderBy(e => e.LastView)
+                            .FirstOrDefault();
                     }
 
-                    nameX = imgX.Name;                    
+                    _flag = !_flag;
+
+                    nameX = imgX.Name;
 
                     AppVars.ImgPanel[0] = GetImgPanel(nameX);
                     if (AppVars.ImgPanel[0] == null)
@@ -74,53 +72,9 @@ namespace ImageBank
 
                     continue;
                 }
-                
+
                 break;
             }
         }
-
-        /*
-        private Img FindInRotation(Img[] scope)
-        {
-            var nodes = new SortedDictionary<string, DateTime>();
-            foreach (var img in scope)
-            {
-                if (nodes.ContainsKey(img.Node))
-                {
-                    if (nodes[img.Node] < img.LastView)
-                    {
-                        nodes[img.Node] = img.LastView;
-                    }
-                }
-                else
-                {
-                    nodes.Add(img.Node, img.LastView);
-                }
-            }
-
-            var minnode = string.Empty;
-            var minlastview = DateTime.Now;
-            foreach (var node in nodes.Keys)
-            {
-                if (DateTime.Now.Subtract(nodes[node]).TotalHours < 1.0)
-                {
-                    continue;
-                }
-
-                if (nodes[node] < minlastview)
-                {
-                    minnode = node;
-                    minlastview = nodes[node];
-                }
-            }
-
-            var imgX = scope
-                .Where(e => e.Node.Equals(minnode))
-                .OrderBy(e => e.LastView)
-                .FirstOrDefault();
-
-            return imgX;
-        }
-        */
     }
 }

@@ -1,8 +1,5 @@
-﻿using Emgu.CV;
-using Emgu.CV.CvEnum;
-using Emgu.CV.Util;
+﻿using OpenCvSharp;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -41,7 +38,7 @@ namespace ImageBank
             {
                 return false;
             }
-                
+
             if (extension.Equals(AppConsts.DatExtension))
             {
                 var password = HelperPath.GetPassword(filename);
@@ -59,24 +56,23 @@ namespace ImageBank
                     extension.Equals(AppConsts.WebpExtension, StringComparison.InvariantCultureIgnoreCase)
                    )
                 {
-                    try
+                    using (var mat = Cv2.ImDecode(jpgdata, ImreadModes.AnyColor))
                     {
-                        var mat = new Mat();
-                        CvInvoke.Imdecode(jpgdata, ImreadModes.AnyColor, mat);
-                        var bitmap = mat.Bitmap;
-                        if (!extension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase) &&
-                            !extension.Equals(AppConsts.JpegExtension, StringComparison.InvariantCultureIgnoreCase))
+                        try
                         {
-                            var iep = new KeyValuePair<ImwriteFlags, int>[] { new KeyValuePair<ImwriteFlags, int>(ImwriteFlags.JpegQuality, 90) };
-                            var data = new VectorOfByte();
-                            CvInvoke.Imencode(AppConsts.JpgExtension, mat, data, iep);
-                            jpgdata = data.ToArray();
+                            var bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(mat);
+                            if (!extension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase) &&
+                                !extension.Equals(AppConsts.JpegExtension, StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                var iep = new ImageEncodingParam(ImwriteFlags.JpegQuality, 90);
+                                Cv2.ImEncode(AppConsts.JpgExtension, mat, out jpgdata, iep);
+                            }
                         }
-                    }
-                    catch (ArgumentException)
-                    {
-                        jpgdata = null;
-                        return false;
+                        catch (ArgumentException)
+                        {
+                            jpgdata = null;
+                            return false;
+                        }
                     }
                 }
             }
@@ -86,17 +82,17 @@ namespace ImageBank
 
         public static bool GetBitmap(byte[] jpgdata, out Bitmap bitmap)
         {
-            try
+            using (var mat = Cv2.ImDecode(jpgdata, ImreadModes.AnyColor))
             {
-                using (var ms = new MemoryStream(jpgdata))
+                try
                 {
-                    bitmap = (Bitmap)Image.FromStream(ms);
+                    bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(mat);
                 }
-            }
-            catch (ArgumentException)
-            {
-                bitmap = null;
-                return false;
+                catch (ArgumentException)
+                {
+                    bitmap = null;
+                    return false;
+                }
             }
 
             return true;

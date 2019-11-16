@@ -127,9 +127,7 @@ namespace ImageBank
 
         private async void ButtonLeftNextMouseClick()
         {
-            AppVars.ImgPanel[0].Img.SetViewed();
-            AppVars.Collection.UpdateLastView(AppVars.ImgPanel[0].Img);
-            AppVars.Collection.UpdateStars(AppVars.ImgPanel[0].Img);
+            AppVars.ImgPanel[0].Img.SetViewed();            
 
             DisableElements();
             await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
@@ -203,34 +201,41 @@ namespace ImageBank
 
                 var sb = new StringBuilder();
                 sb.Append($"{AppVars.ImgPanel[index].Img.Name}");
-                if (AppVars.ImgPanel[index].Img.Stars > 0)
+                if (!string.IsNullOrEmpty(AppVars.ImgPanel[index].Img.Person))
                 {
-                    sb.Append($" [{AppVars.ImgPanel[index].Img.Stars}]");
+                    sb.Append($" [{AppVars.ImgPanel[index].Img.Person} -");
+                    var personsize = AppVars.Collection.GetPersonSize(AppVars.ImgPanel[index].Img.Person);
+                    sb.Append($" {personsize}]");
                 }
-
-                sb.Append($" {AppVars.ImgPanel[index].Img.Sim:F4}");
+                
+                sb.Append($" D:{AppVars.ImgPanel[index].Img.Distance}");
 
                 sb.AppendLine();
                 sb.Append($"{HelperConvertors.SizeToString(AppVars.ImgPanel[index].Size)} ({AppVars.ImgPanel[index].Bitmap.Width:F0}x{AppVars.ImgPanel[index].Bitmap.Height:F0})");
-
-                var points = AppVars.ImgPanel[index].Img.Descriptors != null ? AppVars.ImgPanel[index].Img.Descriptors.Length / 4 : 0;
-                if (points > 0)
-                {
-                    sb.Append($" P{points}");
-                }
-
+                
                 sb.AppendLine();
                 sb.Append($"{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].Img.LastView))} ago");
                 sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].Img.LastChanged))} ago]");
 
                 pLabels[index].Text = sb.ToString();
-                pLabels[index].Background = AppVars.ImgPanel[index].Img.Stars > 0 ? System.Windows.Media.Brushes.Bisque : System.Windows.Media.Brushes.White;
+                pLabels[index].Background = string.IsNullOrEmpty(AppVars.ImgPanel[index].Img.Person) ? 
+                    System.Windows.Media.Brushes.White : System.Windows.Media.Brushes.Bisque;
             }
 
             if (AppVars.ImgPanel[0].Img.Name.Equals(AppVars.ImgPanel[1].Img.Name))
             {
                 pLabels[0].Background = System.Windows.Media.Brushes.LightGray;
                 pLabels[1].Background = System.Windows.Media.Brushes.LightGray;
+            }
+
+            if (
+                !string.IsNullOrEmpty(AppVars.ImgPanel[0].Img.Person) && 
+                !string.IsNullOrEmpty(AppVars.ImgPanel[1].Img.Person) && 
+                AppVars.ImgPanel[0].Img.Person.Equals(AppVars.ImgPanel[1].Img.Person)
+                )
+            {
+                pLabels[0].Background = System.Windows.Media.Brushes.LightGreen;
+                pLabels[1].Background = System.Windows.Media.Brushes.LightGreen;
             }
 
             RedrawCanvas();
@@ -277,6 +282,26 @@ namespace ImageBank
             await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
             DrawCanvas();
             EnableElements();
+        }
+
+        private void SetPerson(string person)
+        {
+            if (AppVars.Collection.SetPerson(person))
+            {
+                DisableElements();
+                DrawCanvas();
+                EnableElements();
+            }
+        }
+
+        private void CopyRightPerson()
+        {
+            if (AppVars.Collection.CopyRightPerson())
+            {
+                DisableElements();
+                DrawCanvas();
+                EnableElements();
+            }
         }
     }
 }

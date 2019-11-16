@@ -8,7 +8,7 @@ namespace ImageBank
         private void ResetNextName(Img img)
         {
             img.NextName = img.Name;
-            img.Sim = 0f;
+            img.Distance = 64;
             img.LastChecked = GetMinLastChecked();
             UpdateNameNext(img);
         }
@@ -16,10 +16,65 @@ namespace ImageBank
         private int FindNextName(Img imgX)
         {
             var oldnextname = imgX.NextName;
-            var oldsim = imgX.Sim;
+            var olddistance = imgX.Distance;
+
+            imgX.LastChecked = DateTime.Now;
+
+            if (imgX.PHash == 0)
+            {
+                var jpgdata = GetJpgData(imgX);
+                if (jpgdata == null || jpgdata.Length == 0)
+                {
+                    DeleteImg(imgX);
+                    return 0;
+                }
+
+                var crcname = HelperCrc.GetCrc(jpgdata);
+                if (!crcname.Equals(imgX.Name))
+                {
+                    DeleteImg(imgX);
+                    return 0;
+                }
+
+                if (!HelperDescriptors.ComputeDescriptors(jpgdata, out var phash))
+                {
+                    DeleteImg(imgX);
+                    return 0;
+                }
+
+                imgX.PHash = phash;
+                UpdatePHash(imgX);
+
+                imgX.NextName = imgX.Name;
+                imgX.Distance = 64;
+            }
+            else
+            {
+                if (imgX.Name.Equals(imgX.NextName))
+                {
+                    imgX.Distance = 64;
+                }
+                else
+                {
+                    var imgY = GetImgByName(imgX.NextName);
+                    if (imgY == null)
+                    {
+                        imgX.NextName = imgX.Name;
+                        imgX.Distance = 64;
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(imgX.Person) && !imgX.Person.Equals(imgY.Person))
+                        {
+                            imgX.NextName = imgX.Name;
+                            imgX.Distance = 64;
+                        }
+                    }
+                }
+            }
 
             var scope = _imgList
-                .Where(e => !e.Value.Name.Equals(imgX.Name) && e.Value.Descriptors.Size.Height > 0)
+                .Where(e => !e.Value.Name.Equals(imgX.Name) && e.Value.PHash > 0)
                 .Select(e => e.Value)
                 .ToArray();
 
@@ -29,40 +84,36 @@ namespace ImageBank
                 return 0;
             }
 
-            imgX.LastChecked = DateTime.Now;
-            imgX.NextName = imgX.Name;
-            imgX.Sim = 0f;
-
             var updates = 0;
-
             foreach (var imgY in scope)
             {
-                if (string.IsNullOrEmpty(imgX.Node) || imgY.Node.StartsWith(imgX.Node))
+                if (string.IsNullOrEmpty(imgX.Person) || imgX.Person.Equals(imgY.Person))
                 {
-                    var sim = HelperDescriptors.GetSim(imgX.Descriptors, imgY.Descriptors);
-                    if (sim > imgX.Sim)
+                    var distance = HelperDescriptors.Distance(imgX.PHash, imgY.PHash);
+                    if (distance < imgX.Distance)
                     {
                         imgX.NextName = imgY.Name;
-                        imgX.Sim = sim;
+                        imgX.Distance = distance;
                         imgX.LastChecked = DateTime.Now;
                     }
 
-                    /*
-                    var siminv = HelperDescriptors.GetSim(imgY.Descriptors, imgX.Descriptors);
-                    if (siminv > imgY.Sim)
+                    if (string.IsNullOrEmpty(imgY.Person) || imgY.Person.Equals(imgX.Person))
                     {
-                        imgY.NextName = imgX.Name;
-                        imgY.Sim = siminv;
-                        imgY.LastChanged = DateTime.Now;
-                        UpdateNameNext(imgY);
-                        updates++;
+                        if (distance < imgY.Distance)
+                        {
+                            imgY.NextName = imgX.Name;
+                            imgY.Distance = distance;
+                            imgY.LastChanged = DateTime.Now;
+                            imgY.LastChecked = DateTime.Now;
+                            UpdateNameNext(imgY);
+                            updates++;
+                        }
                     }
-                    */
                 }
             }
 
-            if (!imgX.NextName.Equals(oldnextname) || Math.Abs(oldsim - imgX.Sim) > 0.0001)
-            {                                
+            if (!imgX.NextName.Equals(oldnextname) || olddistance != imgX.Distance)
+            {
                 imgX.LastChanged = DateTime.Now;
             }
 
