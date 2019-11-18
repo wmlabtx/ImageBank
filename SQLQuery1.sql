@@ -3,3 +3,7 @@ DBCC SHRINKDATABASE(N'D:\USERS\MURAD\DOCUMENTS\SDB\DB\IMAGES.MDF' )
 UPDATE Images SET Distance = 64;
 UPDATE Images SET PHash = 0x;
 UPDATE Images SET Person = '';
+UPDATE Images SET Orbs = 0x;
+UPDATE Images SET Sim = 0.0;
+UPDATE Images SET Id = 0;
+UPDATE Images SET LastId = 0;

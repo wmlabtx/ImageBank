@@ -10,7 +10,7 @@ namespace ImageBank
         { 
             AppVars.SuspendEvent.Reset();
 
-            const string person = "";
+            const string person = "Nicole Polar";
 
             var added = 0;
             var moved = 0;
@@ -45,16 +45,15 @@ namespace ImageBank
                 if (_imgList.TryGetValue(name, out var imgFound))
                 {
                     imgFound.Person = person;
-                    UpdatePerson(imgFound);
                     imgFound.LastView = GetMinLastView();
-                    UpdateLastView(imgFound);
-
+                    ResetNextName(imgFound);
+ 
                     skipped++;
                     HelperRecycleBin.Delete(filename);
                     continue;
                 }
 
-                if (!HelperDescriptors.ComputeDescriptors(jpgdata, out var descriptors))
+                if (!HelperDescriptors.ComputeDescriptors(jpgdata, out var descriptors, out var orbs))
                 {
                     skipped++;
                     continue;
@@ -67,6 +66,7 @@ namespace ImageBank
                 var crc = HelperCrc.GetCrc(array);
                 var offset = GetSuggestedOffset(array.Length);
                 WriteData(offset, array);
+                var id = GetMaxId();
 
                 var img = new Img(
                     name,
@@ -79,7 +79,11 @@ namespace ImageBank
                     name,
                     offset,
                     array.Length,
-                    crc);
+                    crc,
+                    orbs,
+                    0f,
+                    id,
+                    0);
 
                 Add(img);
                 ResetNextName(img);

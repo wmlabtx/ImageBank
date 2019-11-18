@@ -11,7 +11,6 @@ namespace ImageBank
             if (!imgX.Person.Equals(person))
             {
                 imgX.Person = person;
-                UpdatePerson(imgX);
 
                 var size = GetPersonSize(imgX.Person);
 
@@ -33,8 +32,10 @@ namespace ImageBank
 
                 var imgY = scope[new Random().Next(scope.Length)];
                 imgX.NextName = imgY.Name;
-                imgX.Distance = imgY.PHash != 0 ? HelperDescriptors.Distance(imgX.PHash, imgY.PHash) : 64;
+                imgX.Distance = imgY.PHash != 0 ? HelperDescriptors.GetDistance(imgX.PHash, imgY.PHash) : 64;
+                imgX.Sim = imgY.Orbs.Rows > 0 ? HelperDescriptors.GetSim(imgX.Orbs, imgY.Orbs) : 0f;
                 imgX.LastChecked = GetMinLastChecked();
+                imgX.LastId = 0;
                 UpdateNameNext(imgX);
 
                 AppVars.ImgPanel[1] = GetImgPanel(imgY.Name);
@@ -51,7 +52,6 @@ namespace ImageBank
             if (!imgX.Person.Equals(imgY.Person))
             {
                 imgX.Person = imgY.Person;
-                UpdatePerson(imgX);
                 return true;
             }
 

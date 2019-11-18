@@ -24,8 +24,9 @@
                 <MenuItem Header="Art">
                     <MenuItem Header="AGI" Tag="AGI" Click="SetPersonClick" />
                     <MenuItem Header="Alex Five" Tag="Alex Five" Click="SetPersonClick" />
-                </MenuItem>                
+                </MenuItem>
                 <MenuItem Header="Adults">
+                    <MenuItem Header="Alina Latypova" Tag="Alina Latypova" Click="SetPersonClick" />
                     <MenuItem Header="Ana Foxxx" Tag="Ana Foxxx" Click="SetPersonClick" />
                     <MenuItem Header="Aubrey Star" Tag="Aubrey Star" Click="SetPersonClick" />
                     <MenuItem Header="Gina Gerson" Tag="Gina Gerson" Click="SetPersonClick" />
@@ -36,7 +37,7 @@
                 </MenuItem>
                 <MenuItem Header="Boys">
                     <MenuItem Header="Pancza Boy" Tag="Pancza Boy" Click="SetPersonClick" />
-                </MenuItem>                
+                </MenuItem>
                 <MenuItem Header="Japan">
                     <MenuItem Header="Rika Nishimura" Tag="Rika Nishimura" Click="SetPersonClick" />
                     <MenuItem Header="Nozomi Kurahashi" Tag="Nozomi Kurahashi" Click="SetPersonClick" />
@@ -50,7 +51,11 @@
                 <MenuItem Header="Models">
                     <MenuItem Header="Jessy Sunshine" Tag="Jessy Sunshine" Click="SetPersonClick" />
                     <MenuItem Header="Sandra Model" Tag="Sandra Model" Click="SetPersonClick" />
-                </MenuItem>                
+                </MenuItem>
+                <MenuItem Header="Polar Lights">
+                    <MenuItem Header="Casey Polar" Tag="Casey Polar" Click="SetPersonClick" />
+                    <MenuItem Header="Nicole Polar" Tag="Nicole Polar" Click="SetPersonClick" />
+                </MenuItem>
                 <MenuItem Header="Vladmodels">
                     <MenuItem Header="Dasha y063" Tag="Dasha y063" Click="SetPersonClick" />
                     <MenuItem Header="Yulya m065" Tag="Yulya m065" Click="SetPersonClick" />
@@ -62,10 +67,10 @@
                     <MenuItem Header="Berenice Tpi" Tag="Berenice Tpi" Click="SetPersonClick" />
                     <MenuItem Header="Gabi Tpi" Tag="Gabi Tpi" Click="SetPersonClick" />
                     <MenuItem Header="Pamela Tpi" Tag="Pamela Tpi" Click="SetPersonClick" />
-                </MenuItem>                
+                </MenuItem>
                 <Separator />
                 <MenuItem Header="Reset" Tag="" Click="SetPersonClick" />
-            </MenuItem>            
+            </MenuItem>
         </Menu>
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBar.ItemsPanel>

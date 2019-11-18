@@ -22,7 +22,7 @@ namespace ImageBank
                     Img imgX;
 
                     var scope1 = _imgList
-                        .Where(e => e.Value.PHash != 0 && _imgList.ContainsKey(e.Value.NextName))
+                        .Where(e => e.Value.Id > 0 && _imgList.ContainsKey(e.Value.NextName))
                         .Select(e => e.Value)
                         .ToArray();
 
@@ -40,6 +40,13 @@ namespace ImageBank
                         imgX = scope2
                             .OrderBy(e => e.Distance)
                             .FirstOrDefault();
+
+                        if (imgX.Distance >= AppConsts.MinHammingDistance)
+                        {
+                            imgX = scope2
+                                .OrderByDescending(e => e.Sim)
+                                .FirstOrDefault();
+                        }
                     }
                     else
                     {

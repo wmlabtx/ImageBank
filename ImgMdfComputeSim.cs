@@ -18,16 +18,20 @@ namespace ImageBank
                 return null;
             }
 
+            var maxid = GetMaxId();
             var imgX = _imgList
                 .Select(e => e.Value)
-                .OrderBy(e => e.LastChecked)
+                .Where(e => e.LastId < maxid)
+                .OrderBy(e => e.LastId)
+                .ThenBy(e => e.LastChecked)
                 .FirstOrDefault();
 
             var oldnextname = imgX.NextName;
             var oldchecked = imgX.LastChecked;
             var olddistance = imgX.Distance;
+            var oldsim = imgX.Sim;
 
-            var updates = FindNextName(imgX);
+            FindNextName(imgX);
 
             var imgY = GetImgByName(imgX.NextName);
             if (imgY == null)
@@ -37,18 +41,27 @@ namespace ImageBank
 
             var sb = new StringBuilder();
             var count = _imgList.Count();
-            var countzero = _imgList.Count(e => e.Value.PHash > 0 && e.Value.LastView < e.Value.LastChanged);
+            var countzero = _imgList.Count(e => e.Value.Id > 0 && e.Value.LastView < e.Value.LastChanged);
             sb.Append($"{countzero}/{count}: {_avgTimes:F2}s ");
 
-            if (updates > 0)
-            {
-                sb.Append($"({updates}) ");
-            }
+            var progress = imgX.LastId * 100.0 / maxid;
+            sb.Append($"({progress:F2}%) ");
 
-            sb.Append($"{olddistance}");
-            if (!imgX.NextName.Equals(oldnextname) || olddistance != imgX.Distance)
+            if (imgX.Distance < AppConsts.MinHammingDistance)
             {
-                sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Distance}");
+                sb.Append($"{olddistance}");
+                if (!imgX.NextName.Equals(oldnextname) || olddistance != imgX.Distance)
+                {
+                    sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Distance}");
+                }
+            }
+            else
+            {
+                sb.Append($"{oldsim:F2}");
+                if (!imgX.NextName.Equals(oldnextname) || oldsim != imgX.Sim)
+                {
+                    sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F2}");
+                }
             }
 
             sb.Append(" / ");
