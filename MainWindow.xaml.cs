@@ -67,17 +67,6 @@ namespace ImageBank
             Close();
         }
 
-        private void SetPersonClick(object sender, EventArgs e)
-        {
-            var person = (string)((MenuItem)sender).Tag;
-            SetPerson(person);
-        }
-
-        private void CopyRightPersonClick(object sender, EventArgs e)
-        {
-            CopyRightPerson();
-        }
-
         private void RotateLeftClick(object sender, EventArgs e)
         {
             RotateLeftClick();
