@@ -7,6 +7,8 @@ namespace ImageBank
 {
     public partial class ImgMdf
     {
+        private int _add = 0;
+
         public string ComputeSim()
         {
             AppVars.SuspendEvent.WaitOne(Timeout.Infinite);
@@ -18,20 +20,39 @@ namespace ImageBank
                 return null;
             }
 
+            Img imgX = null;
             var maxid = _imgList.Max(e => e.Value.Id);
-            var avgid = _imgList.Where(e => e.Value.Id > 0).Average(e => (float)e.Value.LastId / maxid);
-
-            var imgX = avgid > 0.5f ?
-                _imgList
-                .Select(e => e.Value)
-                .OrderBy(e => e.LastId)
-                .ThenBy(e => e.LastChecked)
-                .FirstOrDefault() :
-                _imgList
+            var scopeid = _imgList
                 .Select(e => e.Value)
                 .Where(e => e.Id > 0)
-                .OrderBy(e => e.LastChecked)
-                .FirstOrDefault();
+                .ToArray();
+
+            if (scopeid.Length == 0)
+            {
+                imgX = _imgList
+                    .OrderBy(e => e.Value.LastChecked)
+                    .FirstOrDefault()
+                    .Value;
+            }
+            else
+            {
+                _add++;
+                if (_add == 5)
+                {
+                    _add = 0;
+                    imgX = _imgList
+                        .OrderBy(e => e.Value.LastChecked)
+                        .FirstOrDefault()
+                        .Value;
+                }
+                else
+                {
+                    imgX = scopeid
+                        .OrderBy(e => e.DoneProgress(maxid))
+                        .ThenBy(e => e.LastChecked)
+                        .FirstOrDefault();
+                }
+            }
 
             var oldnextname = imgX.NextName;
             var oldchecked = imgX.LastChecked;
@@ -46,10 +67,18 @@ namespace ImageBank
             }
 
             var sb = new StringBuilder();
+            maxid = _imgList.Max(e => e.Value.Id);
             var count = _imgList.Count();
-            sb.Append($"{avgid:F4}/{count}: {_avgTimes:F2}s ");
+            var countid = _imgList.Count(e => e.Value.Id > 0);
+            var countsim = _imgList.Count(e => 
+                e.Value.Id > 0 && 
+                !e.Value.Name.Equals(e.Value.NextName) && 
+                _imgList.ContainsKey(e.Value.NextName) && 
+                e.Value.LastView < e.Value.LastChanged &&
+                e.Value.Sim > AppConsts.MinSim);
+            sb.Append($"{countsim}/{countid}/{count}: {_avgTimes:F2}s ");
 
-            var progress = imgX.LastId * 100.0 / _imgList.Max(e => e.Value.Id);
+            var progress = imgX.DoneProgress(maxid);
             sb.Append($"({progress:F2}%) ");
 
             sb.Append($"{oldsim:F2}");

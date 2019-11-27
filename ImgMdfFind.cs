@@ -28,7 +28,7 @@ namespace ImageBank
                     }
 
                     var scopesim = scope
-                        .Where(e => e.LastView < e.LastChanged && e.Sim > 6.0)
+                        .Where(e => e.LastView < e.LastChanged && e.Sim > AppConsts.MinSim)
                         .ToArray();
 
                     var imgX = scopesim.Length > 0 ?

@@ -68,7 +68,7 @@ namespace ImageBank
                     orbs,
                     0f,
                     id,
-                    0);
+                    id);
 
                 Add(img);
                 img.WriteData(jpgdata);

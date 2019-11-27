@@ -131,5 +131,10 @@ namespace ImageBank
             var data = HelperEncrypting.Decrypt(buffer, Name);
             return data;
         }
+
+        public float DoneProgress(int maxid)
+        {
+            return (LastId - Id + 1) * 100f / (maxid - Id + 1);
+        }
     }
 }

@@ -8,7 +8,8 @@
         public const string FileDatabase = PathRoot + @"db\images.mdf";
 
         public const int MaxHammingDistance = 64;
-        public const int MaxDescriptorsInImage = 250;
+        public const int MaxDescriptorsInImage = 100;
+        public const float MinSim = 8f;
 
         public const string DatExtension = ".dat";
         public const string WebpExtension = ".webp";

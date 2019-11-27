@@ -11,7 +11,7 @@ namespace ImageBank
             img.NextName = img.Name;
             img.Sim = 0f;
             img.LastChecked = GetMinLastChecked();
-            img.LastId = 0;
+            img.LastId = img.Id;
             UpdateNameNext(img);
         }
 
@@ -39,30 +39,50 @@ namespace ImageBank
 
                 imgX.Orbs = orbs;
                 imgX.Id = GetMaxId();
+                imgX.LastId = imgX.Id;
                 imgX.NextName = imgX.Name;
                 imgX.Sim = 0f;
             }
             else
             {
-                if (imgX.Name.Equals(imgX.NextName))
+                if (imgX.Id == 0)
                 {
+                    imgX.Id = GetMaxId();
+                    imgX.LastId = imgX.Id;
+                    imgX.NextName = imgX.Name;
                     imgX.Sim = 0f;
-                    imgX.LastId = 0;
                 }
                 else
                 {
-                    var imgY = GetImgByName(imgX.NextName);
-                    if (imgY == null)
+                    if (imgX.LastId < imgX.Id)
                     {
+                        imgX.LastId = imgX.Id;
                         imgX.NextName = imgX.Name;
                         imgX.Sim = 0f;
-                        imgX.LastId = 0;
+                    }
+                    else
+                    {
+                        if (imgX.Name.Equals(imgX.NextName))
+                        {
+                            imgX.Sim = 0f;
+                            imgX.LastId = imgX.Id;
+                        }
+                        else
+                        {
+                            var imgY = GetImgByName(imgX.NextName);
+                            if (imgY == null)
+                            {
+                                imgX.NextName = imgX.Name;
+                                imgX.Sim = 0f;
+                                imgX.LastId = imgX.Id;
+                            }
+                        }
                     }
                 }
             }
 
             var scope = _imgList
-                .Where(e => e.Value.Id > imgX.LastId)
+                .Where(e => e.Value.Id > imgX.LastId && e.Value.Id > imgX.Id)
                 .OrderBy(e => e.Value.Id)
                 .Select(e => e.Value)
                 .ToArray();
@@ -87,11 +107,11 @@ namespace ImageBank
                         imgX.Sim = sim;
                         imgX.LastChecked = DateTime.Now;
                     }
+                }
 
-                    if (sw.ElapsedMilliseconds > 1000)
-                    {
-                        break;
-                    }
+                if (sw.ElapsedMilliseconds > 1000)
+                {
+                    break;
                 }
             }
 
