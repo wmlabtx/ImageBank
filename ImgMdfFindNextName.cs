@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 
 namespace ImageBank
@@ -8,81 +7,45 @@ namespace ImageBank
     {
         private void ResetNextName(Img img)
         {
+            img.LastId = 0;
             img.NextName = img.Name;
-            img.Sim = 0f;
+            img.Distance = 256;
             img.LastChecked = GetMinLastChecked();
-            img.LastId = img.Id;
             UpdateNameNext(img);
         }
 
-        private void FindNextName(Img imgX)
+        private int FindNextName(Img imgX)
         {
             var oldnextname = imgX.NextName;
-            var oldsim = imgX.Sim;
+            var olddistance = imgX.Distance;
 
             imgX.LastChecked = DateTime.Now;
 
-            if (imgX.Orbs.Rows == 0)
+            if (imgX.Vector.Length < 4)
             {
                 var jpgdata = imgX.GetData();
                 if (jpgdata == null || jpgdata.Length == 0)
                 {
                     DeleteImg(imgX);
-                    return;
+                    return 0;
                 }
 
-                if (!HelperDescriptors.ComputeDescriptors(jpgdata, out var orbs))
+                if (!HelperDescriptors.ComputeVector(jpgdata, out var vector))
                 {
                     DeleteImg(imgX);
-                    return;
+                    return 0;
                 }
 
-                imgX.Orbs = orbs;
-                imgX.Id = GetMaxId();
-                imgX.LastId = imgX.Id;
-                imgX.NextName = imgX.Name;
-                imgX.Sim = 0f;
+                imgX.Vector = vector;
             }
-            else
+
+            if (!_imgList.ContainsKey(imgX.NextName) || imgX.Name.Equals(imgX.NextName))
             {
-                if (imgX.Id == 0)
-                {
-                    imgX.Id = GetMaxId();
-                    imgX.LastId = imgX.Id;
-                    imgX.NextName = imgX.Name;
-                    imgX.Sim = 0f;
-                }
-                else
-                {
-                    if (imgX.LastId < imgX.Id)
-                    {
-                        imgX.LastId = imgX.Id;
-                        imgX.NextName = imgX.Name;
-                        imgX.Sim = 0f;
-                    }
-                    else
-                    {
-                        if (imgX.Name.Equals(imgX.NextName))
-                        {
-                            imgX.Sim = 0f;
-                            imgX.LastId = imgX.Id;
-                        }
-                        else
-                        {
-                            var imgY = GetImgByName(imgX.NextName);
-                            if (imgY == null)
-                            {
-                                imgX.NextName = imgX.Name;
-                                imgX.Sim = 0f;
-                                imgX.LastId = imgX.Id;
-                            }
-                        }
-                    }
-                }
+                ResetNextName(imgX);
             }
 
             var scope = _imgList
-                .Where(e => e.Value.Id > imgX.LastId && e.Value.Id > imgX.Id)
+                .Where(e => e.Value.Vector.Length >= 4 && e.Value.Id > imgX.LastId)
                 .OrderBy(e => e.Value.Id)
                 .Select(e => e.Value)
                 .ToArray();
@@ -90,38 +53,43 @@ namespace ImageBank
             if (scope.Length == 0)
             {
                 UpdateNameNext(imgX);
-                return;
+                return 0;
             }
-
-            var sw = new Stopwatch();
-            sw.Start();
+           
+            var updates = 0;
             foreach (var imgY in scope)
             {
                 imgX.LastId = imgY.Id;
-                if (imgX.LastId != imgX.Id)
+                if (imgX.Name.Equals(imgY.Name))
                 {
-                    var sim = HelperDescriptors.GetSim(imgX.Orbs, imgY.Orbs);
-                    if (sim > imgX.Sim)
-                    {
-                        imgX.NextName = imgY.Name;
-                        imgX.Sim = sim;
-                        imgX.LastChecked = DateTime.Now;
-                    }
+                    continue;
                 }
 
-                if (sw.ElapsedMilliseconds > 1000)
+                var distance = HelperDescriptors.GetDistance(imgX.Vector, imgY.Vector);
+                if (distance < imgX.Distance)
                 {
-                    break;
+                    imgX.NextName = imgY.Name;
+                    imgX.Distance = distance;
+                    imgX.LastChecked = DateTime.Now;
+                }
+
+                if (distance < imgY.Distance)
+                {
+                    imgY.NextName = imgX.Name;
+                    imgY.Distance = distance;
+                    imgY.LastChanged = DateTime.Now;
+                    UpdateNameNext(imgY);
+                    updates++;
                 }
             }
 
-            if (!imgX.NextName.Equals(oldnextname) || oldsim != imgX.Sim)
+            if (!imgX.NextName.Equals(oldnextname) || olddistance != imgX.Distance)
             {
                 imgX.LastChanged = DateTime.Now;
             }
 
             UpdateNameNext(imgX);
-            return;
+            return updates;
         }
     }
 }

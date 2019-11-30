@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Text;
 
 namespace ImageBank
@@ -14,14 +13,14 @@ namespace ImageBank
                 var sb = new StringBuilder();
                 sb.Append("SELECT ");
                 sb.Append($"{AppConsts.AttrName}, "); // 0
-                sb.Append($"{AppConsts.AttrLastView}, "); // 1
-                sb.Append($"{AppConsts.AttrLastChecked}, "); // 2
-                sb.Append($"{AppConsts.AttrLastChanged}, "); // 3
-                sb.Append($"{AppConsts.AttrNextName}, "); // 4
-                sb.Append($"{AppConsts.AttrOrbs}, "); // 5
-                sb.Append($"{AppConsts.AttrSim}, "); // 6
-                sb.Append($"{AppConsts.AttrId}, "); // 7
-                sb.Append($"{AppConsts.AttrLastId} "); // 8
+                sb.Append($"{AppConsts.AttrId}, "); // 1
+                sb.Append($"{AppConsts.AttrLastId}, "); // 2
+                sb.Append($"{AppConsts.AttrLastView}, "); // 3
+                sb.Append($"{AppConsts.AttrLastChecked}, "); // 4
+                sb.Append($"{AppConsts.AttrLastChanged}, "); // 5
+                sb.Append($"{AppConsts.AttrNextName}, "); // 6
+                sb.Append($"{AppConsts.AttrVector}, "); // 7
+                sb.Append($"{AppConsts.AttrDistance} "); // 8
                 sb.Append("FROM Images");
                 var sqltext = sb.ToString();
                 using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
@@ -33,16 +32,16 @@ namespace ImageBank
                         while (reader.Read())
                         {
                             var name = reader.GetString(0);
-                            var lastview = reader.GetDateTime(1);
-                            var lastchecked = reader.GetDateTime(2);
-                            var lastchanged = reader.GetDateTime(3);
-                            var nextname = reader.GetString(4);
-                            var buffer = (byte[])reader[5];
-                            var orbs = HelperDescriptors.ConvertBufferToMat(buffer);
-                            var sim = (float)reader.GetDouble(6);
-                            var id = reader.GetInt32(7);
-                            var lastid = reader.GetInt32(8);
-                            var img = new Img(name, lastview, lastchecked, lastchanged, nextname, orbs, sim, id, lastid);
+                            var id = reader.GetInt32(1);
+                            var lastid = reader.GetInt32(2);
+                            var lastview = reader.GetDateTime(3);
+                            var lastchecked = reader.GetDateTime(4);
+                            var lastchanged = reader.GetDateTime(5);
+                            var nextname = reader.GetString(6);
+                            var buffer = (byte[])reader[7];
+                            var vector = HelperDescriptors.ConvertBufferToVector(buffer);
+                            var distance = reader.GetInt32(8);
+                            var img = new Img(name, id, lastid, lastview, lastchecked, lastchanged, nextname, vector, distance);
                             _imgList.TryAdd(name, img);
 
                             if (DateTime.Now.Subtract(dt).TotalMilliseconds > AppConsts.TimeLapse)

@@ -18,12 +18,5 @@ namespace ImageBank
                 _imgList.Min(e => e.Value.LastChecked).AddSeconds(-1) :
                 DateTime.Now;
         }
-
-        public int GetMaxId()
-        {
-            return _imgList.Count > 0 ?
-                _imgList.Max(e => e.Value.Id) + 1 :
-                1;
-        }
     }
 }
