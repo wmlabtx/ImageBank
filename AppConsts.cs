@@ -7,8 +7,7 @@
         public const string PathSource = PathRoot + @"rw\";
         public const string FileDatabase = PathRoot + @"db\images.mdf";
 
-        public const int MaxHammingDistance = 64;
-        public const int MaxDescriptorsInImage = 1000;
+        public const int MaxDescriptorsInImage = 250;
 
         public const string DatExtension = ".dat";
         public const string WebpExtension = ".webp";
@@ -27,7 +26,7 @@
         public const string AttrLastChecked = "LastChecked";
         public const string AttrLastChanged = "LastChanged";
         public const string AttrNextName = "NextName";
-        public const string AttrVector = "Vector";
-        public const string AttrDistance = "Distance";
+        public const string AttrDescriptors = "Descriptors";
+        public const string AttrSim = "Sim";
     }
 }

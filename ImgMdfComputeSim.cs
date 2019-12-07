@@ -31,14 +31,15 @@ namespace ImageBank
             }
 
             var imgX = scope
-                .OrderBy(e => e.LastChecked)
+                .OrderBy(e => e.LastId)
+                .ThenBy(e => e.LastChecked)
                 .FirstOrDefault();
 
             var oldnextname = imgX.NextName;
             var oldchecked = imgX.LastChecked;
-            var olddistance = imgX.Distance;
+            var oldsim = imgX.Sim;
 
-            var updates = FindNextName(imgX);
+            FindNextName(imgX);
 
             var imgY = GetImgByName(imgX.NextName);
             if (imgY == null)
@@ -47,37 +48,35 @@ namespace ImageBank
             }
 
             var sb = new StringBuilder();
-            var count = _imgList.Count();
-            var countunfinished = scope.Length;
+            var count = _imgList.Count();            
 
             var scopeok = _imgList
                 .Where(e => 
-                    e.Value.Vector.Length == 4 && 
+                    e.Value.Descriptors.Size.Height > 0 && 
                     _imgList.ContainsKey(e.Value.NextName) &&
                     !e.Value.Name.Equals(e.Value.NextName) &&
                     e.Value.LastView < e.Value.LastChanged)
                 .Select(e => e.Value)
                 .ToArray();
 
-            var mindistance = scopeok.Min(e => e.Distance);
-            var countdistance = scopeok.Count(e => e.Distance == mindistance);
-
-            sb.Append($"{countunfinished}/{mindistance}:{countdistance}/{count}: {_avgTimes:F2}s ");
-
-            if (updates > 0)
+            var countok = scopeok.Length;
+            if (countok > 0)
             {
-                sb.Append($"({updates}) ");
-            }
+                var maxsim = scopeok.Max(e => e.Sim);
+                var countsim = scopeok.Count(e => e.Sim == maxsim);
 
-            sb.Append($"{olddistance}");
-            if (!imgX.NextName.Equals(oldnextname) || olddistance != imgX.Distance)
-            {
-                sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Distance}");
-            }
+                sb.Append($"{maxsim:F2}:{countsim}/{countok}/{count}: {_avgTimes:F2}s ");
 
-            sb.Append(" / ");
-            sb.Append($"{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(imgX.LastView))} ago");
-            sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(oldchecked))} ago]");
+                sb.Append($"{oldsim:F2}");
+                if (!imgX.NextName.Equals(oldnextname) || oldsim != imgX.Sim)
+                {
+                    sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F2}");
+                }
+
+                sb.Append(" / ");
+                sb.Append($"{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(imgX.LastView))} ago");
+                sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(oldchecked))} ago]");
+            }
 
             _findTimes.Enqueue(DateTime.Now.Subtract(dt).TotalSeconds);
             if (_findTimes.Count > 100)

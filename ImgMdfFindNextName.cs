@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace ImageBank
@@ -9,34 +10,40 @@ namespace ImageBank
         {
             img.LastId = 0;
             img.NextName = img.Name;
-            img.Distance = 256;
+            img.Sim = 0f;
             img.LastChecked = GetMinLastChecked();
             UpdateNameNext(img);
         }
 
-        private int FindNextName(Img imgX)
+        private void FindNextName(Img imgX)
         {
             var oldnextname = imgX.NextName;
-            var olddistance = imgX.Distance;
+            var oldsim = imgX.Sim;
 
             imgX.LastChecked = DateTime.Now;
 
-            if (imgX.Vector.Length < 4)
+            if (imgX.Id == 0)
+            {
+                imgX.Id = _imgList.Max(e => e.Value.Id) + 1;
+                UpdateProperty(imgX, AppConsts.AttrId, imgX.Id);
+            }
+
+            if (imgX.Descriptors.Size.Height == 0)
             {
                 var jpgdata = imgX.GetData();
                 if (jpgdata == null || jpgdata.Length == 0)
                 {
                     DeleteImg(imgX);
-                    return 0;
+                    return;
                 }
 
-                if (!HelperDescriptors.ComputeVector(jpgdata, out var vector))
+                if (!HelperDescriptors.ComputeDescriptors(jpgdata, out var descriptors))
                 {
                     DeleteImg(imgX);
-                    return 0;
+                    return;
                 }
 
-                imgX.Vector = vector;
+                imgX.Descriptors = descriptors;
             }
 
             if (!_imgList.ContainsKey(imgX.NextName) || imgX.Name.Equals(imgX.NextName))
@@ -45,7 +52,7 @@ namespace ImageBank
             }
 
             var scope = _imgList
-                .Where(e => e.Value.Vector.Length >= 4 && e.Value.Id > imgX.LastId)
+                .Where(e => e.Value.Descriptors.Size.Height > 0 && e.Value.Id > imgX.LastId)
                 .OrderBy(e => e.Value.Id)
                 .Select(e => e.Value)
                 .ToArray();
@@ -53,10 +60,11 @@ namespace ImageBank
             if (scope.Length == 0)
             {
                 UpdateNameNext(imgX);
-                return 0;
+                return;
             }
-           
-            var updates = 0;
+
+            var sw = new Stopwatch();
+            sw.Start();
             foreach (var imgY in scope)
             {
                 imgX.LastId = imgY.Id;
@@ -65,31 +73,27 @@ namespace ImageBank
                     continue;
                 }
 
-                var distance = HelperDescriptors.GetDistance(imgX.Vector, imgY.Vector);
-                if (distance < imgX.Distance)
+                var sim = HelperDescriptors.GetSim(imgX.Descriptors, imgY.Descriptors);
+                if (sim > imgX.Sim)
                 {
                     imgX.NextName = imgY.Name;
-                    imgX.Distance = distance;
+                    imgX.Sim = sim;
                     imgX.LastChecked = DateTime.Now;
                 }
 
-                if (distance < imgY.Distance)
+                if (sw.ElapsedMilliseconds > 2000)
                 {
-                    imgY.NextName = imgX.Name;
-                    imgY.Distance = distance;
-                    imgY.LastChanged = DateTime.Now;
-                    UpdateNameNext(imgY);
-                    updates++;
+                    sw.Stop();
+                    break;
                 }
             }
 
-            if (!imgX.NextName.Equals(oldnextname) || olddistance != imgX.Distance)
+            if (!imgX.NextName.Equals(oldnextname) || oldsim != imgX.Sim)
             {
                 imgX.LastChanged = DateTime.Now;
             }
 
             UpdateNameNext(imgX);
-            return updates;
         }
     }
 }

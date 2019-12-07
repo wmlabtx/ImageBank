@@ -47,7 +47,7 @@ namespace ImageBank
                     continue;
                 }
 
-                if (!HelperDescriptors.ComputeVector(jpgdata, out var vector))
+                if (!HelperDescriptors.ComputeDescriptors(jpgdata, out var descriptors))
                 {
                     skipped++;
                     continue;
@@ -67,8 +67,8 @@ namespace ImageBank
                     lastchecked,
                     lastchanged,
                     name,
-                    vector,
-                    256);
+                    descriptors,
+                    0f);
 
                 Add(img);
                 img.WriteData(jpgdata);

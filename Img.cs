@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Emgu.CV.Cuda;
+using System;
 using System.IO;
 
 namespace ImageBank
@@ -40,22 +41,22 @@ namespace ImageBank
         public DateTime LastChanged { get; set; }
         public string NextName { get; set; }
 
-        private ulong[] _vector;
-        public ulong[] Vector
+        private GpuMat _descriptors;
+        public GpuMat Descriptors
         {
             get
             {
-                return _vector;
+                return _descriptors;
             }
             set
             {
-                _vector = value;
-                var buffer = HelperDescriptors.ConvertVectorToBuffer(_vector);
-                AppVars.Collection.UpdateProperty(this, AppConsts.AttrVector, buffer);
-            }
+                _descriptors = value;
+                var buffer = HelperConvertors.ConvertMatToBuffer(_descriptors);
+                AppVars.Collection.UpdateProperty(this, AppConsts.AttrDescriptors, buffer);
+             }
         }
 
-        public int Distance { get; set; }
+        public float Sim { get; set; }
 
         public string Subdirectory
         {
@@ -93,8 +94,8 @@ namespace ImageBank
             DateTime lastchecked,
             DateTime lastchanged,
             string nextname,
-            ulong[] vector,
-            int distance)
+            GpuMat descriptors,
+            float sim)
         {
             Name = name;
             _id = id;
@@ -103,8 +104,8 @@ namespace ImageBank
             LastChecked = lastchecked;
             LastChanged = lastchanged;
             NextName = nextname;
-            _vector = vector;
-            Distance = distance;
+            _descriptors = descriptors;
+            Sim = sim;
         }
 
         public void WriteData(byte[] jpgdata)

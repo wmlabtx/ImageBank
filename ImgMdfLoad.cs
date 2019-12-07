@@ -19,8 +19,8 @@ namespace ImageBank
                 sb.Append($"{AppConsts.AttrLastChecked}, "); // 4
                 sb.Append($"{AppConsts.AttrLastChanged}, "); // 5
                 sb.Append($"{AppConsts.AttrNextName}, "); // 6
-                sb.Append($"{AppConsts.AttrVector}, "); // 7
-                sb.Append($"{AppConsts.AttrDistance} "); // 8
+                sb.Append($"{AppConsts.AttrDescriptors}, "); // 7
+                sb.Append($"{AppConsts.AttrSim} "); // 8
                 sb.Append("FROM Images");
                 var sqltext = sb.ToString();
                 using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
@@ -37,11 +37,11 @@ namespace ImageBank
                             var lastview = reader.GetDateTime(3);
                             var lastchecked = reader.GetDateTime(4);
                             var lastchanged = reader.GetDateTime(5);
-                            var nextname = reader.GetString(6);
+                            var nextname = reader.GetString(6);                            
                             var buffer = (byte[])reader[7];
-                            var vector = HelperDescriptors.ConvertBufferToVector(buffer);
-                            var distance = reader.GetInt32(8);
-                            var img = new Img(name, id, lastid, lastview, lastchecked, lastchanged, nextname, vector, distance);
+                            var descriptors = HelperConvertors.ConvertBufferToMat(buffer);
+                            var sim = (float)reader.GetDouble(8);                            
+                            var img = new Img(name, id, lastid, lastview, lastchecked, lastchanged, nextname, descriptors, sim);
                             _imgList.TryAdd(name, img);
 
                             if (DateTime.Now.Subtract(dt).TotalMilliseconds > AppConsts.TimeLapse)

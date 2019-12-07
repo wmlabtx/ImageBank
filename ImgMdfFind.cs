@@ -19,7 +19,7 @@ namespace ImageBank
 
                     var scopeok = _imgList
                         .Where(e =>
-                            e.Value.Vector.Length == 4 &&
+                            e.Value.Descriptors.Size.Height > 0 &&
                             _imgList.ContainsKey(e.Value.NextName) &&
                             !e.Value.Name.Equals(e.Value.NextName))
                         .Select(e => e.Value)
@@ -49,7 +49,7 @@ namespace ImageBank
                     }
 
                     var imgX = scopeok
-                        .OrderBy(e => e.Distance)
+                        .OrderByDescending(e => e.Sim)
                         .FirstOrDefault();
 
                     nameX = imgX.Name;
