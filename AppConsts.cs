@@ -7,6 +7,7 @@
         public const string PathSource = PathRoot + @"rw\";
         public const string FileDatabase = PathRoot + @"db\images.mdf";
 
+        public const int MaxHammingDistance = 64;
         public const int MaxDescriptorsInImage = 250;
 
         public const string DatExtension = ".dat";
@@ -20,13 +21,13 @@
         public const double TimeLapse = 500.0;
 
         public const string AttrName = "Name";
-        public const string AttrId = "Id";
-        public const string AttrLastId = "LastId";
         public const string AttrLastView = "LastView";
         public const string AttrLastChecked = "LastChecked";
         public const string AttrLastChanged = "LastChanged";
         public const string AttrNextName = "NextName";
-        public const string AttrDescriptors = "Descriptors";
+        public const string AttrOrbs = "Orbs";
         public const string AttrSim = "Sim";
+        public const string AttrId = "Id";
+        public const string AttrLastId = "LastId";
     }
 }

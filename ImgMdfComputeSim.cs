@@ -19,20 +19,18 @@ namespace ImageBank
             }
 
             var maxid = _imgList.Max(e => e.Value.Id);
-            var scope = _imgList
-                .Where(e => e.Value.LastId < maxid)
+            var avgid = _imgList.Where(e => e.Value.Id > 0).Average(e => (float)e.Value.LastId / maxid);
+
+            var imgX = avgid > 0.5f ?
+                _imgList
                 .Select(e => e.Value)
-                .ToArray();
-
-            if (scope.Length == 0)
-            {
-                Thread.Sleep(1000);
-                return "idle...";
-            }
-
-            var imgX = scope
                 .OrderBy(e => e.LastId)
                 .ThenBy(e => e.LastChecked)
+                .FirstOrDefault() :
+                _imgList
+                .Select(e => e.Value)
+                .Where(e => e.Id > 0)
+                .OrderBy(e => e.LastChecked)
                 .FirstOrDefault();
 
             var oldnextname = imgX.NextName;
@@ -48,35 +46,21 @@ namespace ImageBank
             }
 
             var sb = new StringBuilder();
-            var count = _imgList.Count();            
+            var count = _imgList.Count();
+            sb.Append($"{avgid:F4}/{count}: {_avgTimes:F2}s ");
 
-            var scopeok = _imgList
-                .Where(e => 
-                    e.Value.Descriptors.Size.Height > 0 && 
-                    _imgList.ContainsKey(e.Value.NextName) &&
-                    !e.Value.Name.Equals(e.Value.NextName) &&
-                    e.Value.LastView < e.Value.LastChanged)
-                .Select(e => e.Value)
-                .ToArray();
+            var progress = imgX.LastId * 100.0 / _imgList.Max(e => e.Value.Id);
+            sb.Append($"({progress:F2}%) ");
 
-            var countok = scopeok.Length;
-            if (countok > 0)
+            sb.Append($"{oldsim:F2}");
+            if (!imgX.NextName.Equals(oldnextname) || oldsim != imgX.Sim)
             {
-                var maxsim = scopeok.Max(e => e.Sim);
-                var countsim = scopeok.Count(e => e.Sim == maxsim);
-
-                sb.Append($"{maxsim:F2}:{countsim}/{countok}/{count}: {_avgTimes:F2}s ");
-
-                sb.Append($"{oldsim:F2}");
-                if (!imgX.NextName.Equals(oldnextname) || oldsim != imgX.Sim)
-                {
-                    sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F2}");
-                }
-
-                sb.Append(" / ");
-                sb.Append($"{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(imgX.LastView))} ago");
-                sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(oldchecked))} ago]");
+                sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F2}");
             }
+
+            sb.Append(" / ");
+            sb.Append($"{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(imgX.LastView))} ago");
+            sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(oldchecked))} ago]");
 
             _findTimes.Enqueue(DateTime.Now.Subtract(dt).TotalSeconds);
             if (_findTimes.Count > 100)

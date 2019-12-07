@@ -8,10 +8,10 @@ namespace ImageBank
     {
         private void ResetNextName(Img img)
         {
-            img.LastId = 0;
             img.NextName = img.Name;
             img.Sim = 0f;
             img.LastChecked = GetMinLastChecked();
+            img.LastId = 0;
             UpdateNameNext(img);
         }
 
@@ -22,13 +22,7 @@ namespace ImageBank
 
             imgX.LastChecked = DateTime.Now;
 
-            if (imgX.Id == 0)
-            {
-                imgX.Id = _imgList.Max(e => e.Value.Id) + 1;
-                UpdateProperty(imgX, AppConsts.AttrId, imgX.Id);
-            }
-
-            if (imgX.Descriptors.Size.Height == 0)
+            if (imgX.Orbs.Rows == 0)
             {
                 var jpgdata = imgX.GetData();
                 if (jpgdata == null || jpgdata.Length == 0)
@@ -37,22 +31,38 @@ namespace ImageBank
                     return;
                 }
 
-                if (!HelperDescriptors.ComputeDescriptors(jpgdata, out var descriptors))
+                if (!HelperDescriptors.ComputeDescriptors(jpgdata, out var orbs))
                 {
                     DeleteImg(imgX);
                     return;
                 }
 
-                imgX.Descriptors = descriptors;
+                imgX.Orbs = orbs;
+                imgX.Id = GetMaxId();
+                imgX.NextName = imgX.Name;
+                imgX.Sim = 0f;
             }
-
-            if (!_imgList.ContainsKey(imgX.NextName) || imgX.Name.Equals(imgX.NextName))
+            else
             {
-                ResetNextName(imgX);
+                if (imgX.Name.Equals(imgX.NextName))
+                {
+                    imgX.Sim = 0f;
+                    imgX.LastId = 0;
+                }
+                else
+                {
+                    var imgY = GetImgByName(imgX.NextName);
+                    if (imgY == null)
+                    {
+                        imgX.NextName = imgX.Name;
+                        imgX.Sim = 0f;
+                        imgX.LastId = 0;
+                    }
+                }
             }
 
             var scope = _imgList
-                .Where(e => e.Value.Descriptors.Size.Height > 0 && e.Value.Id > imgX.LastId)
+                .Where(e => e.Value.Id > imgX.LastId)
                 .OrderBy(e => e.Value.Id)
                 .Select(e => e.Value)
                 .ToArray();
@@ -68,23 +78,20 @@ namespace ImageBank
             foreach (var imgY in scope)
             {
                 imgX.LastId = imgY.Id;
-                if (imgX.Name.Equals(imgY.Name))
+                if (imgX.LastId != imgX.Id)
                 {
-                    continue;
-                }
+                    var sim = HelperDescriptors.GetSim(imgX.Orbs, imgY.Orbs);
+                    if (sim > imgX.Sim)
+                    {
+                        imgX.NextName = imgY.Name;
+                        imgX.Sim = sim;
+                        imgX.LastChecked = DateTime.Now;
+                    }
 
-                var sim = HelperDescriptors.GetSim(imgX.Descriptors, imgY.Descriptors);
-                if (sim > imgX.Sim)
-                {
-                    imgX.NextName = imgY.Name;
-                    imgX.Sim = sim;
-                    imgX.LastChecked = DateTime.Now;
-                }
-
-                if (sw.ElapsedMilliseconds > 2000)
-                {
-                    sw.Stop();
-                    break;
+                    if (sw.ElapsedMilliseconds > 1000)
+                    {
+                        break;
+                    }
                 }
             }
 
@@ -94,6 +101,7 @@ namespace ImageBank
             }
 
             UpdateNameNext(imgX);
+            return;
         }
     }
 }

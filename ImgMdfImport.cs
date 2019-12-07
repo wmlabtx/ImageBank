@@ -47,28 +47,28 @@ namespace ImageBank
                     continue;
                 }
 
-                if (!HelperDescriptors.ComputeDescriptors(jpgdata, out var descriptors))
+                if (!HelperDescriptors.ComputeDescriptors(jpgdata, out var orbs))
                 {
                     skipped++;
                     continue;
                 }
 
-                var id = _imgList.Max(e => e.Value.Id) + 1;
-                var lastview = DateTime.Now.AddDays(-1000);
-                var lastchecked = lastview;
+                var lastview = GetMinLastView();
+                var lastchecked = GetMinLastChecked();
                 var lastchanged = lastchecked;
                 var array = HelperEncrypting.Encrypt(jpgdata, name);
+                var id = GetMaxId();
 
                 var img = new Img(
                     name,
-                    id,
-                    0,
                     lastview,
                     lastchecked,
                     lastchanged,
                     name,
-                    descriptors,
-                    0f);
+                    orbs,
+                    0f,
+                    id,
+                    0);
 
                 Add(img);
                 img.WriteData(jpgdata);

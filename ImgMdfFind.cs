@@ -17,39 +17,26 @@ namespace ImageBank
                         return;
                     }
 
-                    var scopeok = _imgList
-                        .Where(e =>
-                            e.Value.Descriptors.Size.Height > 0 &&
-                            _imgList.ContainsKey(e.Value.NextName) &&
-                            !e.Value.Name.Equals(e.Value.NextName))
+                    var scope = _imgList
+                        .Where(e => e.Value.Id > 0 && !e.Value.Name.Equals(e.Value.NextName) && _imgList.ContainsKey(e.Value.NextName))
                         .Select(e => e.Value)
                         .ToArray();
 
-                    if (scopeok.Length == 0)
+                    if (scope.Length == 0)
                     {
                         return;
                     }
 
-                    var scopeold = scopeok
-                        .Where(e => DateTime.Now.Subtract(e.LastView).TotalDays > 1000)
+                    var scopesim = scope
+                        .Where(e => e.LastView < e.LastChanged && e.Sim > 6.0)
                         .ToArray();
 
-                    if (scopeold.Length > 0)
-                    {
-                        scopeok = scopeold;
-                    }
-
-                    var scopenew = scopeok
-                        .Where(e => e.LastView < e.LastChanged)
-                        .ToArray();
-
-                    if (scopenew.Length > 0)
-                    {
-                        scopeok = scopenew;
-                    }
-
-                    var imgX = scopeok
+                    var imgX = scopesim.Length > 0 ?
+                        scopesim
                         .OrderByDescending(e => e.Sim)
+                        .FirstOrDefault() :
+                        scope
+                        .OrderBy(e => e.LastView)
                         .FirstOrDefault();
 
                     nameX = imgX.Name;
