@@ -1,5 +1,6 @@
 ﻿using OpenCvSharp;
 using System;
+using System.IO;
 
 namespace ImageBank
 {
@@ -7,38 +8,6 @@ namespace ImageBank
     {
         public string Name { get; }
         
-        private string _person;
-        public string Person
-        {
-            get
-            {
-                return _person;
-            }
-            set
-            {
-                _person = value;
-                AppVars.Collection.UpdateProperty(this, AppConsts.AttrPerson, _person);
-            }
-        }
-
-        private ulong _phash;
-        public ulong PHash
-        {
-            get
-            {
-                return _phash;
-            }
-            set
-            {
-                _phash = value;
-                var buffer = HelperDescriptors.ConvertPHashToBuffer(_phash);
-                AppVars.Collection.UpdateProperty(this, AppConsts.AttrPHash, buffer);
-            }
-        }
-
-        public int Distance { get; set; }
-
-
         private DateTime _lastview;
         public DateTime LastView
         {
@@ -56,9 +25,6 @@ namespace ImageBank
         public DateTime LastChecked { get; set; }
         public DateTime LastChanged { get; set; }
         public string NextName { get; set; }
-        public long Offset { get; set; }
-        public int Lenght { get; set; }
-        public string Crc { get; set; }
 
         private Mat _orbs;
         public Mat Orbs
@@ -93,38 +59,82 @@ namespace ImageBank
 
         public int LastId { get; set; }
 
+        public string Subdirectory
+        {
+            get
+            {
+                var hash = Math.Abs(Name.GetHashCode()) % 100;
+                var dir = $"{hash:D2}";
+                return dir;
+            }
+        }
+
+        public string Folder
+        {
+            get
+            {
+                var directory = $"{AppConsts.PathData}{Subdirectory}\\";
+                return directory;
+            }
+        }
+
+        public string File
+        {
+            get
+            {
+                var filename = $"{Folder}{Name}{AppConsts.DatExtension}";
+                return filename;
+            }
+        }
+
         public Img(
             string name,
-            string person,
-            ulong phash,
-            int distance,
             DateTime lastview,
             DateTime lastchecked,
             DateTime lastchanged,
             string nextname,
-            long offset,
-            int lenght,
-            string crc,
             Mat orbs,
             float sim,
             int id,
             int lastid)
         {
             Name = name;
-            _person = person;
-            _phash = phash;
-            Distance = distance;
             _lastview = lastview;
             LastChecked = lastchecked;
             LastChanged = lastchanged;
             NextName = nextname;
-            Offset = offset;
-            Lenght = lenght;
-            Crc = crc;
             _orbs = orbs;
             Sim = sim;
             _id = id;
             LastId = lastid;
+        }
+
+        public void WriteData(byte[] jpgdata)
+        {
+            if (!Directory.Exists(Folder))
+            {
+                Directory.CreateDirectory(Folder);
+            }
+
+            var buffer = HelperEncrypting.Encrypt(jpgdata, Name);
+            System.IO.File.WriteAllBytes(File, buffer);
+        }
+
+        public byte[] GetData()
+        {
+            if (!System.IO.File.Exists(File))
+            {
+                return null;
+            }
+
+            var buffer = System.IO.File.ReadAllBytes(File);
+            var data = HelperEncrypting.Decrypt(buffer, Name);
+            return data;
+        }
+
+        public float DoneProgress(int maxid)
+        {
+            return (LastId - Id + 1) * 100f / (maxid - Id + 1);
         }
     }
 }
