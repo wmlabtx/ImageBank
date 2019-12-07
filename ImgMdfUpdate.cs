@@ -11,8 +11,9 @@ namespace ImageBank
             {
                 var sb = new StringBuilder();
                 sb.Append("UPDATE Images SET ");
-                sb.Append($"{AppConsts.AttrLastId} = @{AppConsts.AttrLastId}, ");
                 sb.Append($"{AppConsts.AttrNextName} = @{AppConsts.AttrNextName}, ");
+                sb.Append($"{AppConsts.AttrLastId} = @{AppConsts.AttrLastId}, ");
+                sb.Append($"{AppConsts.AttrDistance} = @{AppConsts.AttrDistance}, ");
                 sb.Append($"{AppConsts.AttrSim} = @{AppConsts.AttrSim}, ");
                 sb.Append($"{AppConsts.AttrLastChecked} = @{AppConsts.AttrLastChecked}, ");
                 sb.Append($"{AppConsts.AttrLastChanged} = @{AppConsts.AttrLastChanged} ");
@@ -21,8 +22,9 @@ namespace ImageBank
                 var sqltext = sb.ToString();
                 using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
                 {
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastId}", img.LastId);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrNextName}", img.NextName);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastId}", img.LastId);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrDistance}", img.Distance);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrSim}", img.Sim);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastChecked}", img.LastChecked);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastChanged}", img.LastChanged);

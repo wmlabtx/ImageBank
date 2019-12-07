@@ -10,7 +10,7 @@
                 return null;
             }
 
-            var jpgdata = img.GetData();
+            var jpgdata = GetJpgData(img);
             if (jpgdata == null)
             {
                 DeleteImg(img);

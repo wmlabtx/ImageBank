@@ -40,8 +40,6 @@ namespace ImageBank
                     sqlCommand.ExecuteNonQuery();
                 }
             }
-
-            HelperRecycleBin.Delete(img.File);
         }
     }
 }

@@ -104,6 +104,7 @@
     <Compile Include="ImgMdf.cs" />
     <Compile Include="ImgMdfAdd.cs" />
     <Compile Include="ImgMdfComputeSim.cs" />
+    <Compile Include="ImgMdfData.cs" />
     <Compile Include="ImgMdfDateTime.cs" />
     <Compile Include="ImgMdfDelete.cs" />
     <Compile Include="ImgMdfFindNextName.cs" />
@@ -112,6 +113,7 @@
     <Compile Include="ImgMdfImport.cs" />
     <Compile Include="ImgMdfLoad.cs" />
     <Compile Include="ImgMdfGetImgPanel.cs" />
+    <Compile Include="ImgMdfPerson.cs" />
     <Compile Include="ImgMdfUpdate.cs" />
     <Compile Include="ImgPanel.cs" />
     <Compile Include="MainWindow.xaml.cs">

@@ -5,6 +5,8 @@ namespace ImageBank
 {
     public partial class ImgMdf
     {
+        private bool _flag = false;
+
         public void Find(string nameX, IProgress<string> progress)
         {
             progress.Report(string.Empty);
@@ -17,27 +19,43 @@ namespace ImageBank
                         return;
                     }
 
-                    var scope = _imgList
-                        .Where(e => e.Value.Id > 0 && !e.Value.Name.Equals(e.Value.NextName) && _imgList.ContainsKey(e.Value.NextName))
+                    Img imgX;
+
+                    var scope1 = _imgList
+                        .Where(e => e.Value.Id > 0 && _imgList.ContainsKey(e.Value.NextName))
                         .Select(e => e.Value)
                         .ToArray();
 
-                    if (scope.Length == 0)
+                    if (scope1.Length == 0)
                     {
                         return;
                     }
 
-                    var scopesim = scope
-                        .Where(e => e.LastView < e.LastChanged && e.Sim > 6.0)
-                        .ToArray();
+                    var scope2 = scope1
+                    .Where(e => e.LastView < e.LastChanged)
+                    .ToArray();
 
-                    var imgX = scopesim.Length > 0 ?
-                        scopesim
-                        .OrderByDescending(e => e.Sim)
-                        .FirstOrDefault() :
-                        scope
-                        .OrderBy(e => e.LastView)
-                        .FirstOrDefault();
+                    if (scope2.Length > 0 && _flag)
+                    {
+                        imgX = scope2
+                            .OrderBy(e => e.Distance)
+                            .FirstOrDefault();
+
+                        if (imgX.Distance >= AppConsts.MinHammingDistance)
+                        {
+                            imgX = scope2
+                                .OrderByDescending(e => e.Sim)
+                                .FirstOrDefault();
+                        }
+                    }
+                    else
+                    {
+                        imgX = scope1
+                            .OrderBy(e => e.LastView)
+                            .FirstOrDefault();
+                    }
+
+                    _flag = !_flag;
 
                     nameX = imgX.Name;
 

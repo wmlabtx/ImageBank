@@ -6,10 +6,12 @@ namespace ImageBank
 {
     public static class HelperDescriptors
     {
+        private static readonly PHash _phash = PHash.Create();
         private static readonly BFMatcher _bfmatcher = new BFMatcher(NormTypes.Hamming2, true);
 
-        public static bool ComputeDescriptors(byte[] data, out Mat orbs)
+        public static bool ComputeDescriptors(byte[] data, out ulong phash, out Mat orbs)
         {
+            phash = 0;
             orbs = null;
             if (data == null || data.Length == 0)
             {
@@ -25,9 +27,17 @@ namespace ImageBank
                         return false;
                     }
 
+                    using (var matoutput = new Mat())
+                    {
+                        _phash.Compute(matinput, matoutput);
+                        var buffer = new byte[8];
+                        matoutput.GetArray(0, 0, buffer);
+                        phash = ConvertBufferToPHash(buffer);
+                    }
+
                     using (var orb = ORB.Create(AppConsts.MaxDescriptorsInImage))
                     {
-                        const double fsample = 640.0 * 480.0;
+                        const double fsample = 256.0 * 256.0;
                         var fx = Math.Sqrt(fsample / (matinput.Width * matinput.Height));
                         using (var mat = matinput.Resize(Size.Zero, fx, fx, InterpolationFlags.Cubic))
                         {
@@ -65,6 +75,24 @@ namespace ImageBank
             var dsum = dmatch.Where(e => e.Distance < AppConsts.MaxHammingDistance).Sum(e => AppConsts.MaxHammingDistance - e.Distance);
             var sim = dsum / x.Rows;
             return sim;
+        }
+
+        public static int GetDistance(ulong x, ulong y)
+        {
+            var distance = Intrinsic.PopCnt(x ^ y);
+            return distance;
+        }
+
+        public static ulong ConvertBufferToPHash(byte[] buffer)
+        {
+            var phash = BitConverter.ToUInt64(buffer, 0);
+            return phash;
+        }
+
+        public static byte[] ConvertPHashToBuffer(ulong phash)
+        {
+            var buffer = BitConverter.GetBytes(phash);
+            return buffer;
         }
 
         public static byte[] ConvertMatToBuffer(Mat mat)

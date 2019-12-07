@@ -3,13 +3,13 @@
     public static class AppConsts
     {
         public const string PathRoot = @"D:\Users\Murad\Documents\SDB\";
-        public const string PathData = PathRoot + @"hp\";
-        public const string PathSource = PathRoot + @"rw\";
+        public const string PathSource = PathRoot + @"hp\";
         public const string FileDatabase = PathRoot + @"db\images.mdf";
-        public const string FileClusters = PathRoot + @"db\images.cdf";
+        public const string FileData = PathRoot + @"db\images_data.ddf";
 
+        public const int MinHammingDistance = 8;
         public const int MaxHammingDistance = 64;
-        public const int MaxDescriptorsInImage = 250;
+        public const int MaxDescriptorsInImage = 100;
 
         public const string DatExtension = ".dat";
         public const string WebpExtension = ".webp";
@@ -22,11 +22,17 @@
         public const double TimeLapse = 500.0;
 
         public const string AttrName = "Name";
+        public const string AttrPerson = "Person";
+        public const string AttrPHash = "PHash";
+        public const string AttrDistance = "Distance";
         public const string AttrLastView = "LastView";
         public const string AttrLastChecked = "LastChecked";
         public const string AttrLastChanged = "LastChanged";
         public const string AttrNextName = "NextName";
-        public const string AttrDescriptors = "Descriptors";
+        public const string AttrOffset = "Offset";
+        public const string AttrLenght = "Lenght";
+        public const string AttrCrc = "Crc";
+        public const string AttrOrbs = "Orbs";
         public const string AttrSim = "Sim";
         public const string AttrId = "Id";
         public const string AttrLastId = "LastId";

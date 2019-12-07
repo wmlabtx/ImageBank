@@ -9,9 +9,9 @@ namespace ImageBank
     {
         private readonly object _sqlLock = new object();
         private readonly SqlConnection _sqlConnection;
-        //private readonly FileStream _dataStream;
+        private readonly FileStream _dataStream;
 
-        private readonly ConcurrentDictionary<string, Img> _imgList = new ConcurrentDictionary<string, Img>();       
+        private ConcurrentDictionary<string, Img> _imgList = new ConcurrentDictionary<string, Img>();       
         private readonly Queue<double> _findTimes = new Queue<double>();
         private double _avgTimes;
 
@@ -21,7 +21,7 @@ namespace ImageBank
             _sqlConnection = new SqlConnection(connectionString);
             _sqlConnection.Open();
 
-            //_dataStream = new FileStream(AppConsts.FileData, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            _dataStream = new FileStream(AppConsts.FileData, FileMode.OpenOrCreate, FileAccess.ReadWrite);
         }
     }
 }

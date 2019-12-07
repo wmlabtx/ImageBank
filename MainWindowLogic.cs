@@ -191,6 +191,7 @@ namespace ImageBank
             var pBoxes = new[] { BoxLeft, BoxRight };
             var pLabels = new[] { LabelLeft, LabelRight };
 
+            var maxid = AppVars.Collection.GetMaxId();
             for (var index = 0; index < 2; index++)
             {
                 var name = AppVars.ImgPanel[index].Img.Name;
@@ -200,20 +201,42 @@ namespace ImageBank
                 pBoxes[index].Source = HelperImages.ImageSourceFromBitmap(AppVars.ImgPanel[index].Bitmap);
 
                 var sb = new StringBuilder();
-                sb.Append($"{AppVars.ImgPanel[index].Img.Subdirectory}\\");
                 sb.Append($"{AppVars.ImgPanel[index].Img.Name}");
+                if (!string.IsNullOrEmpty(AppVars.ImgPanel[index].Img.Person))
+                {
+                    sb.Append($" [{AppVars.ImgPanel[index].Img.Person} -");
+                    var personsize = AppVars.Collection.GetPersonSize(AppVars.ImgPanel[index].Img.Person);
+                    sb.Append($" {personsize}]");
+                }
 
-                sb.Append($" D:{AppVars.ImgPanel[index].Img.Sim:F2}");
+                if (AppVars.ImgPanel[index].Img.Distance < AppConsts.MinHammingDistance)
+                    sb.Append($" D:{AppVars.ImgPanel[index].Img.Distance}");
+                else
+                    sb.Append($" S:{AppVars.ImgPanel[index].Img.Sim:F2}");
 
                 sb.AppendLine();
                 sb.Append($"{HelperConvertors.SizeToString(AppVars.ImgPanel[index].Size)} ({AppVars.ImgPanel[index].Bitmap.Width:F0}x{AppVars.ImgPanel[index].Bitmap.Height:F0})");
+
+                var progress = AppVars.ImgPanel[index].Img.LastId * 100.0 / maxid;
+                sb.Append($" P:{progress:F2}%");
 
                 sb.AppendLine();
                 sb.Append($"{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].Img.LastView))} ago");
                 sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].Img.LastChanged))} ago]");
 
                 pLabels[index].Text = sb.ToString();
-                pLabels[index].Background = System.Windows.Media.Brushes.White;
+                pLabels[index].Background = string.IsNullOrEmpty(AppVars.ImgPanel[index].Img.Person) ? 
+                    System.Windows.Media.Brushes.White : System.Windows.Media.Brushes.Bisque;
+            }
+
+            if (
+                !string.IsNullOrEmpty(AppVars.ImgPanel[0].Img.Person) && 
+                !string.IsNullOrEmpty(AppVars.ImgPanel[1].Img.Person) && 
+                AppVars.ImgPanel[0].Img.Person.Equals(AppVars.ImgPanel[1].Img.Person)
+                )
+            {
+                pLabels[0].Background = System.Windows.Media.Brushes.LightGreen;
+                pLabels[1].Background = System.Windows.Media.Brushes.LightGreen;
             }
 
             if (AppVars.ImgPanel[0].Img.Name.Equals(AppVars.ImgPanel[1].Img.Name))
@@ -266,6 +289,26 @@ namespace ImageBank
             await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
             DrawCanvas();
             EnableElements();
+        }
+
+        private void SetPerson(string person)
+        {
+            if (AppVars.Collection.SetPerson(person))
+            {
+                DisableElements();
+                DrawCanvas();
+                EnableElements();
+            }
+        }
+
+        private void CopyRightPerson()
+        {
+            if (AppVars.Collection.CopyRightPerson())
+            {
+                DisableElements();
+                DrawCanvas();
+                EnableElements();
+            }
         }
     }
 }
