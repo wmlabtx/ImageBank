@@ -1,5 +1,4 @@
-﻿using Emgu.CV.Cuda;
-using System;
+﻿using System;
 using System.IO;
 
 namespace ImageBank
@@ -41,8 +40,8 @@ namespace ImageBank
         public DateTime LastChanged { get; set; }
         public string NextName { get; set; }
 
-        private GpuMat _descriptors;
-        public GpuMat Descriptors
+        private ushort[] _descriptors;
+        public ushort[] Descriptors
         {
             get
             {
@@ -94,7 +93,7 @@ namespace ImageBank
             DateTime lastchecked,
             DateTime lastchanged,
             string nextname,
-            GpuMat descriptors,
+            ushort[] descriptors,
             float sim)
         {
             Name = name;

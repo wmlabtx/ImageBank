@@ -1,7 +1,4 @@
-﻿using Emgu.CV;
-using Emgu.CV.Cuda;
-using Emgu.CV.CvEnum;
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 
 namespace ImageBank
@@ -45,34 +42,6 @@ namespace ImageBank
             ksize /= 1024;
             str = $"{ksize:F2} Mb";
             return str;
-        }
-
-        public static byte[] ConvertMatToBuffer(GpuMat gpumat)
-        {
-            using (var mat = new Mat())
-            {
-                gpumat.Download(mat);
-                var descriptors = new byte[gpumat.Size.Width * gpumat.Size.Height];
-                Marshal.Copy(mat.DataPointer, descriptors, 0, descriptors.Length);
-                return descriptors;
-            }
-        }
-
-        public static GpuMat ConvertBufferToMat(byte[] buffer)
-        {
-            if (buffer.Length < 32)
-            {
-                return new GpuMat();
-            }
-
-            var rows = buffer.Length / 32;
-            IntPtr data = Marshal.AllocHGlobal(buffer.Length);
-            Marshal.Copy(buffer, 0, data, buffer.Length);
-            using (var mat = new Mat(rows, 32, DepthType.Cv8U, 1, data, 32))
-            {
-                var gpumat = new GpuMat(mat);
-                return gpumat;
-            }
         }
     }
 }

@@ -6,6 +6,7 @@
         public const string PathData = PathRoot + @"hp\";
         public const string PathSource = PathRoot + @"rw\";
         public const string FileDatabase = PathRoot + @"db\images.mdf";
+        public const string FileClusters = PathRoot + @"db\images.cdf";
 
         public const int MaxHammingDistance = 64;
         public const int MaxDescriptorsInImage = 250;
@@ -25,7 +26,7 @@
         public const string AttrLastChecked = "LastChecked";
         public const string AttrLastChanged = "LastChanged";
         public const string AttrNextName = "NextName";
-        public const string AttrOrbs = "Orbs";
+        public const string AttrDescriptors = "Descriptors";
         public const string AttrSim = "Sim";
         public const string AttrId = "Id";
         public const string AttrLastId = "LastId";
