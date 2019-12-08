@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenCvSharp;
+using System;
 using System.Runtime.InteropServices;
 
 namespace ImageBank
@@ -42,6 +43,27 @@ namespace ImageBank
             ksize /= 1024;
             str = $"{ksize:F2} Mb";
             return str;
+        }
+
+        public static byte[] ConvertMatToBuffer(Mat mat)
+        {
+            var buffer = new byte[mat.Rows * mat.Cols];
+            mat.GetArray(0, 0, buffer);
+            return buffer;
+        }
+
+        public static ulong[] ConvertToUlongs(byte[] buffer)
+        {
+            var ulongs = new ulong[buffer.Length / sizeof(ulong)];
+            Buffer.BlockCopy(buffer, 0, ulongs, 0, buffer.Length);
+            return ulongs;
+        }
+
+        public static byte[] ConvertToBytes(ulong[] ulongs)
+        {
+            var buffer = new byte[ulongs.Length * sizeof(ulong)];
+            Buffer.BlockCopy(ulongs, 0, buffer, 0, buffer.Length);
+            return buffer;
         }
     }
 }

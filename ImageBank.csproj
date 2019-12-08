@@ -47,6 +47,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="NetIntrinsics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=8a64b1b2776c69fe, processorArchitecture=MSIL">
+      <HintPath>packages\NetIntrinsics.1.0.4\lib\net451\NetIntrinsics.dll</HintPath>
+    </Reference>
     <Reference Include="OpenCvSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099, processorArchitecture=MSIL">
       <HintPath>packages\OpenCvSharp4.4.1.1.20191110\lib\net461\OpenCvSharp.dll</HintPath>
     </Reference>
@@ -93,6 +96,8 @@
     </Compile>
     <Compile Include="AppConsts.cs" />
     <Compile Include="AppVars.cs" />
+    <Compile Include="OrbCluster.cs" />
+    <Compile Include="OrbPoint.cs" />
     <Compile Include="HelperConvertors.cs" />
     <Compile Include="HelperCrc.cs" />
     <Compile Include="HelperDescriptors.cs" />
@@ -104,7 +109,6 @@
     <Compile Include="ImgMdf.cs" />
     <Compile Include="ImgMdfAdd.cs" />
     <Compile Include="ImgMdfComputeSim.cs" />
-    <Compile Include="ImgMdfData.cs" />
     <Compile Include="ImgMdfDateTime.cs" />
     <Compile Include="ImgMdfDelete.cs" />
     <Compile Include="ImgMdfFindNextName.cs" />
@@ -113,7 +117,6 @@
     <Compile Include="ImgMdfImport.cs" />
     <Compile Include="ImgMdfLoad.cs" />
     <Compile Include="ImgMdfGetImgPanel.cs" />
-    <Compile Include="ImgMdfPerson.cs" />
     <Compile Include="ImgMdfUpdate.cs" />
     <Compile Include="ImgPanel.cs" />
     <Compile Include="MainWindow.xaml.cs">

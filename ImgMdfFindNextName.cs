@@ -9,20 +9,20 @@ namespace ImageBank
         private void ResetNextName(Img img)
         {
             img.NextName = img.Name;
-            img.Sim = 0f;
+            img.Distance = AppConsts.MaxClustersInImage * 256;
             img.LastChecked = GetMinLastChecked();
-            img.LastId = img.Id;
+            img.LastId = 0;
             UpdateNameNext(img);
         }
 
         private void FindNextName(Img imgX)
         {
             var oldnextname = imgX.NextName;
-            var oldsim = imgX.Sim;
+            var olddistance = imgX.Distance;
 
             imgX.LastChecked = DateTime.Now;
 
-            if (imgX.Orbs.Rows == 0)
+            if (imgX.Vector.Length == 0)
             {
                 var jpgdata = imgX.GetData();
                 if (jpgdata == null || jpgdata.Length == 0)
@@ -31,41 +31,41 @@ namespace ImageBank
                     return;
                 }
 
-                if (!HelperDescriptors.ComputeDescriptors(jpgdata, out var orbs))
+                if (!HelperDescriptors.ComputeVector(jpgdata, out var vector))
                 {
                     DeleteImg(imgX);
                     return;
                 }
 
-                imgX.Orbs = orbs;
+                imgX.Vector = vector;
                 imgX.Id = GetMaxId();
-                imgX.LastId = imgX.Id;
+                imgX.LastId = 0;
                 imgX.NextName = imgX.Name;
-                imgX.Sim = 0f;
+                imgX.Distance = AppConsts.MaxClustersInImage * 256;
             }
             else
             {
                 if (imgX.Id == 0)
                 {
                     imgX.Id = GetMaxId();
-                    imgX.LastId = imgX.Id;
+                    imgX.LastId = 0;
                     imgX.NextName = imgX.Name;
-                    imgX.Sim = 0f;
+                    imgX.Distance = AppConsts.MaxClustersInImage * 256;
                 }
                 else
                 {
                     if (imgX.LastId < imgX.Id)
                     {
-                        imgX.LastId = imgX.Id;
+                        imgX.LastId = 0;
                         imgX.NextName = imgX.Name;
-                        imgX.Sim = 0f;
+                        imgX.Distance = AppConsts.MaxClustersInImage * 256;
                     }
                     else
                     {
                         if (imgX.Name.Equals(imgX.NextName))
                         {
-                            imgX.Sim = 0f;
-                            imgX.LastId = imgX.Id;
+                            imgX.Distance = AppConsts.MaxClustersInImage * 256;
+                            imgX.LastId = 0;
                         }
                         else
                         {
@@ -73,8 +73,8 @@ namespace ImageBank
                             if (imgY == null)
                             {
                                 imgX.NextName = imgX.Name;
-                                imgX.Sim = 0f;
-                                imgX.LastId = imgX.Id;
+                                imgX.Distance = AppConsts.MaxClustersInImage * 256;
+                                imgX.LastId = 0;
                             }
                         }
                     }
@@ -82,7 +82,7 @@ namespace ImageBank
             }
 
             var scope = _imgList
-                .Where(e => e.Value.Id > imgX.LastId && e.Value.Id > imgX.Id)
+                .Where(e => e.Value.Id > imgX.LastId)
                 .OrderBy(e => e.Value.Id)
                 .Select(e => e.Value)
                 .ToArray();
@@ -100,11 +100,11 @@ namespace ImageBank
                 imgX.LastId = imgY.Id;
                 if (imgX.LastId != imgX.Id)
                 {
-                    var sim = HelperDescriptors.GetSim(imgX.Orbs, imgY.Orbs);
-                    if (sim > imgX.Sim)
+                    var distance = HelperDescriptors.GetDistance(imgX.Vector, imgY.Vector, imgX.Distance);
+                    if (distance < imgX.Distance)
                     {
                         imgX.NextName = imgY.Name;
-                        imgX.Sim = sim;
+                        imgX.Distance = distance;
                         imgX.LastChecked = DateTime.Now;
                     }
                 }
@@ -115,7 +115,7 @@ namespace ImageBank
                 }
             }
 
-            if (!imgX.NextName.Equals(oldnextname) || oldsim != imgX.Sim)
+            if (!imgX.NextName.Equals(oldnextname) || olddistance != imgX.Distance)
             {
                 imgX.LastChanged = DateTime.Now;
             }

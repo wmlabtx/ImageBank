@@ -47,7 +47,7 @@ namespace ImageBank
                     continue;
                 }
 
-                if (!HelperDescriptors.ComputeDescriptors(jpgdata, out var orbs))
+                if (!HelperDescriptors.ComputeVector(jpgdata, out var vector))
                 {
                     skipped++;
                     continue;
@@ -65,8 +65,8 @@ namespace ImageBank
                     lastchecked,
                     lastchanged,
                     name,
-                    orbs,
-                    0f,
+                    vector,
+                    AppConsts.MaxClustersInImage * 256,
                     id,
                     id);
 

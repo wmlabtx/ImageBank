@@ -204,7 +204,7 @@ namespace ImageBank
                 sb.Append($"{AppVars.ImgPanel[index].Img.Subdirectory}\\");
                 sb.Append($"{AppVars.ImgPanel[index].Img.Name}");
 
-                sb.Append($" {AppVars.ImgPanel[index].Img.Sim:F2}");
+                sb.Append($" {AppVars.ImgPanel[index].Img.Distance}");
 
                 sb.AppendLine();
                 sb.Append($"{HelperConvertors.SizeToString(AppVars.ImgPanel[index].Size)} ({AppVars.ImgPanel[index].Bitmap.Width:F0}x{AppVars.ImgPanel[index].Bitmap.Height:F0})");

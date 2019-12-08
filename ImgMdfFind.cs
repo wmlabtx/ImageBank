@@ -28,12 +28,12 @@ namespace ImageBank
                     }
 
                     var scopesim = scope
-                        .Where(e => e.LastView < e.LastChanged && e.Sim > AppConsts.MinSim)
+                        .Where(e => e.LastView < e.LastChanged && e.Distance < 1024)
                         .ToArray();
 
                     var imgX = scopesim.Length > 0 ?
                         scopesim
-                        .OrderByDescending(e => e.Sim)
+                        .OrderBy(e => e.Distance)
                         .FirstOrDefault() :
                         scope
                         .OrderBy(e => e.LastView)

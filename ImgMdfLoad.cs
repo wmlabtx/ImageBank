@@ -18,8 +18,8 @@ namespace ImageBank
                 sb.Append($"{AppConsts.AttrLastChecked}, "); // 2
                 sb.Append($"{AppConsts.AttrLastChanged}, "); // 3
                 sb.Append($"{AppConsts.AttrNextName}, "); // 4
-                sb.Append($"{AppConsts.AttrOrbs}, "); // 5
-                sb.Append($"{AppConsts.AttrSim}, "); // 6
+                sb.Append($"{AppConsts.AttrVector}, "); // 5
+                sb.Append($"{AppConsts.AttrDistance}, "); // 6
                 sb.Append($"{AppConsts.AttrId}, "); // 7
                 sb.Append($"{AppConsts.AttrLastId} "); // 8
                 sb.Append("FROM Images");
@@ -38,11 +38,11 @@ namespace ImageBank
                             var lastchanged = reader.GetDateTime(3);
                             var nextname = reader.GetString(4);
                             var buffer = (byte[])reader[5];
-                            var orbs = HelperDescriptors.ConvertBufferToMat(buffer);
-                            var sim = (float)reader.GetDouble(6);
+                            var vector = HelperConvertors.ConvertToUlongs(buffer);
+                            var distance = reader.GetInt32(6);
                             var id = reader.GetInt32(7);
                             var lastid = reader.GetInt32(8);
-                            var img = new Img(name, lastview, lastchecked, lastchanged, nextname, orbs, sim, id, lastid);
+                            var img = new Img(name, lastview, lastchecked, lastchanged, nextname, vector, distance, id, lastid);
                             _imgList.TryAdd(name, img);
 
                             if (DateTime.Now.Subtract(dt).TotalMilliseconds > AppConsts.TimeLapse)

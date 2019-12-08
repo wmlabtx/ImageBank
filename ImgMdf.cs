@@ -9,9 +9,8 @@ namespace ImageBank
     {
         private readonly object _sqlLock = new object();
         private readonly SqlConnection _sqlConnection;
-        private readonly FileStream _dataStream;
 
-        private ConcurrentDictionary<string, Img> _imgList = new ConcurrentDictionary<string, Img>();       
+        private readonly ConcurrentDictionary<string, Img> _imgList = new ConcurrentDictionary<string, Img>();       
         private readonly Queue<double> _findTimes = new Queue<double>();
         private double _avgTimes;
 
@@ -20,8 +19,6 @@ namespace ImageBank
             var connectionString = $"Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename={AppConsts.FileDatabase};Connection Timeout=30";
             _sqlConnection = new SqlConnection(connectionString);
             _sqlConnection.Open();
-
-            _dataStream = new FileStream(AppConsts.FileData, FileMode.OpenOrCreate, FileAccess.ReadWrite);
         }
     }
 }
