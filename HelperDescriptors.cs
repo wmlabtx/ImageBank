@@ -47,6 +47,9 @@ namespace ImageBank
                                 offset += 32;
                             }
 
+                            vector = orbcluster.GetCenter();
+
+                            /*
                             var orbclusters = new List<OrbCluster>();
                             orbclusters.Add(orbcluster);
                             while (orbclusters.Count < AppConsts.MaxClustersInImage)
@@ -71,7 +74,7 @@ namespace ImageBank
                                 orbclusters.Add(oc0);
                                 orbclusters.Add(oc1);
                             }
-
+                            
                             vector = new ulong[orbclusters.Count * 4];
                             offset = 0;
                             while (offset < vector.Length)
@@ -80,6 +83,7 @@ namespace ImageBank
                                 Buffer.BlockCopy(center, 0, vector, offset * sizeof(ulong), 32);
                                 offset += 4;
                             }
+                            */
                         }
                     }
                 }
