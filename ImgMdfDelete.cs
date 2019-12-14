@@ -12,7 +12,7 @@ namespace ImageBank
                 .Select(e => e.Value)
                 .Where(e => e.NextName.Equals(name))
                 .ToArray();
-
+            
             foreach (var img in scope)
             {
                 ResetNextName(img);

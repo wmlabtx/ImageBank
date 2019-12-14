@@ -62,6 +62,11 @@ namespace ImageBank
             ImportClick();
         }
 
+        private void ExportClick(object sender, EventArgs e)
+        {
+            ExportClick();
+        }
+
         private void ExitClick(object sender, EventArgs e)
         {
             Close();

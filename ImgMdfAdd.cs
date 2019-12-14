@@ -23,8 +23,8 @@ namespace ImageBank
                 sb.Append($"{AppConsts.AttrLastChecked}, ");
                 sb.Append($"{AppConsts.AttrLastChanged}, ");
                 sb.Append($"{AppConsts.AttrNextName}, ");
-                sb.Append($"{AppConsts.AttrVector}, ");
-                sb.Append($"{AppConsts.AttrDistance}");
+                sb.Append($"{AppConsts.AttrDescriptors}, ");
+                sb.Append($"{AppConsts.AttrSim}");
                 sb.Append(") VALUES (");
                 sb.Append($"@{AppConsts.AttrName}, ");
                 sb.Append($"@{AppConsts.AttrId}, ");
@@ -33,8 +33,8 @@ namespace ImageBank
                 sb.Append($"@{AppConsts.AttrLastChecked}, ");
                 sb.Append($"@{AppConsts.AttrLastChanged}, ");
                 sb.Append($"@{AppConsts.AttrNextName}, ");
-                sb.Append($"@{AppConsts.AttrVector}, ");
-                sb.Append($"@{AppConsts.AttrDistance}");
+                sb.Append($"@{AppConsts.AttrDescriptors}, ");
+                sb.Append($"@{AppConsts.AttrSim}");
                 sb.Append(")");
                 var sqltext = sb.ToString();
                 using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
@@ -46,9 +46,9 @@ namespace ImageBank
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastChecked}", img.LastChecked);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastChanged}", img.LastChanged);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrNextName}", img.NextName);
-                    var buffer = HelperConvertors.ConvertToBytes(img.Vector);
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrVector}", buffer);
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrDistance}", img.Distance);
+                    var buffer = HelperConvertors.ConvertMatToBuffer(img.Descriptors);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrDescriptors}", buffer);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrSim}", img.Sim);
                     sqlCommand.ExecuteNonQuery();
                 }
             }

@@ -96,8 +96,6 @@
     </Compile>
     <Compile Include="AppConsts.cs" />
     <Compile Include="AppVars.cs" />
-    <Compile Include="OrbCluster.cs" />
-    <Compile Include="OrbPoint.cs" />
     <Compile Include="HelperConvertors.cs" />
     <Compile Include="HelperCrc.cs" />
     <Compile Include="HelperDescriptors.cs" />

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenCvSharp;
+using System;
 using System.IO;
 
 namespace ImageBank
@@ -25,22 +26,32 @@ namespace ImageBank
         public DateTime LastChanged { get; set; }
         public string NextName { get; set; }
 
-        private ulong[] _vector;
-        public ulong[] Vector
+        private Mat _descriptors;
+        public Mat Descriptors
         {
             get
             {
-                return _vector;
+                return _descriptors;
             }
             set
             {
-                _vector = value;
-                var buffer = HelperConvertors.ConvertToBytes(_vector);
-                AppVars.Collection.UpdateProperty(this, AppConsts.AttrVector, buffer);
+                _descriptors = value;
+                var buffer = HelperConvertors.ConvertMatToBuffer(_descriptors);
+                AppVars.Collection.UpdateProperty(this, AppConsts.AttrDescriptors, buffer);
             }
         }
 
-        public int Distance { get; set; }
+        public float Sim { get; set; }
+
+        public string Subdirectory
+        {
+            get
+            {
+                var hash = Math.Abs(Name.GetHashCode()) % 100;
+                var dir = $"{hash:D2}";
+                return dir;
+            }
+        }
 
         private int _id;
         public int Id
@@ -55,18 +66,7 @@ namespace ImageBank
                 AppVars.Collection.UpdateProperty(this, AppConsts.AttrId, _id);
             }
         }
-
         public int LastId { get; set; }
-
-        public string Subdirectory
-        {
-            get
-            {
-                var hash = Math.Abs(Name.GetHashCode()) % 100;
-                var dir = $"{hash:D2}";
-                return dir;
-            }
-        }
 
         public string Folder
         {
@@ -88,24 +88,24 @@ namespace ImageBank
 
         public Img(
             string name,
+            int id,
+            int lastid,
             DateTime lastview,
             DateTime lastchecked,
             DateTime lastchanged,
             string nextname,
-            ulong[] vector,
-            int distance,
-            int id,
-            int lastid)
+            Mat descriptors,
+            float sim)
         {
             Name = name;
+            _id = id;
+            LastId = lastid;
             _lastview = lastview;
             LastChecked = lastchecked;
             LastChanged = lastchanged;
             NextName = nextname;
-            _vector = vector;
-            Distance = distance;
-            _id = id;
-            LastId = lastid;
+            _descriptors = descriptors;
+            Sim = sim;
         }
 
         public void WriteData(byte[] jpgdata)
@@ -129,11 +129,6 @@ namespace ImageBank
             var buffer = System.IO.File.ReadAllBytes(File);
             var data = HelperEncrypting.Decrypt(buffer, Name);
             return data;
-        }
-
-        public float DoneProgress(int maxid)
-        {
-            return (LastId - Id + 1) * 100f / (maxid - Id + 1);
         }
     }
 }

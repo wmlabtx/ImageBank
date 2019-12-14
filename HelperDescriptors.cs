@@ -1,15 +1,16 @@
 ﻿using OpenCvSharp;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace ImageBank
 {
     public static class HelperDescriptors
     {
-        public static bool ComputeVector(byte[] data, out ulong[] vector)
+        private static readonly BFMatcher _bfmatcher = new BFMatcher(NormTypes.Hamming, true);
+
+        public static bool ComputeDescriptors(byte[] data, out Mat descriptors)
         {
-            vector = null;
+            descriptors = null;
             if (data == null || data.Length == 0)
             {
                 return false;
@@ -29,67 +30,24 @@ namespace ImageBank
                         const double fsample = 800.0 * 600.0;
                         var fx = Math.Sqrt(fsample / (matsource.Width * matsource.Height));
                         using (var mat = matsource.Resize(Size.Zero, fx, fx, InterpolationFlags.Cubic))
-                        using (var descriptors = new Mat())
                         {
+                            descriptors = new Mat();
                             orb.DetectAndCompute(mat, null, out _, descriptors);
-                            if (descriptors.Cols != 32 || descriptors.Rows == 0)
+                            if (descriptors.Rows == 0)
                             {
                                 throw new Exception();
                             }
 
-                            var buffer = HelperConvertors.ConvertMatToBuffer(descriptors);
-                            var orbcluster = new OrbCluster();
-                            var offset = 0;
-                            while (offset < buffer.Length)
+                            while (descriptors.Rows > AppConsts.MaxDescriptorsInImage)
                             {
-                                var orbpoint = new OrbPoint(buffer, offset);
-                                orbcluster.OrbPoints.Add(orbpoint);
-                                offset += 32;
+                                descriptors = descriptors.RowRange(0, AppConsts.MaxDescriptorsInImage);
                             }
-
-                            vector = orbcluster.GetCenter();
-
-                            /*
-                            var orbclusters = new List<OrbCluster>();
-                            orbclusters.Add(orbcluster);
-                            while (orbclusters.Count < AppConsts.MaxClustersInImage)
-                            {
-                                orbclusters = orbclusters.OrderByDescending(e => e.OrbPoints.Count).ToList();
-                                var medianbit = orbclusters[0].GetMedianBit();
-                                var oc0 = new OrbCluster();
-                                var oc1 = new OrbCluster();
-                                foreach (var oc in orbclusters[0].OrbPoints)
-                                {
-                                    if (oc.IsBit(medianbit))
-                                    {
-                                        oc1.OrbPoints.Add(oc);
-                                    }
-                                    else
-                                    {
-                                        oc0.OrbPoints.Add(oc);
-                                    }
-                                }
-
-                                orbclusters.RemoveAt(0);
-                                orbclusters.Add(oc0);
-                                orbclusters.Add(oc1);
-                            }
-                            
-                            vector = new ulong[orbclusters.Count * 4];
-                            offset = 0;
-                            while (offset < vector.Length)
-                            {
-                                var center = orbclusters[offset / 4].GetCenter();
-                                Buffer.BlockCopy(center, 0, vector, offset * sizeof(ulong), 32);
-                                offset += 4;
-                            }
-                            */
                         }
                     }
                 }
                 catch (Exception)
                 {
-                    vector = null;
+                    descriptors = null;
                     return false;
                 }
             }
@@ -97,67 +55,17 @@ namespace ImageBank
             return true;
         }
 
-        private struct DistanceTwo
+        public static float GetSim(Mat x, Mat y)
         {
-            public int X;
-            public int Y;
-            public int D;
-        }
-
-        private static int HammingDistance(IReadOnlyList<ulong> x, int xoffset, IReadOnlyList<ulong> y, int yoffset)
-        {
-            var distance = 0;
-            for (var i = 0; i < 4; i++)
+            if (x.Rows == 0 || y.Rows == 0)
             {
-                distance += Intrinsic.PopCnt(x[xoffset + i] ^ y[yoffset + i]);
+                return 0f;
             }
 
-            return distance;
-        }
-
-        public static int GetDistance(ulong[] x, ulong[] y, int min)
-        {
-            var list = new List<DistanceTwo>();
-            var xoffset = 0;
-            while (xoffset < x.Length)
-            {
-                var yoffset = 0;
-                while (yoffset < y.Length)
-                {
-                    var d = HammingDistance(x, xoffset, y, yoffset);
-                    list.Add(new DistanceTwo() { X = xoffset, Y = yoffset, D = d });
-                    yoffset += 4;
-                }
-
-                xoffset += 4;
-            }
-
-            list = list.OrderBy(e => e.D).ToList();
-            var distance = 0;
-            while (list.Count > 0)
-            {
-                var mind = list[0].D;
-                var minx = list[0].X;
-                var miny = list[0].Y;
-                distance += mind;
-                if (distance > min)
-                {
-                    return distance;
-                }
-
-                var pos = list.Count - 1;
-                while (pos >= 0)
-                {
-                    if (list[pos].X == minx || list[pos].Y == miny)
-                    {
-                        list.RemoveAt(pos);
-                    }
-
-                    pos--;
-                }
-            }
-
-            return distance;
+            var dmatch = _bfmatcher.Match(x, y);
+            var dsum = dmatch.Where(e => e.Distance < 64).Sum(e => 64 - e.Distance);
+            var sim = dsum / x.Rows;
+            return sim;
         }
     }
 }

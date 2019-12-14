@@ -1,4 +1,4 @@
-﻿UPDATE Images SET Vector = 0x;
-UPDATE Images SET Distance = 2048;
+﻿UPDATE Images SET Descriptors = 0x;
+UPDATE Images SET Sim = 0.0;
 UPDATE Images SET Id = 0;
 UPDATE Images SET LastId = 0;

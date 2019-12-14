@@ -1,6 +1,6 @@
 ﻿using OpenCvSharp;
 using System;
-using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 
 namespace ImageBank
 {
@@ -52,18 +52,16 @@ namespace ImageBank
             return buffer;
         }
 
-        public static ulong[] ConvertToUlongs(byte[] buffer)
+        public static Mat ConvertBufferToMat(byte[] buffer)
         {
-            var ulongs = new ulong[buffer.Length / sizeof(ulong)];
-            Buffer.BlockCopy(buffer, 0, ulongs, 0, buffer.Length);
-            return ulongs;
-        }
+            if (buffer.Length < 32)
+            {
+                return new Mat();
+            }
 
-        public static byte[] ConvertToBytes(ulong[] ulongs)
-        {
-            var buffer = new byte[ulongs.Length * sizeof(ulong)];
-            Buffer.BlockCopy(ulongs, 0, buffer, 0, buffer.Length);
-            return buffer;
+            var mat = new Mat(buffer.Length / 32, 32, MatType.CV_8U);
+            mat.SetArray(0, 0, buffer);
+            return mat;
         }
     }
 }

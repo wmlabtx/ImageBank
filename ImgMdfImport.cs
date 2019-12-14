@@ -47,7 +47,7 @@ namespace ImageBank
                     continue;
                 }
 
-                if (!HelperDescriptors.ComputeVector(jpgdata, out var vector))
+                if (!HelperDescriptors.ComputeDescriptors(jpgdata, out var descriptors))
                 {
                     skipped++;
                     continue;
@@ -57,18 +57,17 @@ namespace ImageBank
                 var lastchecked = GetMinLastChecked();
                 var lastchanged = lastchecked;
                 var array = HelperEncrypting.Encrypt(jpgdata, name);
-                var id = GetMaxId();
-
+                var id = _imgList.Max(e => e.Value.Id) + 1;
                 var img = new Img(
                     name,
+                    id,
+                    0,
                     lastview,
                     lastchecked,
                     lastchanged,
                     name,
-                    vector,
-                    AppConsts.MaxClustersInImage * 256,
-                    id,
-                    id);
+                    descriptors,
+                    0);
 
                 Add(img);
                 img.WriteData(jpgdata);
@@ -109,6 +108,15 @@ namespace ImageBank
             Import(1000000, progress);
             ProcessDirectory(AppConsts.PathSource, progress);
             progress.Report(string.Empty);
+        }
+
+        public void Export(IProgress<string> progress)
+        {
+            var name = AppVars.ImgPanel[0].Img.Name;
+            var jpgdata = AppVars.ImgPanel[0].Img.GetData();
+            var filename = $"{AppConsts.PathSource}{name}.jpeg";
+            File.WriteAllBytes(filename, jpgdata);
+            progress.Report($"{filename} exported!");
         }
     }
 }

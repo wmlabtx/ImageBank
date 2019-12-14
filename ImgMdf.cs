@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
+using System.Linq;
 
 namespace ImageBank
 {
@@ -10,7 +11,8 @@ namespace ImageBank
         private readonly object _sqlLock = new object();
         private readonly SqlConnection _sqlConnection;
 
-        private readonly ConcurrentDictionary<string, Img> _imgList = new ConcurrentDictionary<string, Img>();       
+        private readonly ConcurrentDictionary<string, Img> _imgList = new ConcurrentDictionary<string, Img>();
+        
         private readonly Queue<double> _findTimes = new Queue<double>();
         private double _avgTimes;
 
@@ -19,6 +21,11 @@ namespace ImageBank
             var connectionString = $"Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename={AppConsts.FileDatabase};Connection Timeout=30";
             _sqlConnection = new SqlConnection(connectionString);
             _sqlConnection.Open();
+        }
+
+        public int GetMaxId()
+        {
+            return _imgList.Values.Max(e => e.Id);
         }
     }
 }

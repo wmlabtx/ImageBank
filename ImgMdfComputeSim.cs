@@ -13,27 +13,40 @@ namespace ImageBank
 
             var dt = DateTime.Now;
 
-            if (_imgList.Count == 0)
+            var count = _imgList.Count();
+            if (count == 0)
             {
                 return null;
             }
 
-            Img imgX;
-            int countunfinished;
+            var scopevalid = _imgList
+                .Values
+                .Where(e =>
+                    e.Descriptors.Rows > 0 &&
+                    _imgList.ContainsKey(e.NextName) &&
+                    !e.Name.Equals(e.NextName))
+                .ToArray();
+
+            var scopechanged = scopevalid
+                .Where(e => e.LastView < e.LastChanged)
+                .ToArray();
+
+            var countchanged = scopechanged.Length;
             var maxid = _imgList.Max(e => e.Value.Id);
+
+            Img imgX;
             if (maxid == 0)
             {
-                countunfinished = 0;
                 imgX = _imgList
-                    .OrderBy(e => e.Value.LastChecked)
-                    .FirstOrDefault()
-                    .Value;
+                    .Values
+                    .OrderBy(e => e.LastChecked)
+                    .FirstOrDefault();
             }
             else
             {
                 var scope = _imgList
-                    .Where(e => e.Value.LastId < maxid)
-                    .Select(e => e.Value)
+                    .Values
+                    .Where(e => e.LastId < maxid)
                     .ToArray();
 
                 if (scope.Length == 0)
@@ -42,7 +55,6 @@ namespace ImageBank
                     return "idle...";
                 }
 
-                countunfinished = scope.Length;
                 imgX = scope
                     .OrderBy(e => e.LastChecked)
                     .FirstOrDefault();
@@ -50,7 +62,8 @@ namespace ImageBank
 
             var oldnextname = imgX.NextName;
             var oldchecked = imgX.LastChecked;
-            var olddistance = imgX.Distance;
+            var oldsim = imgX.Sim;
+            var oldlastid = imgX.LastId;
 
             FindNextName(imgX);
 
@@ -60,27 +73,18 @@ namespace ImageBank
                 return null;
             }
 
-            var sb = new StringBuilder();
-            var count = _imgList.Count();
-            
-            var scopeok = _imgList
-                .Where(e =>
-                    e.Value.Vector.Length > 0 &&
-                    _imgList.ContainsKey(e.Value.NextName) &&
-                    !e.Value.Name.Equals(e.Value.NextName) &&
-                    e.Value.LastView < e.Value.LastChanged)
-                .Select(e => e.Value)
-                .ToArray();
-
-            var mindistance = scopeok.Min(e => e.Distance);
-            var countdistance = scopeok.Count(e => e.Distance == mindistance);
-
-            sb.Append($"{countunfinished}/{mindistance}:{countdistance}/{count}: {_avgTimes:F2}s ");
-
-            sb.Append($"{olddistance}");
-            if (!imgX.NextName.Equals(oldnextname) || olddistance != imgX.Distance)
+            var sb = new StringBuilder();            
+            if (countchanged > 0)
             {
-                sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Distance}");
+                sb.Append($"{countchanged}/");
+            }
+                
+            sb.Append($"{count}: {_avgTimes:F2}s ");
+
+            sb.Append($"{oldsim:F2} [{oldlastid}]");
+            if (!imgX.NextName.Equals(oldnextname) || oldsim != imgX.Sim)
+            {
+                sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F2} [{imgX.LastId}]");
             }
 
             sb.Append(" / ");
