@@ -198,7 +198,6 @@ namespace ImageBank
 
             var pBoxes = new[] { BoxLeft, BoxRight };
             var pLabels = new[] { LabelLeft, LabelRight };
-            var maxid = AppVars.Collection.GetMaxId();
             for (var index = 0; index < 2; index++)
             {
                 var name = AppVars.ImgPanel[index].Img.Name;
@@ -211,8 +210,7 @@ namespace ImageBank
                 sb.Append($"{AppVars.ImgPanel[index].Img.Subdirectory}\\");
                 sb.Append($"{AppVars.ImgPanel[index].Img.Name}");
 
-                var done = AppVars.ImgPanel[index].Img.LastId * 100f / maxid;
-                sb.Append($" [{done:F4}%] {AppVars.ImgPanel[index].Img.Sim:F2}");
+                sb.Append($" [{AppVars.ImgPanel[index].Img.LastId}] {AppVars.ImgPanel[index].Img.Sim:F2}");
 
                 sb.AppendLine();
                 sb.Append($"{HelperConvertors.SizeToString(AppVars.ImgPanel[index].Size)} ({AppVars.ImgPanel[index].Bitmap.Width:F0}x{AppVars.ImgPanel[index].Bitmap.Height:F0})");

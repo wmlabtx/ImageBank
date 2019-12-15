@@ -79,7 +79,6 @@ namespace ImageBank
                     imgX.NextName = imgY.Name;
                     imgX.Sim = sim;
                     imgX.LastChecked = DateTime.Now;
-                    break;
                 }
 
                 if (sw.ElapsedMilliseconds > 1000)

@@ -30,14 +30,23 @@ namespace ImageBank
                         return;
                     }
 
-                    var scoperobust = scopevalid
-                        .OrderByDescending(e => e.LastId)
-                        .Take(scopevalid.Length / 10)
+                    var scoperecent = scopevalid
+                        .Where(e => e.LastView < e.LastChanged)
                         .ToArray();
 
-                    var imgX = scoperobust
-                        .OrderBy(e => e.LastView)
-                        .FirstOrDefault();
+                    Img imgX;
+                    if (scoperecent.Length > 0)
+                    {
+                        imgX = scoperecent
+                            .OrderByDescending(e => e.Sim)
+                            .FirstOrDefault();
+                    }
+                    else
+                    {
+                        imgX = scopevalid
+                            .OrderBy(e => e.LastView)
+                            .FirstOrDefault();
+                    }
 
                     nameX = imgX.Name;
 

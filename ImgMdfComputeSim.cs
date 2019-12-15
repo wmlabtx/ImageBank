@@ -19,21 +19,8 @@ namespace ImageBank
                 return null;
             }
 
-            var scopevalid = _imgList
-                .Values
-                .Where(e =>
-                    e.Descriptors.Rows > 0 &&
-                    _imgList.ContainsKey(e.NextName) &&
-                    !e.Name.Equals(e.NextName))
-                .ToArray();
-
-            var scopechanged = scopevalid
-                .Where(e => e.LastView < e.LastChanged)
-                .ToArray();
-
-            var countchanged = scopechanged.Length;
             var maxid = _imgList.Max(e => e.Value.Id);
-
+            var avg = 1f;
             Img imgX;
             if (maxid == 0)
             {
@@ -44,20 +31,27 @@ namespace ImageBank
             }
             else
             {
-                var scope = _imgList
+                var scopeid = _imgList
                     .Values
-                    .Where(e => e.LastId < maxid)
+                    .Where(e => e.Descriptors.Rows > 0)
                     .ToArray();
 
-                if (scope.Length == 0)
+                avg = (float)scopeid.Sum(e => e.LastId) / (scopeid.Length * maxid);
+                if (avg > 0.5)
                 {
-                    Thread.Sleep(1000);
-                    return "idle...";
+                    imgX = _imgList
+                        .Values
+                        .OrderBy(e => e.LastChecked)
+                        .FirstOrDefault();
                 }
-
-                imgX = scope
-                    .OrderBy(e => e.LastChecked)
-                    .FirstOrDefault();
+                else
+                {
+                    imgX = _imgList
+                        .Values
+                        .Where(e => e.Descriptors.Rows > 0)
+                        .OrderBy(e => e.LastId)
+                        .FirstOrDefault();
+                }
             }
 
             var oldnextname = imgX.NextName;
@@ -73,13 +67,8 @@ namespace ImageBank
                 return null;
             }
 
-            var sb = new StringBuilder();            
-            if (countchanged > 0)
-            {
-                sb.Append($"{countchanged}/");
-            }
-                
-            sb.Append($"{count}: {_avgTimes:F2}s ");
+            var sb = new StringBuilder();
+            sb.Append($"{count}: {_avgTimes:F2}s {avg:F4}: ");
 
             sb.Append($"{oldsim:F2} [{oldlastid}]");
             if (!imgX.NextName.Equals(oldnextname) || oldsim != imgX.Sim)
