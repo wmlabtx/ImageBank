@@ -39,6 +39,7 @@ namespace ImageBank
                 avg = (float)scopeid.Sum(e => e.LastId) / (scopeid.Length * maxid);
                 if (avg > 0.5)
                 {
+                    Import(1, null);
                     imgX = _imgList
                         .Values
                         .OrderBy(e => e.LastChecked)
@@ -49,7 +50,7 @@ namespace ImageBank
                     imgX = _imgList
                         .Values
                         .Where(e => e.Descriptors.Rows > 0)
-                        .OrderBy(e => e.LastId)
+                        .OrderBy(e => e.LastChecked)
                         .FirstOrDefault();
                 }
             }
@@ -68,11 +69,12 @@ namespace ImageBank
             }
 
             var sb = new StringBuilder();
-            sb.Append($"{count}: {_avgTimes:F2}s {avg:F4}: ");
+            sb.Append($"{count}: {_avgTimes:F2}s {avg:F4}a: ");
 
             sb.Append($"{oldsim:F2} [{oldlastid}]");
             if (!imgX.NextName.Equals(oldnextname) || oldsim != imgX.Sim)
             {
+                imgX.LastChecked = GetMinLastChecked();
                 sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F2} [{imgX.LastId}]");
             }
 

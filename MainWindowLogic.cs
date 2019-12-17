@@ -50,10 +50,10 @@ namespace ImageBank
 
             DisableElements();
             await Task.Run(() => { AppVars.Collection.Load(AppVars.Progress); });
-            
+
             await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
             DrawCanvas();
-            
+
             EnableElements();
 
             AppVars.SuspendEvent = new ManualResetEvent(true);
@@ -220,7 +220,10 @@ namespace ImageBank
                 sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].Img.LastChanged))} ago]");
 
                 pLabels[index].Text = sb.ToString();
-                pLabels[index].Background = System.Windows.Media.Brushes.White;
+                pLabels[index].Background = 
+                    AppVars.ImgPanel[index].Img.LastView < AppVars.ImgPanel[index].Img.LastChanged ?
+                    System.Windows.Media.Brushes.White :
+                    System.Windows.Media.Brushes.Bisque;
             }
 
             if (AppVars.ImgPanel[0].Img.Name.Equals(AppVars.ImgPanel[1].Img.Name))

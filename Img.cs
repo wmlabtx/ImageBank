@@ -7,7 +7,7 @@ namespace ImageBank
     public class Img
     {
         public string Name { get; }
-        
+
         private DateTime _lastview;
         public DateTime LastView
         {

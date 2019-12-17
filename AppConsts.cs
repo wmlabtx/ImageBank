@@ -7,7 +7,7 @@
         public const string PathSource = PathRoot + @"rw\";
         public const string FileDatabase = PathRoot + @"db\images.mdf";
 
-        public const int MaxClustersInImage = 32; // 32 * 32 = 1024
+        public const int MaxDescriptorsInImage = 1000;
 
         public const string DatExtension = ".dat";
         public const string WebpExtension = ".webp";

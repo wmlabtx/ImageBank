@@ -6,8 +6,8 @@ namespace ImageBank
 {
     public partial class ImgMdf
     {
-        private void Import(int maxadd, IProgress<string> progress)
-        { 
+        private int Import(int maxadd, IProgress<string> progress)
+        {
             AppVars.SuspendEvent.Reset();
 
             var added = 0;
@@ -82,6 +82,8 @@ namespace ImageBank
             }
 
             AppVars.SuspendEvent.Set();
+
+            return added;
         }
 
         public static void ProcessDirectory(string startLocation, IProgress<string> progress)
@@ -105,7 +107,7 @@ namespace ImageBank
 
         public void Import(IProgress<string> progress)
         {
-            Import(1000000, progress);
+            Import(100000, progress);
             ProcessDirectory(AppConsts.PathSource, progress);
             progress.Report(string.Empty);
         }

@@ -31,14 +31,14 @@ namespace ImageBank
                     }
 
                     var scoperecent = scopevalid
-                        .Where(e => e.LastView < e.LastChanged)
+                        .Where(e => e.LastView < e.LastChanged && e.Sim > 52f)
                         .ToArray();
 
                     Img imgX;
                     if (scoperecent.Length > 0)
                     {
                         imgX = scoperecent
-                            .OrderByDescending(e => e.Sim)
+                            .OrderByDescending(e => e.LastId)
                             .FirstOrDefault();
                     }
                     else
