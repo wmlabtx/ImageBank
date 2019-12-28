@@ -57,6 +57,14 @@ namespace ImageBank
             }
         }
 
+        private void ButtonRightNextMouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                ButtonRightNextMouseClick();
+            }
+        }
+
         private void ImportClick(object sender, EventArgs e)
         {
             ImportClick();
@@ -85,6 +93,12 @@ namespace ImageBank
         private void MirrorHorizontalClick(object sender, RoutedEventArgs e)
         {
             MirrorHorizontalClick();
+        }
+
+        private void MoveToNodeClick(object sender, RoutedEventArgs e)
+        {
+            var node = (string)((sender as MenuItem).Tag);
+            MoveToNodeClick(node);
         }
     }
 }

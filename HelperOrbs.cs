@@ -4,14 +4,14 @@ using System.Linq;
 
 namespace ImageBank
 {
-    public static class HelperDescriptors
+    public static class HelperOrbs
     {
         private static readonly BFMatcher _bfmatcher = new BFMatcher(NormTypes.Hamming, true);
 
-        public static bool ComputeDescriptors(byte[] data, out Mat descriptors)
+        public static bool ComputeOrbs(byte[] jpgdata, out Mat orbs)
         {
-            descriptors = null;
-            if (data == null || data.Length == 0)
+            orbs = null;
+            if (jpgdata == null || jpgdata.Length == 0)
             {
                 return false;
             }
@@ -20,7 +20,7 @@ namespace ImageBank
             {
                 try
                 {
-                    using (var matsource = Mat.FromImageData(data, ImreadModes.Grayscale))
+                    using (var matsource = Mat.FromImageData(jpgdata, ImreadModes.Grayscale))
                     {
                         if (matsource.Width == 0 || matsource.Height == 0)
                         {
@@ -31,23 +31,23 @@ namespace ImageBank
                         var fx = Math.Sqrt(fsample / (matsource.Width * matsource.Height));
                         using (var mat = matsource.Resize(Size.Zero, fx, fx, InterpolationFlags.Cubic))
                         {
-                            descriptors = new Mat();
-                            orb.DetectAndCompute(mat, null, out _, descriptors);
-                            if (descriptors.Rows == 0)
+                            orbs = new Mat();
+                            orb.DetectAndCompute(mat, null, out _, orbs);
+                            if (orbs.Rows == 0)
                             {
                                 throw new Exception();
                             }
 
-                            while (descriptors.Rows > AppConsts.MaxDescriptorsInImage)
+                            while (orbs.Rows > AppConsts.MaxDescriptorsInImage)
                             {
-                                descriptors = descriptors.RowRange(0, AppConsts.MaxDescriptorsInImage);
+                                orbs = orbs.RowRange(0, AppConsts.MaxDescriptorsInImage - 1);
                             }
                         }
                     }
                 }
                 catch (Exception)
                 {
-                    descriptors = null;
+                    orbs = null;
                     return false;
                 }
             }
@@ -55,36 +55,22 @@ namespace ImageBank
             return true;
         }
 
-        public static float GetSim(Mat x, Mat y)
+        public static float GetDistance(Mat x, Mat y)
         {
             if (x.Rows == 0 || y.Rows == 0)
             {
-                return 0f;
+                return 256f;
             }
 
             var dmatch = _bfmatcher.Match(x, y);
             if (dmatch.Length > 0)
             {
-                var ds = dmatch
-                    .Where(e => e.Distance < 64)
-                    .OrderBy(e => e.Distance)
-                    .Select(e => e.Distance)
-                    .ToArray();
-
-                var sd = 0f;
-                var k = 1f;
-                foreach (var d in ds)
-                {
-                    sd += (64 - d) * k;
-                    k /= 2f;
-                }
-
-                var sim = sd / 2f;
-                return sim;
+                var distance = (dmatch.Sum(e => e.Distance) + (256f * (x.Rows - dmatch.Length)))/ x.Rows;
+                return distance;
             }
             else
             {
-                return 0f;
+                return 256f;
             }
         }
     }

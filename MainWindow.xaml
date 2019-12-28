@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ImageBank"
         mc:Ignorable="d"
         Title="ImageBank" Height="446" Width="800" Loaded="WindowLoaded" WindowStartupLocation="Manual" Closing="WindowClosing" Icon="app.ico" Cursor="Arrow" SizeToContent="Manual" ResizeMode="CanMinimize">
     <DockPanel Name="DockPanel" LastChildFill="true">
@@ -18,6 +17,100 @@
                 <MenuItem Header="Rotate left" Click="RotateLeftClick" />
                 <MenuItem Header="Rotate right" Click="RotateRightClick" />
                 <MenuItem Header="Mirror horizontal" Click="MirrorHorizontalClick" />
+            </MenuItem>
+            <MenuItem Header="Move">
+                <MenuItem Header="Move to Right" />
+                <Separator />
+                <MenuItem Header="Unassigned" Tag="Legacy" Click="MoveToNodeClick"  />
+                <Separator />
+                <MenuItem Header="Adult">
+                    <MenuItem Header="@Alina Latypova (adult)" Tag="@Alina Latypova (adult)" Click="MoveToNodeClick" />
+                    <MenuItem Header="@Ana Foxxx (adult)" Tag="@Ana Foxxx (adult)" Click="MoveToNodeClick" />
+                    <MenuItem Header="@Aubrey Star (adult)" Tag="@Aubrey Star (adult)" Click="MoveToNodeClick" />
+                    <MenuItem Header="@Aubrey Star@Jenna Ross (adult)" Tag="@Aubrey Star@Jenna Ross (adult)" Click="MoveToNodeClick" />
+                    <MenuItem Header="@Aubrey Star@Veronica Rodriguez (adult)" Tag="@Aubrey Star@Veronica Rodriguez (adult)" Click="MoveToNodeClick" />
+                    <MenuItem Header="@Doreen (adult)" Tag="@Doreen (adult)" Click="MoveToNodeClick" />
+                    <MenuItem Header="@Jenna Ross (adult)" Tag="@Jenna Ross (adult)" Click="MoveToNodeClick" />
+                    <MenuItem Header="@Gina Gerson (adult)" Tag="@Gina Gerson (adult)" Click="MoveToNodeClick" />
+                    <MenuItem Header="Foxy Di" Tag="Adult\FoxyDi" Click="MoveToNodeClick" />
+                    <MenuItem Header="@Miran (adult)" Tag="@Miran (adult)" Click="MoveToNodeClick" />
+                    <MenuItem Header="@Nata (adilt)" Tag="@Nata (adilt)" Click="MoveToNodeClick" />
+                    <MenuItem Header="@Rui Matsushita (adult)" Tag="@Rui Matsushita (adult)" Click="MoveToNodeClick" />
+                    <MenuItem Header="@Talinka (adult)" Tag="@Talinka (adult)" Click="MoveToNodeClick" />
+                    <MenuItem Header="@Veronica Rodriguez (adult)" Tag="@Veronica Rodriguez (adult)" Click="MoveToNodeClick" />
+                    <MenuItem Header="@Whitney Conroy (adult)" Tag="@Whitney Conroy (adult)" Click="MoveToNodeClick" />
+                </MenuItem>
+                <MenuItem Header="Art">
+                    <MenuItem Header="Art" Tag="Art" Click="MoveToNodeClick" />
+                    <MenuItem Header="Alex" Tag="Art\Alex" Click="MoveToNodeClick"  />
+                    <MenuItem Header="AGI" Tag="Art\AGI" Click="MoveToNodeClick"  />
+                </MenuItem>
+                <MenuItem Header="Classic">
+                    <MenuItem Header="@Katya (classic)" Tag="@Katya (classic)" Click="MoveToNodeClick"  />
+                    <MenuItem Header="@Grace (classic)" Tag="@Grace (classic)" Click="MoveToNodeClick"  />
+                    <MenuItem Header="@Rosa (classic)" Tag="@Rosa (classic)" Click="MoveToNodeClick"  />
+                </MenuItem>
+                <MenuItem Header="Dmetrystar">
+                    <MenuItem Header="@Angela (dmetrystar)" Tag="@Angela (dmetrystar)" Click="MoveToNodeClick"  />
+                    <MenuItem Header="@Anya (dmetrystar)" Tag="@Anya (dmetrystar)" Click="MoveToNodeClick"  />
+                    <MenuItem Header="@Diana (dmetrystar)" Tag="@Diana (dmetrystar)" Click="MoveToNodeClick"  />
+                </MenuItem>
+                <MenuItem Header="Ethernal">
+                    <MenuItem Header="@Ira (ethernal)" Tag="@Ira (ethernal)" Click="MoveToNodeClick"  />
+                </MenuItem>
+                <MenuItem Header="Japan">
+                    <MenuItem Header="@Nozomi Kurahashi (japan)" Tag="@Nozomi Kurahashi (japan)" Click="MoveToNodeClick"  />
+                    <MenuItem Header="@Rika Nishimura (japan)" Tag="@Rika Nishimura (japan)" Click="MoveToNodeClick"  />
+                </MenuItem>
+                <MenuItem Header="Kandid">
+                    <MenuItem Header="@Arlin (kandid)" Tag="@Arlin (kandid)" Click="MoveToNodeClick"  />
+                    <MenuItem Header="@Aygun (kandid)" Tag="@Aygun (kandid)" Click="MoveToNodeClick"  />
+                    <MenuItem Header="@Aygun@Gunay (kandid)" Tag="@Aygun@Gunay (kandid)" Click="MoveToNodeClick"  />
+                    <MenuItem Header="@Gunay (kandid)" Tag="@Gunay (kandid)" Click="MoveToNodeClick"  />
+                    <MenuItem Header="@Narmina (kandid)" Tag="@Narmina (kandid)" Click="MoveToNodeClick"  />
+                    <MenuItem Header="@Polina (kandid)" Tag="@Polina (kandid)" Click="MoveToNodeClick"  />
+                </MenuItem>
+                <MenuItem Header="LolitaFix">
+                    <MenuItem Header="@Lilu (lolitafix)" Tag="@Lilu (lolitafix)" Click="MoveToNodeClick"  />
+                    <MenuItem Header="@Mandy (lolitafix)" Tag="@Mandy (lolitafix)" Click="MoveToNodeClick"  />
+                </MenuItem>
+                <MenuItem Header="Ls">
+                    <MenuItem Header="@Minni (ls)" Tag="@Minni (ls)" Click="MoveToNodeClick"  />
+                </MenuItem>
+                <MenuItem Header="Hardcore">
+                    <MenuItem Header="@Tara (hardcore)" Tag="@Tara (hardcore)" Click="MoveToNodeClick"  />
+                </MenuItem>
+                <MenuItem Header="Hentai" Tag="Hentai" Click="MoveToNodeClick" />
+                <MenuItem Header="Model">
+                    <MenuItem Header="@Dolly (model)" Tag="@Dolly (model)" Click="MoveToNodeClick"  />
+                    <MenuItem Header="@Jessy (model)" Tag="@Jessy (model)" Click="MoveToNodeClick"  />
+                    <MenuItem Header="@Sandra (model)" Tag="@Sandra (model)" Click="MoveToNodeClick"  />
+                </MenuItem>
+                <MenuItem Header="Purenudism">
+                    <MenuItem Header="@Eva (purenudism)" Tag="@Eva (purenudism)" Click="MoveToNodeClick"  />
+                </MenuItem>                
+                <MenuItem Header="Siberian Mouse">
+                    <MenuItem Header="@Masha (siberianmouse)" Tag="@Masha (siberianmouse)" Click="MoveToNodeClick"  />
+                </MenuItem>
+                <MenuItem Header="TmTv">
+                    <MenuItem Header="@Sasha (tmtv)" Tag="@Sasha (tmtv)" Click="MoveToNodeClick"  />
+                </MenuItem>
+                <MenuItem Header="Tpi">
+                    <MenuItem Header="Berenice" Tag="Tpi\Berenice" Click="MoveToNodeClick"  />
+                    <MenuItem Header="@Gabi (tpi)" Tag="@Gabi (tpi)" Click="MoveToNodeClick"  />
+                    <MenuItem Header="@Pamela (tpi)" Tag="@Pamela (tpi)" Click="MoveToNodeClick"  />
+                </MenuItem>
+                <MenuItem Header="Vintage">
+                    <MenuItem Header="@Elise (vintage)" Tag="@Elise (vintage)" Click="MoveToNodeClick"  />
+                    <MenuItem Header="@Sofia (vintage)" Tag="@Sofia (vintage)" Click="MoveToNodeClick"  />
+                    <MenuItem Header="@Zanette (vintage)" Tag="@Zanette (vintage)" Click="MoveToNodeClick"  />
+                </MenuItem>                
+                <MenuItem Header="Vladmodels">
+                    <MenuItem Header="@Dasha y063 (vladmodels)" Tag="@Dasha y063 (vladmodels)" Click="MoveToNodeClick"  />
+                    <MenuItem Header="@Katya m039 (vladmodels)" Tag="@Katya m039 (vladmodels)" Click="MoveToNodeClick"  />
+                    <MenuItem Header="@Yulya m065 (vladmodels)" Tag="@Yulya m065 (vladmodels)" Click="MoveToNodeClick"  />
+                    <MenuItem Header="@Zhenya y114 (vladmodels)" Tag="@Zhenya y114 (vladmodels)" Click="MoveToNodeClick"  />
+                </MenuItem>                
             </MenuItem>
         </Menu>
         <StatusBar DockPanel.Dock="Bottom">

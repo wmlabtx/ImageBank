@@ -1,45 +1,19 @@
-﻿using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 
 namespace ImageBank
 {
     public partial class ImgMdf
     {
-        private void DeleteNextName(string name)
+        public void Delete(string name)
         {
-            var scope = _imgList
-                .Select(e => e.Value)
-                .Where(e => e.NextName.Equals(name))
-                .ToArray();
-            
-            foreach (var img in scope)
+            if (_imgList.TryRemove(name, out var img))
             {
-                ResetNextName(img);
-            }
-        }
-
-        public void DeleteImg(Img img)
-        {
-            if (!_imgList.TryRemove(img.Name, out _))
-            {
-                return;
+                _availableOrbsSlots.TryAdd(img.OrbsSlot, null);
+                SqlDelete(img);
+                HelperRecycleBin.Delete(img.DataFile);
             }
 
-            DeleteNextName(img.Name);
-
-            lock (_sqlLock)
-            {
-                var sb = new StringBuilder();
-                sb.Append("DELETE FROM Images WHERE ");
-                sb.Append($"{AppConsts.AttrName} = @{AppConsts.AttrName}");
-                var sqltext = sb.ToString();
-                using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
-                {
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrName}", img.Name);
-                    sqlCommand.ExecuteNonQuery();
-                }
-            }
+            ResetRefers(name);
         }
     }
 }

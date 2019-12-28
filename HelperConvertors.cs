@@ -46,8 +46,7 @@ namespace ImageBank
 
         public static byte[] ConvertMatToBuffer(Mat mat)
         {
-            var buffer = new byte[mat.Rows * mat.Cols];
-            mat.GetArray(0, 0, buffer);
+            mat.GetArray<byte>(out var buffer);
             return buffer;
         }
 
@@ -59,7 +58,7 @@ namespace ImageBank
             }
 
             var mat = new Mat(buffer.Length / 32, 32, MatType.CV_8U);
-            mat.SetArray(0, 0, buffer);
+            mat.SetArray(buffer);
             return mat;
         }
     }

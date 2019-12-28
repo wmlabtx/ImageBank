@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace ImageBank
@@ -13,87 +12,45 @@ namespace ImageBank
 
             var dt = DateTime.Now;
 
-            var count = _imgList.Count();
-            if (count == 0)
+            var nameX = GetNextToCheck();
+            if (string.IsNullOrEmpty(nameX))
             {
                 return null;
             }
 
-            var maxid = _imgList.Max(e => e.Value.Id);
-            var avg = 1f;
-            Img imgX;
-            if (maxid == 0)
+            var imgpanelX = GetImgPanel(nameX);
+            if (imgpanelX == null)
             {
-                imgX = _imgList
-                    .Values
-                    .OrderBy(e => e.LastChecked)
-                    .FirstOrDefault();
-            }
-            else
-            {
-                var scopeid = _imgList
-                    .Values
-                    .Where(e => e.Descriptors.Rows > 0)
-                    .ToArray();
-
-                avg = (float)scopeid.Sum(e => e.LastId) / (scopeid.Length * maxid);
-                if (avg > 0.5)
-                {
-                    Import(1, null);
-                    imgX = _imgList
-                        .Values
-                        .OrderBy(e => e.LastChecked)
-                        .FirstOrDefault();
-                }
-                else
-                {
-                    imgX = _imgList
-                        .Values
-                        .Where(e => e.Descriptors.Rows > 0)
-                        .OrderBy(e => e.LastChecked)
-                        .FirstOrDefault();
-                }
+                Delete(nameX);
+                return null;
             }
 
-            var oldnextname = imgX.NextName;
-            var oldchecked = imgX.LastChecked;
-            var oldsim = imgX.Sim;
-            var oldlastid = imgX.LastId;
-
-            FindNextName(imgX);
-
-            var imgY = GetImgByName(imgX.NextName);
-            if (imgY == null)
+            if (!FindNextName(nameX, out var nameY, out var message))
             {
                 return null;
             }
 
-            var sb = new StringBuilder();
-            sb.Append($"{count}: {_avgTimes:F2}s {avg:F4}a: ");
-
-            sb.Append($"{oldsim:F2} [{oldlastid}]");
-            if (!imgX.NextName.Equals(oldnextname) || oldsim != imgX.Sim)
+            var imgpanelY = GetImgPanel(nameY);
+            if (imgpanelY == null)
             {
-                imgX.LastChecked = GetMinLastChecked();
-                sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F2} [{imgX.LastId}]");
+                Delete(nameY);
+                return null;
             }
 
-            sb.Append(" / ");
-            sb.Append($"{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(imgX.LastView))} ago");
-            sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(oldchecked))} ago]");
-
-            _findTimes.Enqueue(DateTime.Now.Subtract(dt).TotalSeconds);
-            if (_findTimes.Count > 100)
+            _findtimes.Enqueue((float)DateTime.Now.Subtract(dt).TotalSeconds);
+            if (_findtimes.Count > 100)
             {
-                _findTimes.Dequeue();
+                _findtimes.Dequeue();
             }
 
-            if (_findTimes.Count > 0)
+            if (_findtimes.Count > 0)
             {
-                _avgTimes = _findTimes.Average();
+                _avgtimes = _findtimes.Average();
             }
 
-            return sb.ToString();
+            AppVars.DistanceMedian = GetDistanceMedian();
+
+            return message;
         }
     }
 }

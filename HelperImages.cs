@@ -1,4 +1,5 @@
 ﻿using OpenCvSharp;
+using OpenCvSharp.Extensions;
 using System;
 using System.Drawing;
 using System.IO;
@@ -12,9 +13,11 @@ namespace ImageBank
 {
     public static class HelperImages
     {
-        public static bool GetJpgFromFile(string filename, out byte[] jpgdata)
+        public static bool GetBitmapFromFile(string filename, out byte[] jpgdata, out Bitmap bitmap, out bool needwrite)
         {
             jpgdata = null;
+            bitmap = null;
+            needwrite = false;
             if (!File.Exists(filename))
             {
                 return false;
@@ -47,51 +50,48 @@ namespace ImageBank
                 {
                     return false;
                 }
+                
+                extension = AppConsts.JpgExtension;
+                needwrite = true;
             }
-            else
+
+            Mat mat = null;
+            try
             {
-                if (
-                    extension.Equals(AppConsts.PngExtension, StringComparison.InvariantCultureIgnoreCase) ||
-                    extension.Equals(AppConsts.BmpExtension, StringComparison.InvariantCultureIgnoreCase) ||
-                    extension.Equals(AppConsts.WebpExtension, StringComparison.InvariantCultureIgnoreCase)
-                   )
+                mat = Cv2.ImDecode(jpgdata, ImreadModes.AnyColor);
+                const float fmax = 6000f * 4000f;
+                var fx = (float)Math.Sqrt(fmax / (mat.Width * mat.Height));
+                if (fx < 1f)
                 {
-                    using (var mat = Cv2.ImDecode(jpgdata, ImreadModes.AnyColor))
+                    mat = mat.Resize(OpenCvSharp.Size.Zero, fx, fx, InterpolationFlags.Cubic);
+                    var iep = new ImageEncodingParam(ImwriteFlags.WebPQuality, 64);
+                    Cv2.ImEncode(AppConsts.WebpExtension, mat, out jpgdata, iep);
+                    needwrite = true;
+                }
+                else
+                {
+                    if (!extension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase) &&
+                        !extension.Equals(AppConsts.JpegExtension, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        try
-                        {
-                            var bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(mat);
-                            if (!extension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase) &&
-                                !extension.Equals(AppConsts.JpegExtension, StringComparison.InvariantCultureIgnoreCase))
-                            {
-                                var iep = new ImageEncodingParam(ImwriteFlags.JpegQuality, 90);
-                                Cv2.ImEncode(AppConsts.JpgExtension, mat, out jpgdata, iep);
-                            }
-                        }
-                        catch (ArgumentException)
-                        {
-                            jpgdata = null;
-                            return false;
-                        }
+                        var iep = new ImageEncodingParam(ImwriteFlags.JpegQuality, 95);
+                        Cv2.ImEncode(AppConsts.JpgExtension, mat, out jpgdata, iep);
+                        needwrite = true;
                     }
                 }
+
+                bitmap = BitmapConverter.ToBitmap(mat);
             }
-
-            return true;
-        }
-
-        public static bool GetBitmap(byte[] jpgdata, out Bitmap bitmap)
-        {
-            using (var mat = Cv2.ImDecode(jpgdata, ImreadModes.AnyColor))
+            catch (ArgumentException)
             {
-                try
+                jpgdata = null;
+                bitmap = null;
+                return false;
+            }
+            finally
+            {
+                if (mat != null)
                 {
-                    bitmap = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(mat);
-                }
-                catch (ArgumentException)
-                {
-                    bitmap = null;
-                    return false;
+                    mat.Dispose();
                 }
             }
 

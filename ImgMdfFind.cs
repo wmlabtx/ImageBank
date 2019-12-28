@@ -7,72 +7,46 @@ namespace ImageBank
     {
         public void Find(string nameX, IProgress<string> progress)
         {
-            progress.Report(string.Empty);
+            progress.Report("Moving forward...");
+            string message;
             while (true)
             {
                 if (string.IsNullOrEmpty(nameX))
                 {
-                    if (_imgList.Count == 0)
+                    nameX = GetNextToView();
+                    if (string.IsNullOrEmpty(nameX))
                     {
+                        progress.Report("No available images to view");
                         return;
-                    }
-
-                    var scopevalid = _imgList
-                        .Values
-                        .Where(e => 
-                            e.Descriptors.Rows > 0 && 
-                            _imgList.ContainsKey(e.NextName) && 
-                            !e.NextName.Equals(e.Name))
-                        .ToArray();
-
-                    if (scopevalid.Length == 0)
-                    {
-                        return;
-                    }
-
-                    var scoperecent = scopevalid
-                        .Where(e => e.LastView < e.LastChanged && e.Sim > 52f)
-                        .ToArray();
-
-                    Img imgX;
-                    if (scoperecent.Length > 0)
-                    {
-                        imgX = scoperecent
-                            .OrderByDescending(e => e.LastId)
-                            .FirstOrDefault();
-                    }
-                    else
-                    {
-                        imgX = scopevalid
-                            .OrderBy(e => e.LastView)
-                            .FirstOrDefault();
-                    }
-
-                    nameX = imgX.Name;
-
-                    AppVars.ImgPanel[0] = GetImgPanel(nameX);
-                    if (AppVars.ImgPanel[0] == null)
-                    {
-                        progress.Report($"{_imgList.Count}: {nameX}: corrupted!");
-                        nameX = null;
-                        continue;
                     }
                 }
 
-                AppVars.ImgPanel[1] = GetImgPanel(AppVars.ImgPanel[0].Img.NextName);
+                AppVars.ImgPanel[0] = GetImgPanel(nameX);
+                if (AppVars.ImgPanel[0] == null)
+                {
+                    nameX = null;
+                    continue;
+                }
+
+                if (!FindNextName(nameX, out var nameY, out message))
+                {
+                    Delete(nameX);
+                    nameX = null;
+                    continue;
+                }
+
+                AppVars.ImgPanel[1] = GetImgPanel(nameY);
                 if (AppVars.ImgPanel[1] == null)
                 {
-                    var nameY = AppVars.ImgPanel[0].Img.NextName;
-                    progress.Report($"{_imgList.Count}: {nameY}: corrupted!");
-
-                    var imgX = AppVars.ImgPanel[0].Img;
-                    ResetNextName(imgX);
-
+                    Delete(nameY);
+                    nameX = null;
                     continue;
                 }
 
                 break;
             }
+
+            progress.Report(message);
         }
     }
 }
