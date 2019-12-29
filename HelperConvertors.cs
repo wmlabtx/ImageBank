@@ -1,5 +1,6 @@
 ﻿using OpenCvSharp;
 using System;
+using System.Security.Cryptography;
 
 namespace ImageBank
 {

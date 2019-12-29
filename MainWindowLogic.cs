@@ -23,7 +23,6 @@ namespace ImageBank
             BoxRight.MouseDown += PictureRightBoxMouseClick;
 
             LabelLeft.MouseDown += ButtonLeftNextMouseClick;
-            LabelRight.MouseDown += ButtonRightNextMouseClick;
 
             Left = SystemParameters.WorkArea.Left + AppConsts.WindowMargin;
             Top = SystemParameters.WorkArea.Top + AppConsts.WindowMargin;
@@ -51,8 +50,10 @@ namespace ImageBank
 
             DisableElements();
             await Task.Run(() => { AppVars.Collection.Load(AppVars.Progress); });
+            
             await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
             DrawCanvas();
+            
             EnableElements();
 
             AppVars.SuspendEvent = new ManualResetEvent(true);
@@ -134,17 +135,7 @@ namespace ImageBank
 
         private async void ButtonLeftNextMouseClick()
         {
-            AppVars.Collection.UpdateView(AppVars.ImgPanel[0].Name);
-
-            DisableElements();
-            await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
-            DrawCanvas();
-            EnableElements();
-        }
-
-        private async void ButtonRightNextMouseClick()
-        {
-            AppVars.Collection.UpdateView(AppVars.ImgPanel[0].Name);
+            AppVars.ImgPanel[0].Img.LastView = DateTime.Now;
 
             DisableElements();
             await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
@@ -209,63 +200,30 @@ namespace ImageBank
             var pLabels = new[] { LabelLeft, LabelRight };
             for (var index = 0; index < 2; index++)
             {
-                var name = AppVars.ImgPanel[index].Name;
+                var name = AppVars.ImgPanel[index].Img.Name;
                 pBoxes[index].Tag = name;
                 pLabels[index].Tag = name;
 
                 pBoxes[index].Source = HelperImages.ImageSourceFromBitmap(AppVars.ImgPanel[index].Bitmap);
 
                 var sb = new StringBuilder();
-                sb.Append($"{AppVars.ImgPanel[index].Folder}\\{AppVars.ImgPanel[index].Name}");
-                sb.Append($" [{AppVars.ImgPanel[index].FolderSize}]");
+                sb.Append($"{AppVars.ImgPanel[index].Img.Subdirectory}\\");
+                sb.Append($"{AppVars.ImgPanel[index].Img.Name}");
 
-                sb.Append($" {AppVars.ImgPanel[index].Distance:F2}");
-
-                sb.AppendLine();
-                sb.Append($"{HelperConvertors.SizeToString(AppVars.ImgPanel[index].Length)} ({AppVars.ImgPanel[index].Bitmap.Width:F0}x{AppVars.ImgPanel[index].Bitmap.Height:F0})");
+                sb.Append($" [{AppVars.ImgPanel[index].Img.LastId}] {AppVars.ImgPanel[index].Img.Sim:F2}");
 
                 sb.AppendLine();
-                sb.Append($"{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].LastView))} ago");
-                sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].LastChange))} ago]");
+                sb.Append($"{HelperConvertors.SizeToString(AppVars.ImgPanel[index].Size)} ({AppVars.ImgPanel[index].Bitmap.Width:F0}x{AppVars.ImgPanel[index].Bitmap.Height:F0})");
+
+                sb.AppendLine();
+                sb.Append($"{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].Img.LastView))} ago");
+                sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].Img.LastChanged))} ago]");
 
                 pLabels[index].Text = sb.ToString();
-                pLabels[index].Background = 
-                    AppVars.ImgPanel[index].LastView < AppVars.ImgPanel[index].LastChange ?
-                    System.Windows.Media.Brushes.White :
-                    System.Windows.Media.Brushes.Bisque;
+                pLabels[index].Background = System.Windows.Media.Brushes.White;
             }
 
-            if (
-                (!AppVars.ImgPanel[0].Folder.StartsWith(AppConsts.FolderLegacy, StringComparison.OrdinalIgnoreCase) &&
-                AppVars.ImgPanel[1].Folder.IndexOf(AppVars.ImgPanel[0].Folder, StringComparison.OrdinalIgnoreCase) == 0) ||
-                (!AppVars.ImgPanel[1].Folder.StartsWith(AppConsts.FolderLegacy, StringComparison.OrdinalIgnoreCase) &&
-                AppVars.ImgPanel[0].Folder.IndexOf(AppVars.ImgPanel[1].Folder, StringComparison.OrdinalIgnoreCase) == 0)
-
-                )
-            {
-                var l0 = AppVars.ImgPanel[0].Folder.Length;
-                var l1 = AppVars.ImgPanel[1].Folder.Length;
-                if (l0 == l1)
-                {
-                    pLabels[0].Background = System.Windows.Media.Brushes.LightGreen;
-                    pLabels[1].Background = System.Windows.Media.Brushes.LightGreen;
-                }
-                else
-                {
-                    if (l0 >= l1)
-                    {
-                        pLabels[0].Background = System.Windows.Media.Brushes.LightGreen;
-                        pLabels[1].Background = System.Windows.Media.Brushes.LightCyan;
-                    }
-                    else
-                    {
-                        pLabels[0].Background = System.Windows.Media.Brushes.LightCyan;
-                        pLabels[1].Background = System.Windows.Media.Brushes.LightGreen;
-                    }
-                }
-            }
-
-            if (AppVars.ImgPanel[0].Name.Equals(AppVars.ImgPanel[1].Name))
+            if (AppVars.ImgPanel[0].Img.Name.Equals(AppVars.ImgPanel[1].Img.Name))
             {
                 pLabels[0].Background = System.Windows.Media.Brushes.LightGray;
                 pLabels[1].Background = System.Windows.Media.Brushes.LightGray;
@@ -311,17 +269,8 @@ namespace ImageBank
         private async void ImgPanelDelete(int index)
         {
             DisableElements();
-            await Task.Run(() => { AppVars.Collection.Delete(AppVars.ImgPanel[index].Name); });
+            await Task.Run(() => { AppVars.Collection.DeleteImg(AppVars.ImgPanel[index].Img); });
             await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
-            DrawCanvas();
-            EnableElements();
-        }
-
-        private async void MoveToNodeClick(string node)
-        {
-            DisableElements();
-            await Task.Run(() => { AppVars.Collection.MoveTo(AppVars.ImgPanel[0].Name, node); });
-            await Task.Run(() => { AppVars.Collection.Find(AppVars.ImgPanel[0].Name, AppVars.Progress); });
             DrawCanvas();
             EnableElements();
         }
