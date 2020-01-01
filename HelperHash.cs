@@ -6,7 +6,7 @@ namespace ImageBank
 {
     public static class HelperHash
     {
-        public static string Pattern => "xxxx-xxxx-xxxx";
+        public static string Pattern => "xxx-xxx-xxx";
 
         public static string CalculateHash(byte[] array)
         {
@@ -28,15 +28,12 @@ namespace ImageBank
                 sb.Append(cs[crcushort[1] % cs.Length]);
                 sb.Append(cg[crcushort[2] % cg.Length]);
                 sb.Append(cs[crcushort[3] % cs.Length]);
-                sb.Append(cg[crcushort[4] % cg.Length]);
                 sb.Append('-');
-                sb.Append(cg[crcushort[5] % cg.Length]);
-                sb.Append(cs[crcushort[6] % cs.Length]);
+                sb.Append(cg[crcushort[6] % cg.Length]);
                 sb.Append(cs[crcushort[7] % cs.Length]);
                 sb.Append(cg[crcushort[9] % cg.Length]);
                 sb.Append('-');
-                sb.Append(cs[crcushort[11] % cs.Length]);
-                sb.Append(cg[crcushort[12] % cg.Length]);
+                sb.Append(cs[crcushort[12] % cs.Length]);
                 sb.Append(cg[crcushort[13] % cg.Length]);
                 sb.Append(cs[crcushort[14] % cs.Length]);
                 return sb.ToString();

@@ -16,7 +16,7 @@ namespace ImageBank
             var counter = 0;
             var dt = DateTime.Now;
 
-            var directoryInfo = new DirectoryInfo(AppConsts.PathSource);
+            var directoryInfo = new DirectoryInfo(AppConsts.PathCollection);
             var fileInfos = directoryInfo.GetFiles("*.*", SearchOption.AllDirectories).ToList();
             foreach (var fileInfo in fileInfos)
             {
@@ -32,49 +32,52 @@ namespace ImageBank
                 }
 
                 var filename = fileInfo.FullName;
+                var name = HelperPath.GetName(filename);
+                if (_imgList.TryGetValue(name, out var imgfound))
+                {
+                    continue;
+                }
 
-                if (!HelperImages.GetJpgFromFile(filename, out var jpgdata))
+                if (!HelperImages.GetBitmapFromFile(filename, out var jpgdata, out var bitmap, out var needwrite))
+                {
+                    skipped++;
+                    continue;
+                }
+                
+                if (!HelperOrbs.ComputeOrbs(jpgdata, out var orbs))
                 {
                     skipped++;
                     continue;
                 }
 
-                var name = HelperCrc.GetCrc(jpgdata);
-                if (_imgList.TryGetValue(name, out var imgFound))
-                {
-                    skipped++;
-                    HelperRecycleBin.Delete(filename);
-                    continue;
-                }
-
-                if (!HelperDescriptors.ComputeDescriptors(jpgdata, out var descriptors))
-                {
-                    skipped++;
-                    continue;
-                }
-
+                var hash = HelperHash.CalculateHash(jpgdata);
                 var lastview = GetMinLastView();
-                var lastchecked = GetMinLastChecked();
-                var lastchanged = lastchecked;
-                var array = HelperEncrypting.Encrypt(jpgdata, name);
-                var id = _imgList.Max(e => e.Value.Id) + 1;
+                var lastcheck = GetMinLastCheck();
                 var img = new Img(
-                    name,
-                    id,
-                    0,
-                    lastview,
-                    lastchecked,
-                    lastchanged,
-                    name,
-                    descriptors,
-                    0);
+                    hash: hash,
+                    folder: string.Empty,
+                    nexthash: hash,
+                    lastview: lastview,
+                    lastcheck: lastcheck,
+                    orbs: orbs);
 
-                Add(img);
-                img.WriteData(jpgdata);
-                ResetNextName(img);
+                if (!img.File.Equals(filename))
+                {
+                    if (needwrite)
+                    {
+                        WriteJpgData(hash, img.Directory, jpgdata);
+                        HelperRecycleBin.Delete(filename);
+                    }
+                    else
+                    {
+                        File.Move(filename, img.File);
+                    }
+                }
+
+                _imgList.TryAdd(hash, img);
+                SqlAdd(img);
+
                 added++;
-                HelperRecycleBin.Delete(filename);
-
                 if (added >= maxadd)
                 {
                     break;
@@ -105,18 +108,20 @@ namespace ImageBank
 
         public void Import(IProgress<string> progress)
         {
-            Import(1000000, progress);
-            ProcessDirectory(AppConsts.PathSource, progress);
+            Import(AppConsts.MaxImportImages, progress);
+            ProcessDirectory(AppConsts.PathCollection, progress);
             progress.Report(string.Empty);
         }
 
         public void Export(IProgress<string> progress)
         {
+            /*
             var name = AppVars.ImgPanel[0].Img.Name;
             var jpgdata = AppVars.ImgPanel[0].Img.GetData();
             var filename = $"{AppConsts.PathSource}{name}.jpeg";
             File.WriteAllBytes(filename, jpgdata);
             progress.Report($"{filename} exported!");
+            */
         }
     }
 }

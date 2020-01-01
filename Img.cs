@@ -1,13 +1,40 @@
 ﻿using OpenCvSharp;
 using System;
-using System.IO;
 
 namespace ImageBank
 {
     public class Img
     {
-        public string Name { get; }
-        
+        public string Hash { get; }
+
+        private string _folder;
+        public string Folder
+        {
+            get
+            {
+                return _folder;
+            }
+            set
+            {
+                _folder = value;
+                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrFolder, value);
+            }
+        }
+
+        private string _nexthash;
+        public string NextHash
+        {
+            get
+            {
+                return _nexthash;
+            }
+            set
+            {
+                _nexthash = value;
+                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrNextHash, value);
+            }
+        }
+
         private DateTime _lastview;
         public DateTime LastView
         {
@@ -18,61 +45,54 @@ namespace ImageBank
             set
             {
                 _lastview = value;
-                AppVars.Collection.UpdateProperty(this, AppConsts.AttrLastView, _lastview);
+                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrLastView, value);
             }
         }
 
-        public DateTime LastChecked { get; set; }
-        public DateTime LastChanged { get; set; }
-        public string NextName { get; set; }
-
-        private Mat _descriptors;
-        public Mat Descriptors
+        private DateTime _lastcheck;
+        public DateTime LastCheck
         {
             get
             {
-                return _descriptors;
+                return _lastcheck;
             }
             set
             {
-                _descriptors = value;
-                var buffer = HelperConvertors.ConvertMatToBuffer(_descriptors);
-                AppVars.Collection.UpdateProperty(this, AppConsts.AttrDescriptors, buffer);
+                _lastcheck = value;
+                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrLastCheck, value);
             }
         }
 
-        public float Sim { get; set; }
+        private Mat _orbs;
+        public Mat Orbs
+        {
+            get
+            {
+                return _orbs;
+            }
+            set
+            {
+                _orbs = value;
+                var buffer = HelperConvertors.ConvertMatToBuffer(_orbs);
+                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrOrbs, buffer);
+            }
+        }
 
         public string Subdirectory
         {
             get
             {
-                var hash = Math.Abs(Name.GetHashCode()) % 100;
-                var dir = $"{hash:D2}";
-                return dir;
+                var hash = Math.Abs(Hash.GetHashCode()) % 100;
+                var subdirectory = $"{hash:D2}";
+                return subdirectory;
             }
         }
 
-        private int _id;
-        public int Id
+        public string Directory
         {
             get
             {
-                return _id;
-            }
-            set
-            {
-                _id = value;
-                AppVars.Collection.UpdateProperty(this, AppConsts.AttrId, _id);
-            }
-        }
-        public int LastId { get; set; }
-
-        public string Folder
-        {
-            get
-            {
-                var directory = $"{AppConsts.PathData}{Subdirectory}\\";
+                var directory = $"{AppConsts.PathCollection}{Subdirectory}\\";
                 return directory;
             }
         }
@@ -81,54 +101,25 @@ namespace ImageBank
         {
             get
             {
-                var filename = $"{Folder}{Name}{AppConsts.DatExtension}";
+                var filename = $"{Directory}{Hash}{AppConsts.DatExtension}";
                 return filename;
             }
         }
 
         public Img(
-            string name,
-            int id,
-            int lastid,
+            string hash,
+            string folder,
+            string nexthash,
             DateTime lastview,
-            DateTime lastchecked,
-            DateTime lastchanged,
-            string nextname,
-            Mat descriptors,
-            float sim)
+            DateTime lastcheck,
+            Mat orbs)
         {
-            Name = name;
-            _id = id;
-            LastId = lastid;
+            Hash = hash;
+            _folder = folder;
+            _nexthash = nexthash;
             _lastview = lastview;
-            LastChecked = lastchecked;
-            LastChanged = lastchanged;
-            NextName = nextname;
-            _descriptors = descriptors;
-            Sim = sim;
-        }
-
-        public void WriteData(byte[] jpgdata)
-        {
-            if (!Directory.Exists(Folder))
-            {
-                Directory.CreateDirectory(Folder);
-            }
-
-            var buffer = HelperEncrypting.Encrypt(jpgdata, Name);
-            System.IO.File.WriteAllBytes(File, buffer);
-        }
-
-        public byte[] GetData()
-        {
-            if (!System.IO.File.Exists(File))
-            {
-                return null;
-            }
-
-            var buffer = System.IO.File.ReadAllBytes(File);
-            var data = HelperEncrypting.Decrypt(buffer, Name);
-            return data;
+            _lastcheck = lastcheck;
+            _orbs = orbs; 
         }
     }
 }

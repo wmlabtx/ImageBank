@@ -1,77 +1,51 @@
 ﻿using System;
-using System.Linq;
 
 namespace ImageBank
 {
     public partial class ImgMdf
     {
-        public void Find(string nameX, IProgress<string> progress)
+        public void Find(string hashX, IProgress<string> progress)
         {
-            progress.Report(string.Empty);
+            progress.Report("Moving forward...");
             while (true)
             {
-                if (string.IsNullOrEmpty(nameX))
+                if (string.IsNullOrEmpty(hashX))
                 {
-                    if (_imgList.Count == 0)
+                    hashX = GetNextToView();
+                    if (string.IsNullOrEmpty(hashX))
                     {
+                        progress.Report("No available images to view");
                         return;
-                    }
-
-                    var scopevalid = _imgList
-                        .Values
-                        .Where(e => 
-                            e.Descriptors.Rows > 0 && 
-                            _imgList.ContainsKey(e.NextName) && 
-                            !e.NextName.Equals(e.Name))
-                        .ToArray();
-
-                    if (scopevalid.Length == 0)
-                    {
-                        return;
-                    }
-
-                    var scoperecent = scopevalid
-                        .Where(e => e.LastView < e.LastChanged)
-                        .ToArray();
-
-                    Img imgX;
-                    if (scoperecent.Length > 0)
-                    {
-                        imgX = scoperecent
-                            .OrderByDescending(e => e.Sim)
-                            .FirstOrDefault();
-                    }
-                    else
-                    {
-                        imgX = scopevalid
-                            .OrderBy(e => e.LastView)
-                            .FirstOrDefault();
-                    }
-
-                    nameX = imgX.Name;
-
-                    AppVars.ImgPanel[0] = GetImgPanel(nameX);
-                    if (AppVars.ImgPanel[0] == null)
-                    {
-                        progress.Report($"{_imgList.Count}: {nameX}: corrupted!");
-                        nameX = null;
-                        continue;
                     }
                 }
 
-                AppVars.ImgPanel[1] = GetImgPanel(AppVars.ImgPanel[0].Img.NextName);
-                if (AppVars.ImgPanel[1] == null)
+                AppVars.ImgPanel[0] = GetImgPanel(hashX);
+                if (AppVars.ImgPanel[0] == null)
                 {
-                    var nameY = AppVars.ImgPanel[0].Img.NextName;
-                    progress.Report($"{_imgList.Count}: {nameY}: corrupted!");
-
-                    var imgX = AppVars.ImgPanel[0].Img;
-                    ResetNextName(imgX);
-
+                    Delete(hashX);
+                    progress.Report("{hashX} corrupted");
+                    hashX = null;
                     continue;
                 }
 
-                break;
+                var hashY = GetNextHash(hashX);
+                if (string.IsNullOrEmpty(hashY))
+                {
+                    hashX = null;
+                    continue;
+                }
+
+                AppVars.ImgPanel[1] = GetImgPanel(hashY);
+                if (AppVars.ImgPanel[1] == null)
+                {
+                    Delete(hashY);
+                    progress.Report("{hashY} corrupted");
+                    hashX = null;
+                    continue;
+                }
+
+                progress.Report(string.Empty);
+                return;
             }
         }
     }

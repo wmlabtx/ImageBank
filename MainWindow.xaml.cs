@@ -97,8 +97,8 @@ namespace ImageBank
 
         private void MoveToNodeClick(object sender, RoutedEventArgs e)
         {
-            var node = (string)((sender as MenuItem).Tag);
-            MoveToNodeClick(node);
+            var folder = (string)(sender as MenuItem).Tag;
+            MoveToNodeClick(folder);
         }
     }
 }

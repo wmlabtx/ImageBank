@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 
@@ -11,12 +10,8 @@ namespace ImageBank
         private readonly object _sqlLock = new object();
         private readonly SqlConnection _sqlConnection;
 
-        public readonly OrbsFile OrbsFile = new OrbsFile(AppConsts.FileOrbs, AppConsts.MaxOrbsSize);
-        private readonly ConcurrentDictionary<string, Img> _imgList = new ConcurrentDictionary<string, Img>();        
-        private readonly ConcurrentDictionary<int, object> _availableOrbsSlots = new ConcurrentDictionary<int, object>();
-
-        private readonly Queue<float> _findtimes = new Queue<float>();
-        private float _avgtimes = 0f;
+        private readonly ConcurrentDictionary<string, Img> _imgList = new ConcurrentDictionary<string, Img>();
+        private readonly ConcurrentDictionary<string, Flann> _flannList = new ConcurrentDictionary<string, Flann>();
 
         public ImgMdf()
         {
@@ -25,20 +20,12 @@ namespace ImageBank
             _sqlConnection.Open();
         }
 
-        public void UpdateView(string name)
+        public void UpdateView(string hash)
         {
-            if (_imgList.TryGetValue(name, out var img))
+            if (_imgList.TryGetValue(hash, out var img))
             {
                 img.LastView = DateTime.Now;
             }
-        }
-
-        private int GetNextId()
-        {
-            var id = _imgList.Count == 0 ?
-                1 :
-                _imgList.Max(e => e.Value.Id) + 1;
-            return id;
         }
 
         private DateTime GetMinLastCheck()
@@ -59,14 +46,6 @@ namespace ImageBank
             return min;
         }
 
-        private int GetCountNotView()
-        {
-            var count = _imgList.Count == 0 ?
-                0 :
-                _imgList.Values.Count(e => e.Distance < AppVars.DistanceMedian && e.LastView < e.LastChange);
-            return count;
-        }
-
         private string GetNextToView()
         {
             if (_imgList.Count == 0)
@@ -74,23 +53,16 @@ namespace ImageBank
                 return null;
             }
 
-            var scopenotview = _imgList
-                .Values
-                .Where(e => e.Distance < AppVars.DistanceMedian && e.LastView < e.LastChange)
-                .ToArray();
+            var nexthashes = _imgList.OrderBy(e => e.Value.LastView).Select(e => e.Key).ToArray();
+            foreach (var nexthash in nexthashes)
+            {
+                if (_imgList.ContainsKey(nexthash))
+                {
+                    return nexthash;
+                }
+            }
 
-            if (scopenotview.Length > 0)
-            {
-                var mindistance = scopenotview.Min(e => e.Distance);
-                var name = scopenotview.FirstOrDefault(e => e.Distance == mindistance).Name;
-                return name;
-            }
-            else
-            {
-                var minlastview = _imgList.Min(e => e.Value.LastView);
-                var name = _imgList.FirstOrDefault(e => e.Value.LastView.Equals(minlastview)).Key;
-                return name;
-            }
+            return null;
         }
 
         private string GetNextToCheck()
@@ -101,40 +73,23 @@ namespace ImageBank
             }
 
             var minlastcheck = _imgList.Min(e => e.Value.LastCheck);
-            var name = _imgList.FirstOrDefault(e => e.Value.LastCheck.Equals(minlastcheck)).Key;
-            return name;
+            var hash = _imgList.FirstOrDefault(e => e.Value.LastCheck.Equals(minlastcheck)).Key;
+            return hash;
         }
 
-        private float GetDistanceMedian()
+        private string GetNextHash(string hash)
         {
-            if (_imgList.Count < 100)
+            if (!_imgList.TryGetValue(hash, out var img))
             {
-                return 0f;
+                return null;
             }
 
-            var distances = _imgList.Select(e => e.Value.Distance).OrderBy(e => e).ToArray();
-            var distancemedian = distances[distances.Length / 20];
-            return distancemedian;
+            return img.NextHash;
         }
 
-        private void ResetNextName(Img img)
+        public bool ContainsKey(string hash)
         {
-            img.LastId = 0;
-            img.NextName = img.Name;
-            img.Distance = 257f;
-            img.LastCheck = GetMinLastCheck();
-            img.LastChange = DateTime.Now;
-            SqlUpdateNameNext(img);
-        }
-
-        private void ResetRefers(string name)
-        {
-            var scope = _imgList
-                .Values
-                .Where(e => e.NextName.Equals(name))
-                .ToList();
-
-            scope.ForEach(e => ResetNextName(e));
+            return _imgList.ContainsKey(hash);
         }
     }
 }

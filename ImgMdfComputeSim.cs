@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -7,91 +8,50 @@ namespace ImageBank
 {
     public partial class ImgMdf
     {
-        public string ComputeSim()
+        public void ComputeSim(BackgroundWorker backgroundworker)
         {
             AppVars.SuspendEvent.WaitOne(Timeout.Infinite);
-
-            var dt = DateTime.Now;
 
             var count = _imgList.Count();
             if (count == 0)
             {
-                return null;
+                backgroundworker.ReportProgress(0, string.Empty);
+                return;
             }
 
-            var maxid = _imgList.Max(e => e.Value.Id);
-            var avg = 1f;
-            Img imgX;
-            if (maxid == 0)
+            var hashX = GetNextToCheck();
+            if (!_imgList.TryGetValue(hashX, out var imgX))
             {
-                imgX = _imgList
-                    .Values
-                    .OrderBy(e => e.LastChecked)
-                    .FirstOrDefault();
-            }
-            else
-            {
-                var scopeid = _imgList
-                    .Values
-                    .Where(e => e.Descriptors.Rows > 0)
-                    .ToArray();
-
-                avg = (float)scopeid.Sum(e => e.LastId) / (scopeid.Length * maxid);
-                if (avg > 0.5)
-                {
-                    imgX = _imgList
-                        .Values
-                        .OrderBy(e => e.LastChecked)
-                        .FirstOrDefault();
-                }
-                else
-                {
-                    imgX = _imgList
-                        .Values
-                        .Where(e => e.Descriptors.Rows > 0)
-                        .OrderBy(e => e.LastId)
-                        .FirstOrDefault();
-                }
+                backgroundworker.ReportProgress(0, string.Empty);
+                return;
             }
 
-            var oldnextname = imgX.NextName;
-            var oldchecked = imgX.LastChecked;
-            var oldsim = imgX.Sim;
-            var oldlastid = imgX.LastId;
+            imgX.LastCheck = DateTime.Now;
 
-            FindNextName(imgX);
-
-            var imgY = GetImgByName(imgX.NextName);
-            if (imgY == null)
+            //backgroundworker.ReportProgress(0, "Flanning...");
+            var images = GetImagesFromFolder(imgX.Folder);
+            if (!_flannList.ContainsKey(imgX.Folder))
             {
-                return null;
+                _flannList.TryAdd(imgX.Folder, new Flann(images));
+            }
+
+            var nexthash = _flannList[imgX.Folder].Find(imgX, images);
+            if (string.IsNullOrEmpty(nexthash))
+            {
+                backgroundworker.ReportProgress(0, string.Empty);
+                return;
             }
 
             var sb = new StringBuilder();
-            sb.Append($"{count}: {_avgTimes:F2}s {avg:F4}: ");
-
-            sb.Append($"{oldsim:F2} [{oldlastid}]");
-            if (!imgX.NextName.Equals(oldnextname) || oldsim != imgX.Sim)
+            sb.Append($"{count}: ");
+            sb.Append($"{imgX.Hash} ");
+            if (!nexthash.Equals(imgX.NextHash))
             {
-                sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F2} [{imgX.LastId}]");
+                imgX.NextHash = nexthash;
             }
 
-            sb.Append(" / ");
-            sb.Append($"{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(imgX.LastView))} ago");
-            sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(oldchecked))} ago]");
-
-            _findTimes.Enqueue(DateTime.Now.Subtract(dt).TotalSeconds);
-            if (_findTimes.Count > 100)
-            {
-                _findTimes.Dequeue();
-            }
-
-            if (_findTimes.Count > 0)
-            {
-                _avgTimes = _findTimes.Average();
-            }
-
-            return sb.ToString();
+            var message = sb.ToString();
+            backgroundworker.ReportProgress(0, message);
         }
     }
 }

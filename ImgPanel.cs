@@ -5,23 +5,21 @@ namespace ImageBank
 {
     public class ImgPanel
     {
-        public string Name { get; }
+        public string Hash { get; }
         public string Folder { get; }
         public int FolderSize { get; }
         public DateTime LastView { get; }
-        public DateTime LastChange { get; }
-        public float Distance { get; }
+        public DateTime LastCheck { get; }
         public Bitmap Bitmap { get; }
         public int Length { get; }
 
-        public ImgPanel(string name, string folder, int foldersize, DateTime lastview, DateTime lastchange, float distance, Bitmap bitmap, int length)
+        public ImgPanel(string hash, string folder, int foldersize, DateTime lastview, DateTime lastcheck, Bitmap bitmap, int length)
         {
-            Name = name;
+            Hash = hash;
             Folder = folder;
             FolderSize = foldersize;
             LastView = lastview;
-            LastChange = lastchange;
-            Distance = distance;
+            LastCheck = lastcheck;
             Bitmap = bitmap;
             Length = length;
         }

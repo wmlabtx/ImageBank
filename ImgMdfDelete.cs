@@ -4,16 +4,31 @@ namespace ImageBank
 {
     public partial class ImgMdf
     {
-        public void Delete(string name)
+        public void Delete(string hash)
         {
-            if (_imgList.TryRemove(name, out var img))
+            if (_imgList.TryRemove(hash, out var img))
             {
-                _availableOrbsSlots.TryAdd(img.OrbsSlot, null);
                 SqlDelete(img);
-                HelperRecycleBin.Delete(img.DataFile);
+                HelperRecycleBin.Delete(img.File);
             }
 
-            ResetRefers(name);
+            ResetRefers(hash);
+        }
+
+        private void ResetNextHash(Img img)
+        {
+            img.NextHash = img.Hash;
+            img.LastCheck = GetMinLastCheck();
+        }
+
+        private void ResetRefers(string hash)
+        {
+            var scope = _imgList
+                .Values
+                .Where(e => e.NextHash.Equals(hash))
+                .ToList();
+
+            scope.ForEach(e => ResetNextHash(e));
         }
     }
 }

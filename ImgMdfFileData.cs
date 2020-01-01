@@ -4,16 +4,29 @@ namespace ImageBank
 {
     public partial class ImgMdf
     {
-        public void WriteFileData(string name, string folder, byte[] jpgdata)
+        public byte[] ReadJpgData(string hash, string directory)
         {
-            var path = $"{AppConsts.PathCollection}{folder}";
-            if (!Directory.Exists(path))
+            var filename = HelperPath.GetFileName(hash, directory);
+            if (!File.Exists(filename))
             {
-                Directory.CreateDirectory(path);
+                return null;
             }
 
-            var filename = HelperPath.GetFileName(name, folder);
-            File.WriteAllBytes(filename, jpgdata);
+            var data = File.ReadAllBytes(filename);
+            var jpgdata = HelperEncrypting.Decrypt(data, hash);
+            return jpgdata;
+        }
+
+        public void WriteJpgData(string hash, string directory, byte[] jpgdata)
+        {
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            var filename = HelperPath.GetFileName(hash, directory);
+            var data = HelperEncrypting.Encrypt(jpgdata, hash);
+            File.WriteAllBytes(filename, data);
         }
     }
 }
