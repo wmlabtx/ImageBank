@@ -100,5 +100,15 @@ namespace ImageBank
             var folder = (string)(sender as MenuItem).Tag;
             MoveToNodeClick(folder);
         }
+
+        private void GatherSiftDescriptorsClick(object sender, RoutedEventArgs e)
+        {
+            GatherSiftDescriptorsClick();
+        }
+
+        private void CalculateSiftClustersClick(object sender, RoutedEventArgs e)
+        {
+            CalculateSiftClustersClick();
+        }
     }
 }

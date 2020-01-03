@@ -5,10 +5,15 @@
         public const string PathRoot = @"D:\Users\Murad\Documents\SDb\";
         public const string PathCollection = PathRoot + @"Hp\";
         public const string FileDatabase = PathRoot + @"Db\images.mdf";
+        public const string FileSiftDescriptors = PathRoot + @"Db\images_siftd.bin";
+        public const string FileSiftClusters = PathRoot + @"Db\images_sift.csv";
 
         public const int MaxOrbsInImage = 250; // 250 * 32 = 8000
+        public const int MaxDescriptorsInImage = 1000; // 1000 * 2 = 2000
         public const int MaxImportImages = 1000000;
         public const int MaxFlann = 500;
+        public const int MaxDescriptorsForClustering = 6553600;
+        public const int MaxClusters = 0x10000;
 
         public const string DatExtension = ".dat";
         public const string WebpExtension = ".webp";

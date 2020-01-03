@@ -40,6 +40,10 @@
                     <MenuItem Header="@Whitney Conroy" Tag="Adult.@Whitney Conroy" Click="MoveToNodeClick" />
                 </MenuItem>
             </MenuItem>
+            <MenuItem Header="Sift">
+                <MenuItem Header="Gather Sift Descriptors" Click="GatherSiftDescriptorsClick" />
+                <MenuItem Header="Calculate Sift Clusters" Click="CalculateSiftClustersClick" />
+            </MenuItem>            
         </Menu>
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBar.ItemsPanel>

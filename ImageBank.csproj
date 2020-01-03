@@ -109,12 +109,16 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Flann.cs" />
+    <Compile Include="HelperSift.cs" />
     <Compile Include="Img.cs" />
     <Compile Include="ImgMdfDelete.cs" />
     <Compile Include="ImgMdfFolder.cs" />
     <Compile Include="ImgMdfLoad.cs" />
     <Compile Include="ImgMdfMoveTo.cs" />
     <Compile Include="HelperRandom.cs" />
+    <Compile Include="ImgMdfSift.cs" />
+    <Compile Include="SiftNode.cs" />
+    <Compile Include="SiftPoint.cs" />
     <Compile Include="Tests\HelperCrcTest.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

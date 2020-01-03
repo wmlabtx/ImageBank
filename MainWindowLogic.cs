@@ -60,7 +60,7 @@ namespace ImageBank
             _backgroundWorker = new BackgroundWorker { WorkerSupportsCancellation = true, WorkerReportsProgress = true };
             _backgroundWorker.DoWork += DoComputeSim;
             _backgroundWorker.ProgressChanged += DoComputeSimProgress;
-            _backgroundWorker.RunWorkerAsync();
+            //_backgroundWorker.RunWorkerAsync();
         }
 
         private void WindowClosing()
@@ -327,6 +327,22 @@ namespace ImageBank
             DisableElements();
             await Task.Run(() => { AppVars.Collection.MoveTo(AppVars.ImgPanel[0].Hash, folder); });
             await Task.Run(() => { AppVars.Collection.Find(AppVars.ImgPanel[0].Hash, AppVars.Progress); });
+            DrawCanvas();
+            EnableElements();
+        }
+
+        private async void GatherSiftDescriptorsClick()
+        {
+            DisableElements();
+            await Task.Run(() => { AppVars.Collection.GatherSiftDescriptors(AppVars.Progress); });
+            DrawCanvas();
+            EnableElements();
+        }
+
+        private async void CalculateSiftClustersClick()
+        {
+            DisableElements();
+            await Task.Run(() => { AppVars.Collection.CalculateSiftClusters(AppVars.Progress); });
             DrawCanvas();
             EnableElements();
         }
