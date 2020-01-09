@@ -18,6 +18,9 @@
                 <MenuItem Header="Rotate right" Click="RotateRightClick" />
                 <MenuItem Header="Mirror horizontal" Click="MirrorHorizontalClick" />
             </MenuItem>
+            <MenuItem Header="Keywords">
+                <MenuItem Header="Define..." Click="DefineKeywordsClick" />
+            </MenuItem>            
             <MenuItem Header="Move">
                 <MenuItem Header="Root" Tag="" Click="MoveToNodeClick"  />
                 <Separator />
@@ -40,10 +43,6 @@
                     <MenuItem Header="@Whitney Conroy" Tag="Adult.@Whitney Conroy" Click="MoveToNodeClick" />
                 </MenuItem>
             </MenuItem>
-            <MenuItem Header="Sift">
-                <MenuItem Header="Gather Sift Descriptors" Click="GatherSiftDescriptorsClick" />
-                <MenuItem Header="Calculate Sift Clusters" Click="CalculateSiftClustersClick" />
-            </MenuItem>            
         </Menu>
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBar.ItemsPanel>

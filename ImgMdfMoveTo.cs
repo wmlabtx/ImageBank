@@ -4,6 +4,7 @@
     {
         public void MoveTo(string hash, string folder)
         {
+            /*
             if (_imgList.TryGetValue(hash, out var imgX))
             {
                 imgX.Folder = folder;
@@ -20,6 +21,7 @@
                     }
                 }
             }
+            */
         }
     }
 }

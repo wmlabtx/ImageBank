@@ -101,14 +101,9 @@ namespace ImageBank
             MoveToNodeClick(folder);
         }
 
-        private void GatherSiftDescriptorsClick(object sender, RoutedEventArgs e)
+        private void DefineKeywordsClick(object sender, RoutedEventArgs e)
         {
-            GatherSiftDescriptorsClick();
-        }
-
-        private void CalculateSiftClustersClick(object sender, RoutedEventArgs e)
-        {
-            CalculateSiftClustersClick();
+            DefineKeywordsClick();
         }
     }
 }

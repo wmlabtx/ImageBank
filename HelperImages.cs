@@ -64,8 +64,8 @@ namespace ImageBank
                 if (fx < 1f)
                 {
                     mat = mat.Resize(OpenCvSharp.Size.Zero, fx, fx, InterpolationFlags.Cubic);
-                    var iep = new ImageEncodingParam(ImwriteFlags.WebPQuality, 64);
-                    Cv2.ImEncode(AppConsts.WebpExtension, mat, out jpgdata, iep);
+                    var iep = new ImageEncodingParam(ImwriteFlags.JpegQuality, 95);
+                    Cv2.ImEncode(AppConsts.JpgExtension, mat, out jpgdata, iep);
                     needwrite = true;
                 }
                 else

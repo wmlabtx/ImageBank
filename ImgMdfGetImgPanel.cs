@@ -10,10 +10,10 @@ namespace ImageBank
 
             if (!_imgList.TryGetValue(hash, out var img))
             {
+                Delete(hash);
                 return null;
             }
 
-            var foldersize = GetFolderSize(img.Folder);
             if (!HelperImages.GetBitmapFromFile(img.File, out var jpgdata, out var bitmap, out var _))
             {
                 Delete(hash);
@@ -22,10 +22,10 @@ namespace ImageBank
 
             var imgpanel = new ImgPanel(
                 hash:hash, 
-                folder: img.Folder, 
-                foldersize:foldersize, 
-                lastview:img.LastView,
-                lastcheck:img.LastCheck,
+                subdirectory: img.Subdirectory,
+                lastview: img.LastView,
+                sim: img.Sim,
+                lastchange: img.LastChange,
                 bitmap:bitmap, 
                 length:jpgdata.Length);
 

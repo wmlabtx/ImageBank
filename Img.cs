@@ -1,25 +1,11 @@
-﻿using OpenCvSharp;
-using System;
+﻿using System;
 
 namespace ImageBank
 {
     public class Img
     {
         public string Hash { get; }
-
-        private string _folder;
-        public string Folder
-        {
-            get
-            {
-                return _folder;
-            }
-            set
-            {
-                _folder = value;
-                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrFolder, value);
-            }
-        }
+        public int Id { get; }
 
         private string _nexthash;
         public string NextHash
@@ -32,6 +18,34 @@ namespace ImageBank
             {
                 _nexthash = value;
                 AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrNextHash, value);
+            }
+        }
+
+        private float _sim;
+        public float Sim
+        {
+            get
+            {
+                return _sim;
+            }
+            set
+            {
+                _sim = value;
+                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrSim, value);
+            }
+        }
+
+        private int _lastid;
+        public int LastId
+        {
+            get
+            {
+                return _lastid;
+            }
+            set
+            {
+                _lastid = value;
+                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrLastId, value);
             }
         }
 
@@ -49,34 +63,36 @@ namespace ImageBank
             }
         }
 
-        private DateTime _lastcheck;
-        public DateTime LastCheck
+        private DateTime _lastchange;
+        public DateTime LastChange
         {
             get
             {
-                return _lastcheck;
+                return _lastchange;
             }
             set
             {
-                _lastcheck = value;
-                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrLastCheck, value);
+                _lastchange = value;
+                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrLastChange, value);
             }
         }
 
-        private Mat _orbs;
-        public Mat Orbs
+        private ulong[] _descriptors;
+
+        public ulong[] Descriptors
         {
             get
             {
-                return _orbs;
+                return _descriptors;
             }
             set
             {
-                _orbs = value;
-                var buffer = HelperConvertors.ConvertMatToBuffer(_orbs);
-                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrOrbs, buffer);
+                _descriptors = value;
+                var buffer = HelperDescriptors.From64(value);
+                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrDescriptors, value);
             }
         }
+
 
         public string Subdirectory
         {
@@ -108,18 +124,22 @@ namespace ImageBank
 
         public Img(
             string hash,
-            string folder,
-            string nexthash,
+            int id,
             DateTime lastview,
-            DateTime lastcheck,
-            Mat orbs)
+            string nexthash,
+            float sim,
+            int lastid,
+            DateTime lastchange,
+            ulong[] descriptors)
         {
             Hash = hash;
-            _folder = folder;
-            _nexthash = nexthash;
+            Id = id;
             _lastview = lastview;
-            _lastcheck = lastcheck;
-            _orbs = orbs; 
+            _nexthash = nexthash;
+            _sim = sim;
+            _lastid = lastid;
+            _lastchange = lastchange;
+            _descriptors = descriptors;
         }
     }
 }

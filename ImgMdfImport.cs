@@ -13,21 +13,18 @@ namespace ImageBank
             var added = 0;
             var moved = 0;
             var skipped = 0;
-            var counter = 0;
             var dt = DateTime.Now;
 
             var directoryInfo = new DirectoryInfo(AppConsts.PathCollection);
             var fileInfos = directoryInfo.GetFiles("*.*", SearchOption.AllDirectories).ToList();
             foreach (var fileInfo in fileInfos)
             {
-                counter++;
-
                 if (DateTime.Now.Subtract(dt).TotalMilliseconds > AppConsts.TimeLapse)
                 {
                     dt = DateTime.Now;
                     if (progress != null)
                     {
-                        progress.Report($"{_imgList.Count}: analysing files (a:{added}/m:{moved}/s:{skipped}/{counter})...");
+                        progress.Report($"{_imgList.Count}: analysing files (a:{added}/m:{moved}/s:{skipped})...");
                     }
                 }
 
@@ -44,22 +41,24 @@ namespace ImageBank
                     continue;
                 }
                 
-                if (!HelperOrbs.ComputeOrbs(jpgdata, out var orbs))
+                if (!HelperDescriptors.ComputeDescriptors(jpgdata, out var descriptors))
                 {
                     skipped++;
                     continue;
                 }
 
                 var hash = HelperHash.CalculateHash(jpgdata);
+                var id = _imgList.Count == 0 ? 1 : _imgList.Max(e => e.Value.Id) + 1;
                 var lastview = GetMinLastView();
-                var lastcheck = GetMinLastCheck();
                 var img = new Img(
                     hash: hash,
-                    folder: string.Empty,
-                    nexthash: hash,
+                    id : id,
                     lastview: lastview,
-                    lastcheck: lastcheck,
-                    orbs: orbs);
+                    nexthash: hash,
+                    sim: 0f,
+                    lastid: 0,
+                    lastchange: DateTime.Now,
+                    descriptors: descriptors);
 
                 if (!img.File.Equals(filename))
                 {
@@ -74,8 +73,7 @@ namespace ImageBank
                     }
                 }
 
-                _imgList.TryAdd(hash, img);
-                SqlAdd(img);
+                Add(img);
 
                 added++;
                 if (added >= maxadd)

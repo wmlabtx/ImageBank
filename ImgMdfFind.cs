@@ -14,8 +14,14 @@ namespace ImageBank
                     hashX = GetNextToView();
                     if (string.IsNullOrEmpty(hashX))
                     {
-                        progress.Report("No available images to view");
-                        return;
+                        FastFind();
+                        hashX = GetNextToView();
+                        if (string.IsNullOrEmpty(hashX))
+                        {
+
+                            progress.Report("No available images to view");
+                            return;
+                        }
                     }
                 }
 
@@ -23,7 +29,7 @@ namespace ImageBank
                 if (AppVars.ImgPanel[0] == null)
                 {
                     Delete(hashX);
-                    progress.Report("{hashX} corrupted");
+                    progress.Report($"{hashX} corrupted");
                     hashX = null;
                     continue;
                 }
@@ -39,7 +45,7 @@ namespace ImageBank
                 if (AppVars.ImgPanel[1] == null)
                 {
                     Delete(hashY);
-                    progress.Report("{hashY} corrupted");
+                    progress.Report($"{hashY} corrupted");
                     hashX = null;
                     continue;
                 }

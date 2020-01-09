@@ -15,12 +15,14 @@ namespace ImageBank
                 var sb = new StringBuilder();
                 sb.Append("SELECT ");
                 sb.Append($"{AppConsts.AttrHash}, "); // 0
-                sb.Append($"{AppConsts.AttrFolder}, "); // 1
-                sb.Append($"{AppConsts.AttrNextHash}, "); // 2
-                sb.Append($"{AppConsts.AttrLastView}, "); // 3
-                sb.Append($"{AppConsts.AttrLastCheck}, "); // 4
-                sb.Append($"{AppConsts.AttrOrbs} "); // 5
-                sb.Append("FROM Images");
+                sb.Append($"{AppConsts.AttrId}, "); // 1
+                sb.Append($"{AppConsts.AttrLastView}, "); // 2
+                sb.Append($"{AppConsts.AttrNextHash}, "); // 3
+                sb.Append($"{AppConsts.AttrSim}, "); // 4
+                sb.Append($"{AppConsts.AttrLastId}, "); // 5
+                sb.Append($"{AppConsts.AttrLastChange}, "); // 6
+                sb.Append($"{AppConsts.AttrDescriptors} "); // 7
+                sb.Append($"FROM {AppConsts.TableImages}");
                 var sqltext = sb.ToString();
                 using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
                 {
@@ -31,19 +33,23 @@ namespace ImageBank
                         while (reader.Read())
                         {
                             var hash = reader.GetString(0);
-                            var folder = reader.GetString(1);
-                            var nexthash = reader.GetString(2);
-                            var lastview = reader.GetDateTime(3);
-                            var lastcheck = reader.GetDateTime(4);
-                            var buffer = (byte[])reader[5];
-                            var orbs = HelperConvertors.ConvertBufferToMat(buffer);
+                            var id = reader.GetInt32(1);
+                            var lastview = reader.GetDateTime(2);
+                            var nexthash = reader.GetString(3);
+                            var sim = reader.GetFloat(4);
+                            var lastid = reader.GetInt32(5);
+                            var lastchange = reader.GetDateTime(6);
+                            var buffer = (byte[])reader[7];
+                            var descriptors = HelperDescriptors.To64(buffer);
                             var img = new Img(
                                 hash: hash,
-                                folder: folder,
-                                nexthash: nexthash,
+                                id: id,
                                 lastview: lastview,
-                                lastcheck: lastcheck,
-                                orbs: orbs);
+                                nexthash: nexthash,
+                                sim: sim,
+                                lastid: lastid,
+                                lastchange: lastchange,
+                                descriptors: descriptors);
 
                             _imgList.TryAdd(hash, img);
 

@@ -108,18 +108,22 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Flann.cs" />
-    <Compile Include="HelperSift.cs" />
+    <Compile Include="HelperDescriptors.cs" />
     <Compile Include="Img.cs" />
+    <Compile Include="ImgMdfAdd.cs" />
     <Compile Include="ImgMdfDelete.cs" />
-    <Compile Include="ImgMdfFolder.cs" />
+    <Compile Include="ImgMdfFindNextHash.cs" />
     <Compile Include="ImgMdfLoad.cs" />
     <Compile Include="ImgMdfMoveTo.cs" />
     <Compile Include="HelperRandom.cs" />
-    <Compile Include="ImgMdfSift.cs" />
-    <Compile Include="SiftNode.cs" />
-    <Compile Include="SiftPoint.cs" />
+    <Compile Include="KeywordsWindow.xaml.cs">
+      <DependentUpon>KeywordsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tests\HelperCrcTest.cs" />
+    <Page Include="KeywordsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -132,7 +136,6 @@
     <Compile Include="AppVars.cs" />
     <Compile Include="HelperConvertors.cs" />
     <Compile Include="HelperHash.cs" />
-    <Compile Include="HelperOrbs.cs" />
     <Compile Include="HelperEncrypting.cs" />
     <Compile Include="HelperImages.cs" />
     <Compile Include="HelperPath.cs" />
@@ -168,6 +171,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

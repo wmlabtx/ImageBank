@@ -6,20 +6,20 @@ namespace ImageBank
     public class ImgPanel
     {
         public string Hash { get; }
-        public string Folder { get; }
-        public int FolderSize { get; }
+        public string Subdirectory { get; }
         public DateTime LastView { get; }
-        public DateTime LastCheck { get; }
+        public float Sim { get; }
+        public DateTime LastChange { get; }
         public Bitmap Bitmap { get; }
         public int Length { get; }
 
-        public ImgPanel(string hash, string folder, int foldersize, DateTime lastview, DateTime lastcheck, Bitmap bitmap, int length)
+        public ImgPanel(string hash, string subdirectory, DateTime lastview, float sim, DateTime lastchange, Bitmap bitmap, int length)
         {
             Hash = hash;
-            Folder = folder;
-            FolderSize = foldersize;
+            Subdirectory = subdirectory;
             LastView = lastview;
-            LastCheck = lastcheck;
+            Sim = sim;
+            LastChange = lastchange;
             Bitmap = bitmap;
             Length = length;
         }

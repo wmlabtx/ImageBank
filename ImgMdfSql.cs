@@ -9,12 +9,7 @@ namespace ImageBank
         {
             lock (_sqlLock)
             {
-                var sb = new StringBuilder();
-                sb.Append("UPDATE Images SET ");
-                sb.Append($"{key} = @{key} ");
-                sb.Append("WHERE ");
-                sb.Append($"{AppConsts.AttrHash} = @{AppConsts.AttrHash}");
-                var sqltext = sb.ToString();
+                var sqltext = $"UPDATE {AppConsts.TableImages} SET {key} = @{key} WHERE {AppConsts.AttrHash} = @{AppConsts.AttrHash}";
                 using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
                 {
                     sqlCommand.Parameters.AddWithValue($"@{key}", val);
@@ -24,17 +19,15 @@ namespace ImageBank
             }
         }
 
-        public void SqlDelete(Img img)
+        public void SqlDelete(string hash)
         {
             lock (_sqlLock)
             {
-                var sb = new StringBuilder();
-                sb.Append("DELETE FROM Images WHERE ");
-                sb.Append($"{AppConsts.AttrHash} = @{AppConsts.AttrHash}");
-                var sqltext = sb.ToString();
-                using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
+                using (var sqlCommand = _sqlConnection.CreateCommand())
                 {
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrHash}", img.Hash);
+                    sqlCommand.Connection = _sqlConnection;
+                    sqlCommand.CommandText = $"DELETE FROM {AppConsts.TableImages} WHERE {AppConsts.AttrHash} = @{AppConsts.AttrHash}";
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrHash}", hash);
                     sqlCommand.ExecuteNonQuery();
                 }
             }
@@ -44,32 +37,39 @@ namespace ImageBank
         {
             lock (_sqlLock)
             {
-                var sb = new StringBuilder();
-                sb.Append("INSERT INTO Images (");
-                sb.Append($"{AppConsts.AttrHash}, ");
-                sb.Append($"{AppConsts.AttrFolder}, ");
-                sb.Append($"{AppConsts.AttrNextHash}, ");
-                sb.Append($"{AppConsts.AttrLastView}, ");
-                sb.Append($"{AppConsts.AttrLastCheck}, ");
-                sb.Append($"{AppConsts.AttrOrbs}");
-                sb.Append(") VALUES (");
-                sb.Append($"@{AppConsts.AttrHash}, ");
-                sb.Append($"@{AppConsts.AttrFolder}, ");
-                sb.Append($"@{AppConsts.AttrNextHash}, ");
-                sb.Append($"@{AppConsts.AttrLastView}, ");
-                sb.Append($"@{AppConsts.AttrLastCheck}, ");
-                sb.Append($"@{AppConsts.AttrOrbs}");
-                sb.Append(")");
-                var sqltext = sb.ToString();
-                using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
+                using (var sqlCommand = _sqlConnection.CreateCommand())
                 {
+                    sqlCommand.Connection = _sqlConnection;
+                    var sb = new StringBuilder();
+                    sb.Append($"INSERT INTO {AppConsts.TableImages} (");
+                    sb.Append($"{AppConsts.AttrHash}, ");
+                    sb.Append($"{AppConsts.AttrId}, ");
+                    sb.Append($"{AppConsts.AttrLastView}, ");
+                    sb.Append($"{AppConsts.AttrNextHash}, ");
+                    sb.Append($"{AppConsts.AttrSim}, ");
+                    sb.Append($"{AppConsts.AttrLastId}, ");
+                    sb.Append($"{AppConsts.AttrLastChange}, ");
+                    sb.Append($"{AppConsts.AttrDescriptors}");
+                    sb.Append(") VALUES (");
+                    sb.Append($"@{AppConsts.AttrHash}, ");
+                    sb.Append($"@{AppConsts.AttrId}, ");
+                    sb.Append($"@{AppConsts.AttrLastView}, ");
+                    sb.Append($"@{AppConsts.AttrNextHash}, ");
+                    sb.Append($"@{AppConsts.AttrSim}, ");
+                    sb.Append($"@{AppConsts.AttrLastId}, ");
+                    sb.Append($"@{AppConsts.AttrLastChange}, ");
+                    sb.Append($"@{AppConsts.AttrDescriptors}");
+                    sb.Append(")");
+                    sqlCommand.CommandText = sb.ToString();
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrHash}", img.Hash);
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrFolder}", img.Folder);
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrNextHash}", img.NextHash);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrId}", img.Id);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastView}", img.LastView);
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastCheck}", img.LastCheck);
-                    var buffer = HelperConvertors.ConvertMatToBuffer(img.Orbs);
-                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrOrbs}", buffer);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrNextHash}", img.NextHash);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrSim}", img.Sim);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastId}", img.LastId);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastChange}", img.LastChange);
+                    var buffer = HelperDescriptors.From64(img.Descriptors);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrDescriptors}", buffer);
                     sqlCommand.ExecuteNonQuery();
                 }
             }

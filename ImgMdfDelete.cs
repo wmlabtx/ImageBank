@@ -8,27 +8,20 @@ namespace ImageBank
         {
             if (_imgList.TryRemove(hash, out var img))
             {
-                SqlDelete(img);
                 HelperRecycleBin.Delete(img.File);
             }
 
+            SqlDelete(hash);
             ResetRefers(hash);
-        }
-
-        private void ResetNextHash(Img img)
-        {
-            img.NextHash = img.Hash;
-            img.LastCheck = GetMinLastCheck();
         }
 
         private void ResetRefers(string hash)
         {
-            var scope = _imgList
+            _imgList
                 .Values
                 .Where(e => e.NextHash.Equals(hash))
-                .ToList();
-
-            scope.ForEach(e => ResetNextHash(e));
+                .ToList()
+                .ForEach(e => e.LastId = 0);
         }
     }
 }

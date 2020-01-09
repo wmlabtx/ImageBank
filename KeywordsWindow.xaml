@@ -1,0 +1,85 @@
+﻿<Window x:Class="ImageBank.KeywordsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ImageBank"
+        mc:Ignorable="d"
+        Title="KeywordsWindow"
+        SizeToContent="WidthAndHeight"
+        ResizeMode="NoResize">
+    <Grid Width="400">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TabControl HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="0">
+            <TabItem Header="Adult">
+                <Grid Background="#FFE5E5E5">
+                    <WrapPanel HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Stretch" >
+                        <ToggleButton Style="{StaticResource ToggleButtonRounded}" Content="@Aubrey Star (adult)" Background="LightGreen" IsChecked="true" />
+                        <ToggleButton Style="{StaticResource ToggleButtonRounded}" Content="@Veronica Rodriguez (adult)" Background="LightGreen" IsChecked="true" />
+                        <ToggleButton Style="{StaticResource ToggleButtonRounded}" Content="@Rui Matsushita (adult)" Background="LightGreen" IsChecked="true" />
+                    </WrapPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="TPI">
+                <Grid Background="#FFE5E5E5">
+                    <WrapPanel HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Stretch" >
+                        <ToggleButton Style="{StaticResource ToggleButtonRounded}" Content="@Pamela (tpi)" Background="LightGreen" IsChecked="true" />
+                    </WrapPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Vladmodels">
+                <Grid Background="#FFE5E5E5">
+                    <WrapPanel HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Stretch" >
+                        <ToggleButton Style="{StaticResource ToggleButtonRounded}" Content="@Pamela (tpi)" Background="LightGreen" IsChecked="true" />
+                    </WrapPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Classic">
+                <Grid Background="#FFE5E5E5">
+                    <WrapPanel HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Stretch" >
+                        <ToggleButton Style="{StaticResource ToggleButtonRounded}" Content="@Pamela (tpi)" Background="LightGreen" IsChecked="true" />
+                    </WrapPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Ls">
+                <Grid Background="#FFE5E5E5">
+                    <WrapPanel HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Stretch" >
+                        <ToggleButton Style="{StaticResource ToggleButtonRounded}" Content="@Pamela (tpi)" Background="LightGreen" IsChecked="true" />
+                    </WrapPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="BD">
+                <Grid Background="#FFE5E5E5">
+                    <WrapPanel HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Stretch" >
+                        <ToggleButton Style="{StaticResource ToggleButtonRounded}" Content="@Pamela (tpi)" Background="LightGreen" IsChecked="true" />
+                    </WrapPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Misc">
+                <Grid Background="#FFE5E5E5">
+                    <WrapPanel HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Stretch" >
+                        <ToggleButton Style="{StaticResource ToggleButtonRounded}" Content="Oral" Background="LightGoldenrodYellow" IsChecked="false" />
+                        <ToggleButton Style="{StaticResource ToggleButtonRounded}" Content="Anal" Background="LightGoldenrodYellow" IsChecked="false" />
+                        <ToggleButton Style="{StaticResource ToggleButtonRounded}" Content="Cum" Background="LightGoldenrodYellow" IsChecked="false" />
+                        <ToggleButton Style="{StaticResource ToggleButtonRounded}" Content="Fuck" Background="LightGoldenrodYellow" IsChecked="false" />
+                        <ToggleButton Style="{StaticResource ToggleButtonRounded}" Content="Dress" Background="LightGoldenrodYellow" IsChecked="true" />
+                        <ToggleButton Style="{StaticResource ToggleButtonRounded}" Content="Glasses" Background="LightGoldenrodYellow" IsChecked="true" />
+                        <ToggleButton Style="{StaticResource ToggleButtonRounded}" Content="Asian" Background="LightGoldenrodYellow" IsChecked="true" />
+                        <ToggleButton Style="{StaticResource ToggleButtonRounded}" Content="Black" Background="LightGoldenrodYellow" IsChecked="false" />
+                        <ToggleButton Style="{StaticResource ToggleButtonRounded}" Content="Indian" Background="LightGoldenrodYellow" IsChecked="false" />
+                        <ToggleButton Style="{StaticResource ToggleButtonRounded}" Content="Pussy" Background="LightGoldenrodYellow" IsChecked="false" />
+                        <ToggleButton Style="{StaticResource ToggleButtonRounded}" Content="Cameltoe" Background="LightGoldenrodYellow" IsChecked="false" />
+                    </WrapPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <StackPanel Orientation="Horizontal" Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="5">
+            <Button Content="Ok" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,5,0" Width="75"/>
+            <Button Content="Cancel" HorizontalAlignment="Center" VerticalAlignment="Center" Width="75" Click="ButtonCancelClick"/>
+        </StackPanel>
+    </Grid>
+</Window>
+

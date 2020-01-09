@@ -60,7 +60,7 @@ namespace ImageBank
             _backgroundWorker = new BackgroundWorker { WorkerSupportsCancellation = true, WorkerReportsProgress = true };
             _backgroundWorker.DoWork += DoComputeSim;
             _backgroundWorker.ProgressChanged += DoComputeSimProgress;
-            //_backgroundWorker.RunWorkerAsync();
+            _backgroundWorker.RunWorkerAsync();
         }
 
         private void WindowClosing()
@@ -87,7 +87,7 @@ namespace ImageBank
         private async void ImportClick()
         {
             DisableElements();
-            await Task.Run(() => { AppVars.Collection.Import(AppVars.Progress); });
+            await Task.Run(() => { AppVars.Collection.Import(AppVars.Progress); });            
             await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
             DrawCanvas();
             EnableElements();
@@ -210,17 +210,9 @@ namespace ImageBank
                 pBoxes[index].Source = HelperImages.ImageSourceFromBitmap(AppVars.ImgPanel[index].Bitmap);
 
                 var sb = new StringBuilder();
-                if (!string.IsNullOrEmpty(AppVars.ImgPanel[index].Folder))
-                {
-                    sb.Append($"{AppVars.ImgPanel[index].Folder}\\");
-                }
-                
+                sb.Append($"{AppVars.ImgPanel[index].Subdirectory}\\");
                 sb.Append($"{AppVars.ImgPanel[index].Hash}");
-                if (AppVars.ImgPanel[index].FolderSize > 1)
-                {
-                    sb.Append($" [{AppVars.ImgPanel[index].FolderSize}]");
-                }
-
+                sb.Append($" [{AppVars.ImgPanel[index].Sim:F4}]");
                 sb.AppendLine();
                 
                 sb.Append($"{HelperConvertors.SizeToString(AppVars.ImgPanel[index].Length)} ");
@@ -228,46 +220,12 @@ namespace ImageBank
                 sb.AppendLine();
 
                 sb.Append($"{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].LastView))} ago");
-                sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].LastCheck))} ago]");
+                sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].LastChange))} ago]");
 
                 pLabels[index].Text = sb.ToString();
-                pLabels[index].Background =
-                    string.IsNullOrEmpty(AppVars.ImgPanel[index].Folder) ?
-                    System.Windows.Media.Brushes.Bisque :
-                    System.Windows.Media.Brushes.White;
-            }
-
-            var f0 = AppVars.ImgPanel[0].Folder;
-            var f1 = AppVars.ImgPanel[1].Folder;
-            if (!string.IsNullOrEmpty(f0) && !string.IsNullOrEmpty(f1))
-            {
-                if (f1.IndexOf(f0) == 0)
-                {
-                    pLabels[1].Background = System.Windows.Media.Brushes.LightGreen;
-                    if (f0.Equals(f1))
-                    {
-                        pLabels[0].Background = System.Windows.Media.Brushes.LightGreen;
-                    }
-                    else
-                    {
-                        pLabels[0].Background = System.Windows.Media.Brushes.Yellow;
-                    }
-                }
-                else
-                {
-                    if (f0.IndexOf(f1) == 0)
-                    {
-                        pLabels[0].Background = System.Windows.Media.Brushes.LightGreen;
-                        if (f0.Equals(f1))
-                        {
-                            pLabels[1].Background = System.Windows.Media.Brushes.LightGreen;
-                        }
-                        else
-                        {
-                            pLabels[1].Background = System.Windows.Media.Brushes.Yellow;
-                        }
-                    }
-                }
+                pLabels[index].Background = AppVars.ImgPanel[index].LastView < AppVars.ImgPanel[index].LastChange ?
+                    System.Windows.Media.Brushes.White :
+                    System.Windows.Media.Brushes.Bisque;
             }
 
             if (AppVars.ImgPanel[0].Hash.Equals(AppVars.ImgPanel[1].Hash))
@@ -331,18 +289,12 @@ namespace ImageBank
             EnableElements();
         }
 
-        private async void GatherSiftDescriptorsClick()
+        private void DefineKeywordsClick()
         {
-            DisableElements();
-            await Task.Run(() => { AppVars.Collection.GatherSiftDescriptors(AppVars.Progress); });
-            DrawCanvas();
-            EnableElements();
-        }
+            var keywordsWindow = new KeywordsWindow();
+            keywordsWindow.ShowDialog();
 
-        private async void CalculateSiftClustersClick()
-        {
             DisableElements();
-            await Task.Run(() => { AppVars.Collection.CalculateSiftClusters(AppVars.Progress); });
             DrawCanvas();
             EnableElements();
         }

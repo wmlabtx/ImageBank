@@ -1,6 +1,5 @@
 ﻿using OpenCvSharp;
 using System;
-using System.Security.Cryptography;
 
 namespace ImageBank
 {
@@ -49,18 +48,6 @@ namespace ImageBank
         {
             mat.GetArray<byte>(out var buffer);
             return buffer;
-        }
-
-        public static Mat ConvertBufferToMat(byte[] buffer)
-        {
-            if (buffer.Length < 32)
-            {
-                return new Mat();
-            }
-
-            var mat = new Mat(buffer.Length / 32, 32, MatType.CV_8U);
-            mat.SetArray(buffer);
-            return mat;
         }
     }
 }

@@ -11,7 +11,6 @@ namespace ImageBank
         private readonly SqlConnection _sqlConnection;
 
         private readonly ConcurrentDictionary<string, Img> _imgList = new ConcurrentDictionary<string, Img>();
-        private readonly ConcurrentDictionary<string, Flann> _flannList = new ConcurrentDictionary<string, Flann>();
 
         public ImgMdf()
         {
@@ -26,15 +25,6 @@ namespace ImageBank
             {
                 img.LastView = DateTime.Now;
             }
-        }
-
-        private DateTime GetMinLastCheck()
-        {
-            var min = (_imgList.Count == 0 ?
-                DateTime.Now :
-                _imgList.Min(e => e.Value.LastCheck))
-                .AddSeconds(-1);
-            return min;
         }
 
         private DateTime GetMinLastView()
@@ -53,7 +43,31 @@ namespace ImageBank
                 return null;
             }
 
-            var nexthashes = _imgList.OrderBy(e => e.Value.LastView).Select(e => e.Key).ToArray();
+            var toview = _imgList.Values.Count(e => e.LastView < e.LastChange && e.LastId > 0);
+            var nexthashes = toview > 0 ?
+                _imgList
+                    .Values
+                    .Where(e => e.LastView < e.LastChange && e.LastId > 0)
+                    .OrderByDescending(e => e.Sim)
+                    .Select(e => e.Hash)
+                    .ToArray() :
+                _imgList
+                    .Values
+                    .Where(e => e.LastId > 0)
+                    .OrderBy(e => e.LastView)
+                    .Select(e => e.Hash)
+                    .ToArray();
+
+                /*
+            var nexthashes = 
+                _imgList
+                    .Values
+                    .Where(e => e.LastId > 0)
+                    .OrderBy(e => e.LastView)
+                    .Select(e => e.Hash)
+                    .ToArray();
+                    */
+
             foreach (var nexthash in nexthashes)
             {
                 if (_imgList.ContainsKey(nexthash))
@@ -72,8 +86,25 @@ namespace ImageBank
                 return null;
             }
 
-            var minlastcheck = _imgList.Min(e => e.Value.LastCheck);
-            var hash = _imgList.FirstOrDefault(e => e.Value.LastCheck.Equals(minlastcheck)).Key;
+            var maxid = _imgList.Count == 0 ? 0 : _imgList.Max(e => e.Value.Id);
+            var zeroid = _imgList.Count(e => e.Value.LastId == 0);
+            var scopetocheck = zeroid > 0 ?
+                _imgList
+                    .Values
+                    .Where(e => e.LastId == 0)
+                    .ToArray():
+                _imgList
+                    .Values
+                    .Where(e => e.LastId <= maxid)
+                    .ToArray();
+
+            if (scopetocheck.Length == 0)
+            {
+                return null;
+            }
+
+            var index = HelperRandom.Next(scopetocheck.Length);
+            var hash = scopetocheck[index].Hash;
             return hash;
         }
 
