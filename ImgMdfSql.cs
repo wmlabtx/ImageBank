@@ -44,6 +44,9 @@ namespace ImageBank
                     sb.Append($"INSERT INTO {AppConsts.TableImages} (");
                     sb.Append($"{AppConsts.AttrHash}, ");
                     sb.Append($"{AppConsts.AttrId}, ");
+                    sb.Append($"{AppConsts.AttrRatio}, ");
+                    sb.Append($"{AppConsts.AttrGeneration}, ");
+                    sb.Append($"{AppConsts.AttrStars}, ");
                     sb.Append($"{AppConsts.AttrLastView}, ");
                     sb.Append($"{AppConsts.AttrNextHash}, ");
                     sb.Append($"{AppConsts.AttrSim}, ");
@@ -53,6 +56,9 @@ namespace ImageBank
                     sb.Append(") VALUES (");
                     sb.Append($"@{AppConsts.AttrHash}, ");
                     sb.Append($"@{AppConsts.AttrId}, ");
+                    sb.Append($"@{AppConsts.AttrRatio}, ");
+                    sb.Append($"@{AppConsts.AttrGeneration}, ");
+                    sb.Append($"@{AppConsts.AttrStars}, ");
                     sb.Append($"@{AppConsts.AttrLastView}, ");
                     sb.Append($"@{AppConsts.AttrNextHash}, ");
                     sb.Append($"@{AppConsts.AttrSim}, ");
@@ -63,6 +69,9 @@ namespace ImageBank
                     sqlCommand.CommandText = sb.ToString();
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrHash}", img.Hash);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrId}", img.Id);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrRatio}", img.Ratio);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrGeneration}", img.Generation);
+                    sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrStars}", img.Stars);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastView}", img.LastView);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrNextHash}", img.NextHash);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrSim}", img.Sim);

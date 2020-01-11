@@ -27,6 +27,14 @@ namespace ImageBank
                 return;
             }
 
+            if (imgX.Ratio < 0.0001)
+            {
+                if (HelperImages.GetBitmapFromFile(imgX.File, out var _, out var bitmap, out var _))
+                {
+                    imgX.Ratio = (float)bitmap.Width / bitmap.Height;
+                }
+            }
+
             FindNextHash(hashX, out var lastid, out var lastchange, out var nexthash, out var sim);
             if (lastid != imgX.LastId)
             {
@@ -69,6 +77,14 @@ namespace ImageBank
                 return;
             }
 
+            if (imgX.Ratio < 0.0001)
+            {
+                if (HelperImages.GetBitmapFromFile(imgX.File, out var _, out var bitmap, out var _))
+                {
+                    imgX.Ratio = (float)bitmap.Width / bitmap.Height;
+                }
+            }
+
             FindNextHash(hashX, out var lastid, out var lastchange, out var nexthash, out var sim);
 
             if (lastchange != imgX.LastChange)
@@ -77,6 +93,7 @@ namespace ImageBank
             }
 
             var toview = _imgList.Values.Count(e => e.LastView < e.LastChange);
+            //var zeroratio = _imgList.Values.Count(e => e.Ratio < 0.0001);
 
             var sb = new StringBuilder();
             if (toview > 0)
@@ -87,7 +104,7 @@ namespace ImageBank
             sb.Append($"{count}");
 
             var maxid = _imgList.Max(e => e.Value.Id) + 1;
-            var avgid = _imgList.Values.Sum(e => e.LastId) * 100f / (maxid * _imgList.Count);
+            var avgid = (_imgList.Values.Sum(e => (float)e.LastId) * 100f) / ((float)maxid * _imgList.Count);
             sb.Append($" ({avgid:F2}%)");
             
             sb.Append($": ");

@@ -48,7 +48,7 @@ namespace ImageBank
                 _imgList
                     .Values
                     .Where(e => e.LastView < e.LastChange && e.LastId > 0)
-                    .OrderByDescending(e => e.Sim)
+                    .OrderByDescending(e => e.LastId)
                     .Select(e => e.Hash)
                     .ToArray() :
                 _imgList
@@ -86,17 +86,30 @@ namespace ImageBank
                 return null;
             }
 
-            var maxid = _imgList.Count == 0 ? 0 : _imgList.Max(e => e.Value.Id);
-            var zeroid = _imgList.Count(e => e.Value.LastId == 0);
-            var scopetocheck = zeroid > 0 ?
-                _imgList
-                    .Values
-                    .Where(e => e.LastId == 0)
-                    .ToArray():
-                _imgList
-                    .Values
-                    .Where(e => e.LastId <= maxid)
-                    .ToArray();
+            Img[] scopetocheck;
+            var zeroratio = _imgList.Count(e => e.Value.Ratio < 0.0001);
+            if (zeroratio > 0)
+            {
+                scopetocheck =
+                    _imgList
+                        .Values
+                        .Where(e => e.Ratio < 0.0001)
+                        .ToArray();
+            }
+            else
+            {
+                var maxid = _imgList.Count == 0 ? 0 : _imgList.Max(e => e.Value.Id);
+                var zeroid = _imgList.Count(e => e.Value.LastId == 0);
+                scopetocheck = zeroid > 0 ?
+                    _imgList
+                        .Values
+                        .Where(e => e.LastId == 0)
+                        .ToArray() :
+                    _imgList
+                        .Values
+                        .Where(e => e.LastId <= maxid)
+                        .ToArray();
+            }
 
             if (scopetocheck.Length == 0)
             {

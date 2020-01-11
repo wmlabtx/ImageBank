@@ -22,6 +22,9 @@
         public const string TableImages = "Images";
         public const string AttrHash = "Hash";
         public const string AttrId = "Id";
+        public const string AttrRatio = "Ratio";
+        public const string AttrGeneration = "Generation";
+        public const string AttrStars = "Stars";
         public const string AttrLastView = "LastView";
         public const string AttrNextHash = "NextHash";
         public const string AttrSim = "Sim";

@@ -6,6 +6,48 @@ namespace ImageBank
     {
         public string Hash { get; }
         public int Id { get; }
+        
+        private float _ratio;
+        public float Ratio
+        {
+            get
+            {
+                return _ratio;
+            }
+            set
+            {
+                _ratio = value;
+                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrRatio, value);
+            }
+        }
+
+        private int _generation;
+        public int Generation
+        {
+            get
+            {
+                return _generation;
+            }
+            set
+            {
+                _generation = value;
+                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrGeneration, value);
+            }
+        }
+
+        private int _stars;
+        public int Stars
+        {
+            get
+            {
+                return _stars;
+            }
+            set
+            {
+                _stars = value;
+                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrStars, value);
+            }
+        }
 
         private string _nexthash;
         public string NextHash
@@ -125,6 +167,9 @@ namespace ImageBank
         public Img(
             string hash,
             int id,
+            float ratio,
+            int generation,
+            int stars,
             DateTime lastview,
             string nexthash,
             float sim,
@@ -134,6 +179,9 @@ namespace ImageBank
         {
             Hash = hash;
             Id = id;
+            _ratio = ratio;
+            _generation = generation;
+            _stars = stars;
             _lastview = lastview;
             _nexthash = nexthash;
             _sim = sim;
