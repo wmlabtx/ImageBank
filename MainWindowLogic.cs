@@ -23,6 +23,7 @@ namespace ImageBank
             BoxRight.MouseDown += PictureRightBoxMouseClick;
 
             LabelLeft.MouseDown += ButtonLeftNextMouseClick;
+            LabelRight.MouseDown += ButtonRightNextMouseClick;
 
             Left = SystemParameters.WorkArea.Left + AppConsts.WindowMargin;
             Top = SystemParameters.WorkArea.Top + AppConsts.WindowMargin;
@@ -49,7 +50,7 @@ namespace ImageBank
             AppVars.Progress = new Progress<string>(message => Status.Text = message);
 
             DisableElements();
-            await Task.Run(() => { AppVars.Collection.Load(AppVars.Progress); });            
+            await Task.Run(() => { AppVars.Collection.Load(AppVars.Progress); });
             await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
             DrawCanvas();
             
@@ -134,7 +135,7 @@ namespace ImageBank
 
         private async void ButtonLeftNextMouseClick()
         {
-            AppVars.Collection.UpdateView(AppVars.ImgPanel[0].Hash);
+            AppVars.Collection.UpdateGeneration(AppVars.ImgPanel[0].Hash);
 
             DisableElements();
             await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
@@ -144,7 +145,7 @@ namespace ImageBank
 
         private async void ButtonRightNextMouseClick()
         {
-            AppVars.Collection.UpdateView(AppVars.ImgPanel[0].Hash);
+            AppVars.Collection.UpdateGeneration(AppVars.ImgPanel[0].Hash);
 
             DisableElements();
             await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
@@ -212,7 +213,8 @@ namespace ImageBank
                 var sb = new StringBuilder();
                 sb.Append($"{AppVars.ImgPanel[index].Subdirectory}\\");
                 sb.Append($"{AppVars.ImgPanel[index].Hash}");
-                sb.Append($" [{AppVars.ImgPanel[index].Sim:F4}]");
+                sb.Append($" [{AppVars.ImgPanel[index].Sim:F1}]");
+                sb.Append($" G:{AppVars.ImgPanel[index].Generation}");
                 sb.AppendLine();
                 
                 sb.Append($"{HelperConvertors.SizeToString(AppVars.ImgPanel[index].Length)} ");
@@ -223,9 +225,18 @@ namespace ImageBank
                 sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].LastChange))} ago]");
 
                 pLabels[index].Text = sb.ToString();
-                pLabels[index].Background = AppVars.ImgPanel[index].LastView < AppVars.ImgPanel[index].LastChange ?
-                    System.Windows.Media.Brushes.White :
-                    System.Windows.Media.Brushes.Bisque;
+                var scb = System.Windows.Media.Brushes.Bisque;
+                if (AppVars.ImgPanel[index].LastView < AppVars.ImgPanel[index].LastChange)
+                {
+                    scb = System.Windows.Media.Brushes.White;
+                }
+
+                if (AppVars.ImgPanel[index].Generation == 0)
+                {
+                    scb = System.Windows.Media.Brushes.Gold;
+                }
+
+                pLabels[index].Background = scb;
             }
 
             if (AppVars.ImgPanel[0].Hash.Equals(AppVars.ImgPanel[1].Hash))

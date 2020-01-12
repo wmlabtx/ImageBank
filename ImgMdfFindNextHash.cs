@@ -38,6 +38,12 @@ namespace ImageBank
                 return;
             }
 
+            var virgin = false;
+            if (lastid == 0)
+            {
+                virgin = true;
+            }
+
             var sw = new Stopwatch();
             sw.Start();
             foreach (var imgY in candidates)
@@ -48,9 +54,10 @@ namespace ImageBank
                     continue;
                 }
                 
-                var simxy = HelperDescriptors.GetSim(imgX.Descriptors, imgY.Descriptors);
-                if (simxy > sim)
+                var simxy = HelperDescriptors.GetDistance(imgX.Descriptors, imgY.Descriptors);
+                if (simxy < sim || virgin)
                 {
+                    virgin = false;
                     sim = simxy;
                     nexthash = imgY.Hash;
                     lastchange = DateTime.Now;

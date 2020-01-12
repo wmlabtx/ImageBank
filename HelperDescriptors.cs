@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using OpenCvSharp;
+using OpenCvSharp.ImgHash;
+using OpenCvSharp.XFeatures2D;
 
 namespace ImageBank
 {
     public class HelperDescriptors
     {
-        public static bool ComputeDescriptors(byte[] jpgdata, out ulong[] descriptors)
+        public static bool ComputeDescriptors(byte[] jpgdata, out int[] descriptors)
         {
             descriptors = null;
             if (jpgdata == null || jpgdata.Length == 0)
@@ -24,15 +26,28 @@ namespace ImageBank
                         return false;
                     }
 
-                    const double fsample = 1024.0 * 768.0;
+                    const double fsample = 256.0 * 256.0;
                     var fx = Math.Sqrt(fsample / (matsource.Width * matsource.Height));
                     using (var mat = matsource.Resize(Size.Zero, fx, fx, InterpolationFlags.Cubic))
                     {
-                        using (var orb = ORB.Create(AppConsts.MaxDescriptorsInImage))
+                        using (var sift = SIFT.Create(AppConsts.MaxDescriptorsInImage))
                         {
-                            var keypoints = orb.Detect(mat);
+                            var keypoints = sift.Detect(mat);
+                            if (keypoints.Length == 0)
+                            {
+                                return false;
+                            }
+
+                            if (keypoints.Length > AppConsts.MaxDescriptorsInImage)
+                            {
+                                keypoints = keypoints
+                                    .ToList()
+                                    .Take(AppConsts.MaxDescriptorsInImage)
+                                    .ToArray();
+                            }
+
                             var matdescriptors = new Mat();
-                            orb.Compute(mat, ref keypoints, matdescriptors);
+                            sift.Compute(mat, ref keypoints, matdescriptors);
                             if (matdescriptors.Rows == 0)
                             {
                                 return false;
@@ -43,8 +58,8 @@ namespace ImageBank
                                 matdescriptors = matdescriptors.RowRange(0, AppConsts.MaxDescriptorsInImage);
                             }
 
-                            matdescriptors.GetArray(out byte[] array);
-                            descriptors = To64(array);
+                            matdescriptors.GetArray(out float[] fdescriptors);
+                            descriptors = Array.ConvertAll(fdescriptors, e => (int)e);
                         }
                     }
                 }
@@ -58,32 +73,15 @@ namespace ImageBank
             return true;
         }
 
-        public static ulong[] To64(byte[] buffer)
+        public static float GetDistance(IReadOnlyList<int> x, int xoffset, IReadOnlyList<int> y, int yoffset)
         {
-            var ulongs = new ulong[buffer.Length / 8];
-            Buffer.BlockCopy(buffer, 0, ulongs, 0, buffer.Length);
-            return ulongs;
-        }
-
-        public static byte[] From64(ulong[] array)
-        {
-            var buffer = new byte[array.Length * 8];
-            Buffer.BlockCopy(array, 0, buffer, 0, buffer.Length);
-            return buffer;
-        }
-
-        public static int GetHammingDistance(IReadOnlyList<ulong> x, int xoffset, IReadOnlyList<ulong> y, int yoffset)
-        {
-            var distance = 0;
-            for (var i = 0; i < 4; i++)
+            var sum = 0;
+            for (var i = 0; i < 128; i++)
             {
-                distance += Intrinsic.PopCnt(x[xoffset + i] ^ y[yoffset + i]);
-                if (distance >= 64)
-                {
-                    break;
-                }
+                sum += (x[xoffset + i] - y[yoffset + i]) * (x[xoffset + i] - y[yoffset + i]);
             }
 
+            var distance = (float)Math.Sqrt(sum);
             return distance;
         }
 
@@ -91,11 +89,12 @@ namespace ImageBank
         {
             public int X;
             public int Y;
-            public int D;
+            public float D;
         }
 
-        public static float GetSim(ulong[] x, ulong[] y)
+        public static float GetDistance(int[] x, int[] y)
         {
+            float distance;
             var list = new List<DistanceTwo>();
             var xoffset = 0;
             while (xoffset < x.Length)
@@ -103,30 +102,29 @@ namespace ImageBank
                 var yoffset = 0;
                 while (yoffset < y.Length)
                 {
-                    var distance = GetHammingDistance(x, xoffset, y, yoffset);
-                    if (distance < 64)
-                    {
-                        list.Add(new DistanceTwo() { X = xoffset, Y = yoffset, D = distance });
-                    }
-
-                    yoffset += 32;
+                    distance = GetDistance(x, xoffset, y, yoffset);
+                    list.Add(new DistanceTwo() { X = xoffset, Y = yoffset, D = distance });
+                    yoffset += 128;
                 }
 
-                xoffset += 32;
+                xoffset += 128;
             }
 
             list = list.OrderBy(e => e.D).ToList();
-            var sum = 0;
+            var sum = 0f;
+            var cnt = 0;
             while (list.Count > 0)
             {
                 var mind = list[0].D;
                 var minx = list[0].X;
                 var miny = list[0].Y;
-                sum += 64 - mind;
+                sum += mind;
+                cnt++;
                 list.RemoveAll(e => e.X == minx || e.Y == miny);
             }
 
-            return sum * 4f / x.Length;
+            distance = sum / cnt;
+            return distance;
         }
     }
 }

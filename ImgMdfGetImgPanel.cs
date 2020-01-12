@@ -24,6 +24,7 @@ namespace ImageBank
                 hash:hash, 
                 subdirectory: img.Subdirectory,
                 lastview: img.LastView,
+                generation: img.Generation,
                 sim: img.Sim,
                 lastchange: img.LastChange,
                 bitmap:bitmap, 

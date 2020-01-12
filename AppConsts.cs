@@ -6,7 +6,7 @@
         public const string PathCollection = PathRoot + @"Hp\";
         public const string FileDatabase = PathRoot + @"Db\images.mdf";
 
-        public const int MaxDescriptorsInImage = 250;
+        public const int MaxDescriptorsInImage = 62; // 8000/128=62
         public const int MaxImportImages = 10;
 
         public const string DatExtension = ".dat";
@@ -22,9 +22,7 @@
         public const string TableImages = "Images";
         public const string AttrHash = "Hash";
         public const string AttrId = "Id";
-        public const string AttrRatio = "Ratio";
         public const string AttrGeneration = "Generation";
-        public const string AttrStars = "Stars";
         public const string AttrLastView = "LastView";
         public const string AttrNextHash = "NextHash";
         public const string AttrSim = "Sim";

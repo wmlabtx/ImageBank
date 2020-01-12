@@ -49,14 +49,11 @@ namespace ImageBank
 
                 var hash = HelperHash.CalculateHash(jpgdata);
                 var id = _imgList.Count == 0 ? 1 : _imgList.Max(e => e.Value.Id) + 1;
-                var ratio = (float)bitmap.Width / bitmap.Height;
                 var lastview = GetMinLastView();
                 var img = new Img(
                     hash: hash,
                     id : id,
-                    ratio: ratio,
                     generation: 0,
-                    stars: 0,
                     lastview: lastview,
                     nexthash: hash,
                     sim: 0f,

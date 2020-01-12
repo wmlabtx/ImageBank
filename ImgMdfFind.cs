@@ -6,52 +6,40 @@ namespace ImageBank
     {
         public void Find(string hashX, IProgress<string> progress)
         {
+            string hashY;
             progress.Report("Moving forward...");
-            while (true)
+            if (!GetPairToCompare(ref hashX, out hashY))
             {
-                if (string.IsNullOrEmpty(hashX))
-                {
-                    hashX = GetNextToView();
-                    if (string.IsNullOrEmpty(hashX))
-                    {
-                        FastFind();
-                        hashX = GetNextToView();
-                        if (string.IsNullOrEmpty(hashX))
-                        {
-
-                            progress.Report("No available images to view");
-                            return;
-                        }
-                    }
-                }
-
-                AppVars.ImgPanel[0] = GetImgPanel(hashX);
-                if (AppVars.ImgPanel[0] == null)
-                {
-                    Delete(hashX);
-                    progress.Report($"{hashX} corrupted");
-                    hashX = null;
-                    continue;
-                }
-
-                var hashY = GetNextHash(hashX);
-                if (string.IsNullOrEmpty(hashY))
-                {
-                    hashX = null;
-                    continue;
-                }
-
-                AppVars.ImgPanel[1] = GetImgPanel(hashY);
-                if (AppVars.ImgPanel[1] == null)
-                {
-                    Delete(hashY);
-                    progress.Report($"{hashY} corrupted");
-                    hashX = null;
-                    continue;
-                }
-
-                progress.Report(string.Empty);
+                progress.Report("No images to view");
                 return;
+            }
+
+            progress.Report($"{_imgList.Count}");
+
+            AppVars.ImgPanel[0] = GetImgPanel(hashX);
+            if (AppVars.ImgPanel[0] == null)
+            {
+                Delete(hashX);
+                progress.Report($"{hashX} corrupted");
+                return;
+            }
+
+            AppVars.ImgPanel[1] = GetImgPanel(hashY);
+            if (AppVars.ImgPanel[1] == null)
+            {
+                Delete(hashY);
+                progress.Report($"{hashY} corrupted");
+                return;
+            }
+
+            if (_imgList.TryGetValue(hashX, out var imgX))
+            {
+                imgX.LastView = DateTime.Now;
+            }
+
+            if (_imgList.TryGetValue(hashY, out var imgY))
+            {
+                imgY.LastView = DateTime.Now;
             }
         }
     }

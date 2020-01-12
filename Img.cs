@@ -6,20 +6,6 @@ namespace ImageBank
     {
         public string Hash { get; }
         public int Id { get; }
-        
-        private float _ratio;
-        public float Ratio
-        {
-            get
-            {
-                return _ratio;
-            }
-            set
-            {
-                _ratio = value;
-                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrRatio, value);
-            }
-        }
 
         private int _generation;
         public int Generation
@@ -32,20 +18,6 @@ namespace ImageBank
             {
                 _generation = value;
                 AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrGeneration, value);
-            }
-        }
-
-        private int _stars;
-        public int Stars
-        {
-            get
-            {
-                return _stars;
-            }
-            set
-            {
-                _stars = value;
-                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrStars, value);
             }
         }
 
@@ -119,9 +91,9 @@ namespace ImageBank
             }
         }
 
-        private ulong[] _descriptors;
+        private int[] _descriptors;
 
-        public ulong[] Descriptors
+        public int[] Descriptors
         {
             get
             {
@@ -130,11 +102,10 @@ namespace ImageBank
             set
             {
                 _descriptors = value;
-                var buffer = HelperDescriptors.From64(value);
-                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrDescriptors, value);
+                var buffer = Array.ConvertAll(value, e => (byte)e);
+                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrDescriptors, buffer);
             }
         }
-
 
         public string Subdirectory
         {
@@ -167,21 +138,17 @@ namespace ImageBank
         public Img(
             string hash,
             int id,
-            float ratio,
             int generation,
-            int stars,
             DateTime lastview,
             string nexthash,
             float sim,
             int lastid,
             DateTime lastchange,
-            ulong[] descriptors)
+            int[] descriptors)
         {
             Hash = hash;
             Id = id;
-            _ratio = ratio;
             _generation = generation;
-            _stars = stars;
             _lastview = lastview;
             _nexthash = nexthash;
             _sim = sim;
