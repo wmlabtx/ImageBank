@@ -54,7 +54,7 @@ namespace ImageBank
                     continue;
                 }
                 
-                var simxy = HelperDescriptors.GetDistance(imgX.Descriptors, imgY.Descriptors);
+                var simxy = HelperDescriptors.GetDistance(imgX.Descriptors, 0, imgY.Descriptors, 0);
                 if (simxy < sim || virgin)
                 {
                     virgin = false;

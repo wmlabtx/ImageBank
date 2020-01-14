@@ -42,7 +42,8 @@ namespace ImageBank
                             var lastid = reader.GetInt32(6);
                             var lastchange = reader.GetDateTime(7);
                             var buffer = (byte[])reader[8];
-                            var descriptors = Array.ConvertAll(buffer, e => (int)e);
+                            var descriptors = new float[buffer.Length / sizeof(float)];
+                            Buffer.BlockCopy(buffer, 0, descriptors, 0,  buffer.Length);
                             var img = new Img(
                                 hash: hash,
                                 id: id,

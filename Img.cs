@@ -91,9 +91,9 @@ namespace ImageBank
             }
         }
 
-        private int[] _descriptors;
+        private float[] _descriptors;
 
-        public int[] Descriptors
+        public float[] Descriptors
         {
             get
             {
@@ -102,7 +102,8 @@ namespace ImageBank
             set
             {
                 _descriptors = value;
-                var buffer = Array.ConvertAll(value, e => (byte)e);
+                var buffer = new byte[value.Length * sizeof(float)];
+                Buffer.BlockCopy(value, 0, buffer, 0, buffer.Length);
                 AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrDescriptors, buffer);
             }
         }
@@ -144,7 +145,7 @@ namespace ImageBank
             float sim,
             int lastid,
             DateTime lastchange,
-            int[] descriptors)
+            float[] descriptors)
         {
             Hash = hash;
             Id = id;

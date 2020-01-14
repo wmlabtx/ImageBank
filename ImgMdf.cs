@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 
@@ -19,39 +18,6 @@ namespace ImageBank
             _sqlConnection = new SqlConnection(connectionString);
             _sqlConnection.Open();
         }
-
-        /*
-        private bool GetChoose(out string hashX, out string hashY)
-        {
-            hashX = null;
-            hashY = null;            
-            var scopeY = scopeX
-                .Where(e => e.Id != imgX.Id)
-                .ToArray();
-
-            if (scopeY.Length == 0)
-            {
-                return false;
-            }
-
-            var mingeneration = scopeY.Min(e => e.Generation);
-            scopeY = scopeY.Where(e => e.Generation == mingeneration).ToArray();
-            Img imgY = null;
-            var phashdistance = 65;
-            foreach (var img in scopeY)
-            {
-                var distance = Intrinsic.PopCnt(imgX.PHash ^ img.PHash);
-                if (distance < phashdistance)
-                {
-                    phashdistance = distance;
-                    imgY = img;
-                }
-            }
-
-            hashY = imgY.Hash;
-            return true;
-        }
-        */
 
         private bool GetPairToCompare(ref string hashX, out string hashY)
         {
@@ -161,8 +127,11 @@ namespace ImageBank
                 return null;
             }
 
-            var index = HelperRandom.Next(scopetocheck.Length);
-            var hash = scopetocheck[index].Hash;
+            var minlastid = scopetocheck.Min(e => e.LastId);
+            var hash = scopetocheck
+                .FirstOrDefault(e => e.LastId == minlastid)
+                .Hash;
+
             return hash;
         }
     }

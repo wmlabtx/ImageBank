@@ -72,7 +72,8 @@ namespace ImageBank
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrSim}", img.Sim);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastId}", img.LastId);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastChange}", img.LastChange);
-                    var buffer = Array.ConvertAll(img.Descriptors, e => (byte)e);
+                    var buffer = new byte[img.Descriptors.Length * sizeof(float)];
+                    Buffer.BlockCopy(img.Descriptors, 0, buffer, 0, buffer.Length);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrDescriptors}", buffer);
                     sqlCommand.ExecuteNonQuery();
                 }

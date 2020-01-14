@@ -8,45 +8,6 @@ namespace ImageBank
 {
     public partial class ImgMdf
     {
-        /*
-        public void FastFind()
-        {
-            var count = _imgList.Count;
-            if (count == 0)
-            {
-                return;
-            }
-
-            var hashX = GetNextToCheck();
-            if (string.IsNullOrEmpty(hashX))
-            {
-                return;
-            }
-
-            if (!_imgList.TryGetValue(hashX, out var imgX))
-            {
-                return;
-            }
-
-            FindNextHash(hashX, out var lastid, out var lastchange, out var nexthash, out var sim);
-            if (lastid != imgX.LastId)
-            {
-                imgX.LastId = lastid;
-            }
-
-            if (lastchange != imgX.LastChange)
-            {
-                imgX.LastChange = lastchange;
-            }
-
-            if (!nexthash.Equals(imgX.NextHash) || Math.Abs(imgX.Sim - sim) > 0.0001)
-            {
-                imgX.NextHash = nexthash;
-                imgX.Sim = sim;
-            }
-        }
-        */
-
         public void ComputeSim(BackgroundWorker backgroundworker)
         {
             AppVars.SuspendEvent.WaitOne(Timeout.Infinite);
@@ -113,10 +74,10 @@ namespace ImageBank
 
             var message = sb.ToString();
             backgroundworker.ReportProgress(0, message);
-
-            if (avgid > 50f)
+            
+            if (avgid > 90f)
             {
-                Import(10, null);
+                Import(10000, AppVars.Progress);
             }
         }
     }
