@@ -1,87 +1,86 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using OpenCvSharp;
 using OpenCvSharp.XFeatures2D;
 
 namespace ImageBank
 {
-    public class HelperDescriptors
+    public static class HelperDescriptors
     {
-        public static bool ComputeDescriptors(byte[] jpgdata, out float[] descriptors)
+        public static bool ComputeHashes(byte[] jpgdata, out uint[] hashes)
         {
-            descriptors = null;
-            if (jpgdata == null || jpgdata.Length == 0)
-            {
-                return false; 
-            }
-
-            try
-            {
-                using (var matsource = Mat.FromImageData(jpgdata, ImreadModes.Grayscale))
-                {
-                    if (matsource.Width == 0 || matsource.Height == 0)
-                    {
+            hashes = null;
+            try {
+                using (var mat = Mat.FromImageData(jpgdata, ImreadModes.Grayscale)) {
+                    if (mat.Width == 0 || mat.Height == 0) {
                         return false;
                     }
 
-                    const double fsample = 512.0 * 512.0;
-                    var fx = Math.Sqrt(fsample / (matsource.Width * matsource.Height));
-                    using (var mat = matsource.Resize(Size.Zero, fx, fx, InterpolationFlags.Cubic))
-                    {
-                        using (var sift = SIFT.Create())
-                        {
-                            var keypoints = sift.Detect(mat);
-                            if (keypoints.Length == 0)
-                            {
+                    using (var sift = SIFT.Create(2000)) {
+                        var keypoints = sift.Detect(mat);
+                        if (keypoints.Length == 0) {
+                            return false;
+                        }
+
+                        using (var matdescriptors = new Mat()) {
+                            sift.Compute(mat, ref keypoints, matdescriptors);
+                            if (matdescriptors.Rows == 0) {
                                 return false;
                             }
 
-                            using (var matdescriptors = new Mat())
-                            {
-                                sift.Compute(mat, ref keypoints, matdescriptors);
-                                if (matdescriptors.Rows == 0)
-                                {
-                                    return false;
-                                }
-
-                                using (var bestlabels = new Mat())
-                                using (var clusters = new Mat())
-                                {
-                                    Cv2.Kmeans(
-                                        matdescriptors,
-                                        1,
-                                        bestlabels,
-                                        new TermCriteria(CriteriaType.Eps, 100, 0.1),
-                                        100,
-                                        KMeansFlags.PpCenters,
-                                        clusters);
-
-                                    clusters.GetArray(out descriptors);
+                            matdescriptors.GetArray(out float[] data);
+                            var length = Math.Min(data.Length, 2000 * 128);
+                            hashes = new uint[length / 128];
+                            var descriptor = new byte[128];
+                            var offsrc = 0;
+                            var offdst = 0;
+                            var offhsh = 0;
+                            while (offsrc < length) {
+                                descriptor[offdst] = (byte)((int)data[offsrc] >> 6);
+                                offsrc++;
+                                offdst++;
+                                if (offdst == 128) {
+                                    offdst = 0;
+                                    hashes[offhsh] = Crc32C.Crc32CAlgorithm.Compute(descriptor);
+                                    offhsh++;
                                 }
                             }
+
+                            Array.Sort(hashes);
                         }
                     }
                 }
             }
-            catch (Exception)
-            {
-                descriptors = null;
+            catch (Exception) {
+                hashes = null;
                 return false;
             }
 
             return true;
         }
 
-        public static float GetDistance(IReadOnlyList<float> x, int xoffset, IReadOnlyList<float> y, int yoffset)
-        {
-            var sum = 0f;
-            for (var i = 0; i < 128; i++)
-            {
-                sum += (x[xoffset + i] - y[yoffset + i]) * (x[xoffset + i] - y[yoffset + i]);
+        public static float ComputeSimilarity(uint[] x, uint[] y) {
+            var match = 0;
+            var i = 0;
+            var j = 0;
+            while (i < x.Length && j < y.Length) {
+                if (x[i] == y[j]) {
+                    match++;
+                    i++;
+                    j++;
+                }
+                else {
+                    if (x[i] < y[j]) {
+                        i++;
+                    }
+                    else {
+                        j++;
+                    }
+                }
             }
 
-            var distance = (float)Math.Sqrt(sum);
-            return distance;
+            return (match * 100f) / x.Length;
         }
     }
 }

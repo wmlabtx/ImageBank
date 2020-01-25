@@ -12,6 +12,8 @@ namespace ImageBank
 
         private readonly ConcurrentDictionary<string, Img> _imgList = new ConcurrentDictionary<string, Img>();
 
+        private int _id;
+
         public ImgMdf()
         {
             var connectionString = $"Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename={AppConsts.FileDatabase};Connection Timeout=30";
@@ -22,74 +24,55 @@ namespace ImageBank
         private bool GetPairToCompare(ref string hashX, out string hashY)
         {
             hashY = null;
-            if (string.IsNullOrEmpty(hashX))
+            while (true)
             {
-                var scopeX = _imgList
-                    .Values
-                    .Where(e => e.LastId > 0)
-                    .ToArray();
-
-                if (scopeX.Length == 0)
+                if (string.IsNullOrEmpty(hashX))
                 {
-                    return false;
-                }
+                    var scopetoview = _imgList
+                        .Values
+                        .Where(e => e.LastId > 0)
+                        .OrderBy(e => e.LastView)
+                        .ToArray();
 
-                var mingeneration = scopeX.Min(e => e.Generation);
-                scopeX = scopeX
-                    .Where(e => e.Generation == mingeneration)
-                    .ToArray();
-
-                var scopeFresh = scopeX
-                    .Where(e => e.LastView < e.LastChange)
-                    .ToArray();
-
-                if (scopeFresh.Length > 0)
-                {
-                    scopeX = scopeFresh;
-                }
-
-                double deltaX = 0;
-                foreach (var imgA in scopeX)
-                {
-                    if (imgA.Hash.Equals(imgA.NextHash) || !_imgList.ContainsKey(imgA.NextHash))
-                    {
-                        continue;
-                    }
-
-                    if (!_imgList.TryGetValue(imgA.NextHash, out var imgB))
+                    if (scopetoview.Length == 0)
                     {
                         return false;
                     }
 
-                    var delta = 
-                        Math.Pow(DateTime.Now.Subtract(imgA.LastView).TotalMinutes, 2) + 
-                        Math.Pow(DateTime.Now.Subtract(imgB.LastView).TotalMinutes, 2);
+                    var mingeneration = scopetoview.Min(e => e.Generation);
+                    scopetoview = scopetoview
+                        .Where(e => e.Generation == mingeneration)
+                        .ToArray();
 
-                    if (delta > deltaX)
+                    var scopefresh = scopetoview
+                        .Where(e => e.LastView < e.LastChange)
+                        .ToArray();
+
+                    if (scopefresh.Length > 0)
                     {
-                        deltaX = delta;
-                        hashX = imgA.Hash;
+                        scopetoview = scopefresh;
                     }
-                }
 
-                if (deltaX < 0.01)
+                    hashX = scopetoview[0].Hash;
+                }
+                
+                if (!_imgList.TryGetValue(hashX, out var imgX))
                 {
-                    return false;
+                    Delete(hashX);
+                    hashX = null;
+                    continue;
                 }
-            }
 
-            if (!_imgList.TryGetValue(hashX, out var imgX))
-            {
-                return false;
-            }
+                hashY = imgX.NextHash;
+                if (!_imgList.ContainsKey(hashY))
+                {
+                    imgX.LastId = 0;
+                    hashX = null;
+                    continue;
+                }
 
-            hashY = imgX.NextHash;
-            if (!_imgList.ContainsKey(hashY))
-            {
-                return false;
+                return true;
             }
-
-            return true; 
         }
 
         public void UpdateGeneration(string hash)
@@ -116,23 +99,25 @@ namespace ImageBank
                 return null;
             }
 
-            var maxid = _imgList.Max(e => e.Value.Id);
-            var scopetocheck= _imgList
-                    .Values
-                    .Where(e => e.LastId <= maxid)
-                    .ToArray();
+            var scopetocheck = _imgList
+                .Values
+                .Where(e => e.LastId <= e.Id)
+                .ToArray();
 
             if (scopetocheck.Length == 0)
             {
                 return null;
             }
 
-            var minlastid = scopetocheck.Min(e => e.LastId);
-            var hash = scopetocheck
-                .FirstOrDefault(e => e.LastId == minlastid)
-                .Hash;
-
+            var hash = scopetocheck.Aggregate((m, e) => e.LastId < m.LastId ? e : m).Hash;
             return hash;
+        }
+
+        private int AllocateId()
+        {
+            _id++;
+            SqlUpdateVar(AppConsts.AttrId, _id);
+            return _id;
         }
     }
 }

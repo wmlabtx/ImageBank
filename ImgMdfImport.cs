@@ -11,7 +11,7 @@ namespace ImageBank
             AppVars.SuspendEvent.Reset();
 
             var added = 0;
-            var moved = 0;
+            var found = 0;
             var skipped = 0;
             var dt = DateTime.Now;
 
@@ -19,41 +19,57 @@ namespace ImageBank
             var fileInfos = directoryInfo.GetFiles("*.*", SearchOption.AllDirectories).ToList();
             foreach (var fileInfo in fileInfos)
             {
+                var filename = fileInfo.FullName;
+                var name = HelperPath.GetName(filename);
+                var extension = Path.GetExtension(filename);
+                if (_imgList.ContainsKey(name))
+                {
+                    continue;
+                }
+
                 if (DateTime.Now.Subtract(dt).TotalMilliseconds > AppConsts.TimeLapse)
                 {
                     dt = DateTime.Now;
-                    if (progress != null)
-                    {
-                        progress.Report($"{_imgList.Count}: analysing files (a:{added}/m:{moved}/s:{skipped})...");
-                    }
-                }
-
-                var filename = fileInfo.FullName;
-                var name = HelperPath.GetName(filename);
-                if (_imgList.TryGetValue(name, out var imgfound))
-                {
-                    continue;
+                    var file = filename.Substring(AppConsts.PathCollection.Length);
+                    progress?.Report($"{_imgList.Count}: {file} (a:{added}/f:{found}/s:{skipped})...");
                 }
 
                 if (!HelperImages.GetBitmapFromFile(filename, out var jpgdata, out var bitmap, out var needwrite))
                 {
-                    skipped++;
+                    if (File.Exists(filename))
+                    {                        
+                        var corruptedfile = $"{AppConsts.PathRecycle}{name}{extension}";
+                        File.Move(filename, corruptedfile);
+                        skipped++;
+                    }
+                    
                     continue;
                 }
-                
-                if (!HelperDescriptors.ComputeDescriptors(jpgdata, out var descriptors))
+
+                var hash = HelperHash.ComputeName(jpgdata);
+                if (_imgList.ContainsKey(hash))
                 {
+                    found++;
+                    HelperRecycleBin.Delete(filename);
+                    continue;
+                }
+
+                if (!HelperDescriptors.ComputeHashes(jpgdata, out var descriptors))
+                {
+                    var corruptedfile = $"{AppConsts.PathRecycle}{name}{AppConsts.JpgExtension}";
+                    File.WriteAllBytes(corruptedfile, jpgdata);
+                    HelperRecycleBin.Delete(filename);
                     skipped++;
                     continue;
                 }
 
-                var hash = HelperHash.CalculateHash(jpgdata);
-                var id = _imgList.Count == 0 ? 1 : _imgList.Max(e => e.Value.Id) + 1;
                 var lastview = GetMinLastView();
+                var id = AllocateId();                
+                var generation = extension.Equals(AppConsts.DatExtension) ? 1 : 0;
                 var img = new Img(
                     hash: hash,
-                    id : id,
-                    generation: 0,
+                    id: id,
+                    generation: generation,
                     lastview: lastview,
                     nexthash: hash,
                     sim: 0f,
@@ -75,6 +91,10 @@ namespace ImageBank
                 }
 
                 Add(img);
+                if (_imgList.Count >= AppConsts.MaxImages)
+                {
+                    break;
+                }
 
                 added++;
                 if (added >= maxadd)
@@ -86,7 +106,7 @@ namespace ImageBank
             AppVars.SuspendEvent.Set();
         }
 
-        public static void ProcessDirectory(string startLocation, IProgress<string> progress)
+        private static void ProcessDirectory(string startLocation, IProgress<string> progress)
         {
             foreach (var directory in Directory.GetDirectories(startLocation))
             {

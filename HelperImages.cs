@@ -24,6 +24,11 @@ namespace ImageBank
             }
 
             var extension = Path.GetExtension(filename);
+            if (string.IsNullOrEmpty(extension))
+            {
+                return false;
+            }
+
             if (
                 !extension.Equals(AppConsts.PngExtension, StringComparison.InvariantCultureIgnoreCase) &&
                 !extension.Equals(AppConsts.BmpExtension, StringComparison.InvariantCultureIgnoreCase) &&
@@ -31,7 +36,7 @@ namespace ImageBank
                 !extension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase) &&
                 !extension.Equals(AppConsts.JpegExtension, StringComparison.InvariantCultureIgnoreCase) &&
                 !extension.Equals(AppConsts.DatExtension, StringComparison.InvariantCultureIgnoreCase)
-               )
+                )
             {
                 return false;
             }
@@ -52,7 +57,6 @@ namespace ImageBank
                 }
                 
                 extension = AppConsts.JpgExtension;
-                needwrite = true;
             }
 
             Mat mat = null;
@@ -75,11 +79,16 @@ namespace ImageBank
                     {
                         var iep = new ImageEncodingParam(ImwriteFlags.JpegQuality, 95);
                         Cv2.ImEncode(AppConsts.JpgExtension, mat, out jpgdata, iep);
-                        needwrite = true;
                     }
                 }
 
-                bitmap = BitmapConverter.ToBitmap(mat);
+                bitmap = mat.ToBitmap();
+                var suggestedname = HelperHash.ComputeName(jpgdata);
+                var name = Path.GetFileNameWithoutExtension(filename);
+                if (!suggestedname.Equals((name)))
+                {
+                    needwrite = true;
+                }
             }
             catch (ArgumentException)
             {
@@ -89,10 +98,7 @@ namespace ImageBank
             }
             finally
             {
-                if (mat != null)
-                {
-                    mat.Dispose();
-                }
+                mat?.Dispose();
             }
 
             return true;
@@ -100,7 +106,7 @@ namespace ImageBank
 
         [DllImport("gdi32.dll", EntryPoint = "DeleteObject")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool DeleteObject([In] IntPtr hObject);
+        private static extern bool DeleteObject([In] IntPtr hObject);
 
         public static ImageSource ImageSourceFromBitmap(Bitmap bitmap)
         {

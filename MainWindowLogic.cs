@@ -48,6 +48,7 @@ namespace ImageBank
                 };
 
             AppVars.Progress = new Progress<string>(message => Status.Text = message);
+            AppVars.BackgroundProgress = new Progress<string>(message => BackgroundStatus.Text = message);
 
             DisableElements();
             await Task.Run(() => { AppVars.Collection.Load(AppVars.Progress); });

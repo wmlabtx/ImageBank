@@ -6,7 +6,7 @@ namespace ImageBank
 {
     public partial class ImgMdf
     {
-        public void FindNextHash(string hashX, out int lastid, out DateTime lastchange, out string nexthash, out float sim)
+        private void FindNextHash(string hashX, out int lastid, out DateTime lastchange, out string nexthash, out float sim)
         {
             var imgX = _imgList[hashX];
             lastid = imgX.LastId;
@@ -19,17 +19,10 @@ namespace ImageBank
                 nexthash = imgX.Hash;
                 sim = 0f;
             }
-            else
-            {
-                if (lastid == 0 && sim > 0f)
-                {
-                    sim = 0f;
-                }
-            }
 
             var candidates = _imgList
                 .Values
-                .Where(e => e.Id >= imgX.LastId)
+                .Where(e => e.Id >= imgX.LastId && e.Id <= imgX.Id)
                 .OrderBy(e => e.Id)
                 .ToArray();
 
@@ -38,14 +31,7 @@ namespace ImageBank
                 return;
             }
 
-            var virgin = false;
-            if (lastid == 0)
-            {
-                virgin = true;
-            }
-
-            var sw = new Stopwatch();
-            sw.Start();
+            var sw = Stopwatch.StartNew();
             foreach (var imgY in candidates)
             {
                 lastid = imgY.Id + 1;
@@ -53,14 +39,23 @@ namespace ImageBank
                 {
                     continue;
                 }
-                
-                var simxy = HelperDescriptors.GetDistance(imgX.Descriptors, 0, imgY.Descriptors, 0);
-                if (simxy < sim || virgin)
+
+                var simxy = HelperDescriptors.ComputeSimilarity(imgX.Descriptors, imgY.Descriptors);
+                if (simxy > sim)
                 {
-                    virgin = false;
                     sim = simxy;
                     nexthash = imgY.Hash;
                     lastchange = DateTime.Now;
+                }
+
+                if (imgX.Descriptors.Length != imgY.Descriptors.Length) {
+                    simxy = HelperDescriptors.ComputeSimilarity(imgY.Descriptors, imgX.Descriptors);
+                }
+                
+                if (simxy > imgY.Sim) {
+                    imgY.Sim = simxy;
+                    imgY.NextHash = imgX.Hash;
+                    imgY.LastChange = DateTime.Now;
                 }
 
                 if (sw.ElapsedMilliseconds > 1000)

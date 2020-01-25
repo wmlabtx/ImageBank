@@ -6,9 +6,8 @@ namespace ImageBank
     {
         public void Find(string hashX, IProgress<string> progress)
         {
-            string hashY;
             progress.Report("Moving forward...");
-            if (!GetPairToCompare(ref hashX, out hashY))
+            if (!GetPairToCompare(ref hashX, out var hashY))
             {
                 progress.Report("No images to view");
                 return;

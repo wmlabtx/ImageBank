@@ -6,6 +6,7 @@ namespace ImageBank
 {
     public partial class ImgMdf
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "<Pending>")]
         public void Load(IProgress<string> progress)
         {
             lock (_sqlLock)
@@ -42,8 +43,8 @@ namespace ImageBank
                             var lastid = reader.GetInt32(6);
                             var lastchange = reader.GetDateTime(7);
                             var buffer = (byte[])reader[8];
-                            var descriptors = new float[buffer.Length / sizeof(float)];
-                            Buffer.BlockCopy(buffer, 0, descriptors, 0,  buffer.Length);
+                            var descriptors = new uint[buffer.Length / sizeof(uint)];
+                            Buffer.BlockCopy(buffer, 0, descriptors, 0, buffer.Length);
                             var img = new Img(
                                 hash: hash,
                                 id: id,
@@ -63,10 +64,33 @@ namespace ImageBank
                                 progress.Report($"Loading {_imgList.Count}...");
                             }
                         }
-
-                        progress.Report("Database loaded");
                     }
                 }
+
+                progress.Report("Loading vars...");
+
+                _id = 0;
+
+                sb.Length = 0;
+                sb.Append("SELECT ");
+                sb.Append($"{AppConsts.AttrId} "); // 0
+                sb.Append($"FROM {AppConsts.TableVars}");
+                sqltext = sb.ToString();
+                using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
+                {
+                    using (var reader = sqlCommand.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            _id = reader.GetInt32(0);
+                            break;
+                        }
+
+                        
+                    }
+                }
+
+                progress.Report("Database loaded");
             }
         }
     }

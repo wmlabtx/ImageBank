@@ -2,12 +2,13 @@
 {
     public static class AppConsts
     {
-        public const string PathRoot = @"D:\Users\Murad\Documents\SDb\";
+        private const string PathRoot = @"D:\Users\Murad\Documents\SDb\";
         public const string PathCollection = PathRoot + @"Hp\";
+        public const string PathRecycle = PathRoot + @"Rb\";
         public const string FileDatabase = PathRoot + @"Db\images.mdf";
 
-        public const int MaxDescriptorsInImage = 62; // 8000/128=62
         public const int MaxImportImages = 10;
+        public const int MaxImages = 100000;
 
         public const string DatExtension = ".dat";
         public const string WebpExtension = ".webp";
@@ -29,5 +30,6 @@
         public const string AttrLastId = "LastId";
         public const string AttrLastChange = "LastChange";
         public const string AttrDescriptors = "Descriptors";
+        public const string TableVars = "Vars";
     }
 }

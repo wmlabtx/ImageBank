@@ -6,6 +6,7 @@ namespace ImageBank
 {
     public partial class ImgMdf
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "<Pending>")]
         public void SqlUpdateProperty(Img img, string key, object val)
         {
             lock (_sqlLock)
@@ -20,7 +21,21 @@ namespace ImageBank
             }
         }
 
-        public void SqlDelete(string hash)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "<Pending>")]
+        public void SqlUpdateVar(string key, object val)
+        {
+            lock (_sqlLock)
+            {
+                var sqltext = $"UPDATE {AppConsts.TableVars} SET {key} = @{key}";
+                using (var sqlCommand = new SqlCommand(sqltext, _sqlConnection))
+                {
+                    sqlCommand.Parameters.AddWithValue($"@{key}", val);
+                    sqlCommand.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private void SqlDelete(string hash)
         {
             lock (_sqlLock)
             {
@@ -34,6 +49,7 @@ namespace ImageBank
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "<Pending>")]
         private void SqlAdd(Img img)
         {
             lock (_sqlLock)
@@ -72,7 +88,7 @@ namespace ImageBank
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrSim}", img.Sim);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastId}", img.LastId);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastChange}", img.LastChange);
-                    var buffer = new byte[img.Descriptors.Length * sizeof(float)];
+                    var buffer = new byte[img.Descriptors.Length * sizeof(uint)];
                     Buffer.BlockCopy(img.Descriptors, 0, buffer, 0, buffer.Length);
                     sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrDescriptors}", buffer);
                     sqlCommand.ExecuteNonQuery();

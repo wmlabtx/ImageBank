@@ -10,10 +10,7 @@ namespace ImageBank
         private int _generation;
         public int Generation
         {
-            get
-            {
-                return _generation;
-            }
+            get => _generation;
             set
             {
                 _generation = value;
@@ -24,10 +21,7 @@ namespace ImageBank
         private string _nexthash;
         public string NextHash
         {
-            get
-            {
-                return _nexthash;
-            }
+            get => _nexthash;
             set
             {
                 _nexthash = value;
@@ -38,10 +32,7 @@ namespace ImageBank
         private float _sim;
         public float Sim
         {
-            get
-            {
-                return _sim;
-            }
+            get => _sim;
             set
             {
                 _sim = value;
@@ -66,10 +57,7 @@ namespace ImageBank
         private DateTime _lastview;
         public DateTime LastView
         {
-            get
-            {
-                return _lastview;
-            }
+            get => _lastview;
             set
             {
                 _lastview = value;
@@ -80,10 +68,7 @@ namespace ImageBank
         private DateTime _lastchange;
         public DateTime LastChange
         {
-            get
-            {
-                return _lastchange;
-            }
+            get => _lastchange;
             set
             {
                 _lastchange = value;
@@ -91,22 +76,7 @@ namespace ImageBank
             }
         }
 
-        private float[] _descriptors;
-
-        public float[] Descriptors
-        {
-            get
-            {
-                return _descriptors;
-            }
-            set
-            {
-                _descriptors = value;
-                var buffer = new byte[value.Length * sizeof(float)];
-                Buffer.BlockCopy(value, 0, buffer, 0, buffer.Length);
-                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrDescriptors, buffer);
-            }
-        }
+        public uint[] Descriptors { get; }
 
         public string Subdirectory
         {
@@ -145,7 +115,7 @@ namespace ImageBank
             float sim,
             int lastid,
             DateTime lastchange,
-            float[] descriptors)
+            uint[] descriptors)
         {
             Hash = hash;
             Id = id;
@@ -155,7 +125,7 @@ namespace ImageBank
             _sim = sim;
             _lastid = lastid;
             _lastchange = lastchange;
-            _descriptors = descriptors;
+            Descriptors = descriptors;
         }
     }
 }

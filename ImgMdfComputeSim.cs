@@ -22,6 +22,12 @@ namespace ImageBank
             var hashX = GetNextToCheck();
             if (string.IsNullOrEmpty(hashX))
             {
+                if (_imgList.Count < AppConsts.MaxImages - AppConsts.MaxImportImages)
+                {
+                    Import(AppConsts.MaxImportImages, AppVars.BackgroundProgress);
+                    ProcessDirectory(AppConsts.PathCollection, AppVars.BackgroundProgress);
+                }
+
                 backgroundworker.ReportProgress(0, string.Empty);
                 return;
             }
@@ -39,46 +45,42 @@ namespace ImageBank
                 imgX.LastChange = lastchange;
             }
 
-            var toview = _imgList.Values.Count(e => e.LastView < e.LastChange);
             var sb = new StringBuilder();
-            if (toview > 0)
-            {
-                sb.Append($"{toview}/");
-            }
-
-            sb.Append($"{count}");
-
-            var maxid = _imgList.Max(e => e.Value.Id) + 1;
-            var avgid = (_imgList.Values.Sum(e => (float)e.LastId) * 100f) / ((float)maxid * _imgList.Count);
-            sb.Append($" ({avgid:F2}%)");
-
-            sb.Append($": ");
-
+            sb.Append($"{count}: ");
             if (lastid == imgX.LastId)
             {
                 sb.Append($"[{imgX.LastId}] ");
             }
             else
             {
-                sb.Append($"[{imgX.LastId}+{lastid - imgX.LastId}] ");
+                sb.Append($"[+{lastid - imgX.LastId}] ");
                 imgX.LastId = lastid;
             }
-            
-            sb.Append($"{imgX.Sim:F1} ");
-            if (!nexthash.Equals(imgX.NextHash) || Math.Abs(imgX.Sim - sim) > 0.0001)
+
+            if (Math.Abs(imgX.Sim - sim) > 0.0001)
             {
-                imgX.NextHash = nexthash;
+                sb.Append($"{imgX.Sim:F1} ");
+                sb.Append($"{char.ConvertFromUtf32(sim > imgX.Sim? 0x2192 : 0x2193)} ");
+                sb.Append($"{sim:F1}");
                 imgX.Sim = sim;
-                sb.Append($" {char.ConvertFromUtf32(0x2192)} {imgX.Sim:F1}");
+                if (!nexthash.Equals(imgX.NextHash))
+                {
+                    imgX.NextHash = nexthash;
+                }
+            }
+            else
+            {
+                if (!nexthash.Equals(imgX.NextHash))
+                {
+                    sb.Append($"{imgX.NextHash} ");
+                    sb.Append($"{char.ConvertFromUtf32(0x2192)} ");
+                    sb.Append($"{nexthash}");
+                    imgX.NextHash = nexthash;
+                }
             }
 
             var message = sb.ToString();
             backgroundworker.ReportProgress(0, message);
-            
-            if (avgid > 90f)
-            {
-                Import(10000, AppVars.Progress);
-            }
         }
     }
 }
