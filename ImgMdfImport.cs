@@ -31,7 +31,9 @@ namespace ImageBank
                 {
                     dt = DateTime.Now;
                     var file = filename.Substring(AppConsts.PathCollection.Length);
-                    progress?.Report($"{_imgList.Count}: {file} (a:{added}/f:{found}/s:{skipped})...");
+                    var count = _imgList.Count;
+                    var freshcount = GetFreshCount();
+                    progress?.Report($"{freshcount:X}/{count:X}: {file} (a:{added}/f:{found}/s:{skipped})...");
                 }
 
                 if (!HelperImages.GetBitmapFromFile(filename, out var jpgdata, out var bitmap, out var needwrite))
@@ -73,7 +75,7 @@ namespace ImageBank
                     lastview: lastview,
                     nexthash: hash,
                     sim: 0f,
-                    lastid: 0,
+                    lastid: -1,
                     lastchange: DateTime.Now,
                     descriptors: descriptors);
 

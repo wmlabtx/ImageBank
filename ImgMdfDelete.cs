@@ -6,8 +6,7 @@ namespace ImageBank
     {
         public void Delete(string hash)
         {
-            if (_imgList.TryRemove(hash, out var img))
-            {
+            if (_imgList.TryRemove(hash, out var img)) {
                 HelperRecycleBin.Delete(img.File);
             }
 
@@ -21,7 +20,7 @@ namespace ImageBank
                 .Values
                 .Where(e => e.NextHash.Equals(hash))
                 .ToList()
-                .ForEach(e => e.LastId = 0);
+                .ForEach(e => e.LastId = -1);
         }
     }
 }

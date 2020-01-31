@@ -26,16 +26,13 @@ namespace ImageBank
             hashY = null;
             while (true)
             {
-                if (string.IsNullOrEmpty(hashX))
-                {
+                if (string.IsNullOrEmpty(hashX)) {
                     var scopetoview = _imgList
                         .Values
-                        .Where(e => e.LastId > 0)
-                        .OrderBy(e => e.LastView)
+                        .Where(e => e.LastId >= 0)
                         .ToArray();
 
-                    if (scopetoview.Length == 0)
-                    {
+                    if (scopetoview.Length == 0) {
                         return false;
                     }
 
@@ -44,16 +41,27 @@ namespace ImageBank
                         .Where(e => e.Generation == mingeneration)
                         .ToArray();
 
-                    var scopefresh = scopetoview
+                    var scopechanged = scopetoview
                         .Where(e => e.LastView < e.LastChange)
                         .ToArray();
 
-                    if (scopefresh.Length > 0)
-                    {
-                        scopetoview = scopefresh;
+                    if (scopechanged.Length > 0) {
+                        scopetoview = scopechanged;
                     }
 
-                    hashX = scopetoview[0].Hash;
+                    var minlastview = DateTime.MaxValue;
+                    foreach (var img in scopetoview) {
+                        if (_imgList.TryGetValue(img.NextHash, out var imgY)) {
+                            if (imgY.LastView < minlastview) {
+                                minlastview = imgY.LastView;
+                                hashX = img.Hash;
+                            }
+                        }
+                    }
+                }
+
+                if (string.IsNullOrEmpty(hashX)) {
+                    return false;
                 }
                 
                 if (!_imgList.TryGetValue(hashX, out var imgX))
@@ -92,20 +100,45 @@ namespace ImageBank
             return min;
         }
 
+        public int GetMaxId()
+        {
+            var maxid = _imgList.Count == 0 ? 0 : _imgList.Max(e => e.Value.Id);
+            return maxid;
+        }
+
+        private int GetFreshCount()
+        {
+            var freshcount = 0;
+            var scopetoview = _imgList
+                .Values
+                .Where(e => e.LastId >= 0)
+                .ToArray();
+
+            if (scopetoview.Length > 0) {
+                var mingeneration = scopetoview.Min(e => e.Generation);
+                scopetoview = scopetoview
+                    .Where(e => e.Generation == mingeneration)
+                    .ToArray();
+
+                freshcount = scopetoview
+                    .Count(e => e.LastView < e.LastChange);
+            }
+
+            return freshcount;
+        }
+
         private string GetNextToCheck()
         {
-            if (_imgList.Count == 0)
-            {
+            if (_imgList.Count == 0) {
                 return null;
             }
 
             var scopetocheck = _imgList
                 .Values
-                .Where(e => e.LastId <= e.Id)
+                .Where(e => e.LastId < e.Id)
                 .ToArray();
 
-            if (scopetocheck.Length == 0)
-            {
+            if (scopetocheck.Length == 0) {
                 return null;
             }
 

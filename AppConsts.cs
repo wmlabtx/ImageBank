@@ -7,8 +7,8 @@
         public const string PathRecycle = PathRoot + @"Rb\";
         public const string FileDatabase = PathRoot + @"Db\images.mdf";
 
-        public const int MaxImportImages = 10;
-        public const int MaxImages = 100000;
+        public const int MaxImportImages = 128 * 1024 /*16*/;
+        public const int MaxImages = 128 * 1024;
 
         public const string DatExtension = ".dat";
         public const string WebpExtension = ".webp";

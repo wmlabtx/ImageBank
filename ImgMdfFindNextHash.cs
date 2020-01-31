@@ -13,53 +13,40 @@ namespace ImageBank
             lastchange = imgX.LastChange;
             nexthash = imgX.NextHash;
             sim = imgX.Sim;
-            if (!_imgList.ContainsKey(nexthash))
-            {
-                lastid = 0;
+            if (!_imgList.ContainsKey(nexthash)) {
+                lastid = -1;
+            }
+
+            if (lastid < 0) {
                 nexthash = imgX.Hash;
                 sim = 0f;
             }
 
             var candidates = _imgList
                 .Values
-                .Where(e => e.Id >= imgX.LastId && e.Id <= imgX.Id)
+                .Where(e => e.Id > imgX.LastId && e.Id <= imgX.Id)
                 .OrderBy(e => e.Id)
                 .ToArray();
 
-            if (candidates.Length == 0)
-            {
+            if (candidates.Length == 0) {
                 return;
             }
 
             var sw = Stopwatch.StartNew();
-            foreach (var imgY in candidates)
-            {
-                lastid = imgY.Id + 1;
-                if (imgY.Id == imgX.Id)
-                {
+            foreach (var imgY in candidates) {
+                lastid = imgY.Id;
+                if (imgY.Id == imgX.Id) {
                     continue;
                 }
 
                 var simxy = HelperDescriptors.ComputeSimilarity(imgX.Descriptors, imgY.Descriptors);
-                if (simxy > sim)
-                {
+                if (simxy > sim) {
                     sim = simxy;
                     nexthash = imgY.Hash;
                     lastchange = DateTime.Now;
                 }
 
-                if (imgX.Descriptors.Length != imgY.Descriptors.Length) {
-                    simxy = HelperDescriptors.ComputeSimilarity(imgY.Descriptors, imgX.Descriptors);
-                }
-                
-                if (simxy > imgY.Sim) {
-                    imgY.Sim = simxy;
-                    imgY.NextHash = imgX.Hash;
-                    imgY.LastChange = DateTime.Now;
-                }
-
-                if (sw.ElapsedMilliseconds > 1000)
-                {
+                if (sw.ElapsedMilliseconds > 1500) {
                     break;
                 }
             }

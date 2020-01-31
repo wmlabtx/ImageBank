@@ -13,7 +13,9 @@ namespace ImageBank
                 return;
             }
 
-            progress.Report($"{_imgList.Count}");
+            var count = _imgList.Count;
+            var freshcount = GetFreshCount();
+            progress.Report($"{freshcount:X}/{count:X}");
 
             AppVars.ImgPanel[0] = GetImgPanel(hashX);
             if (AppVars.ImgPanel[0] == null)

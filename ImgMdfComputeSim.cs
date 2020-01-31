@@ -22,11 +22,10 @@ namespace ImageBank
             var hashX = GetNextToCheck();
             if (string.IsNullOrEmpty(hashX))
             {
-                if (_imgList.Count < AppConsts.MaxImages - AppConsts.MaxImportImages)
-                {
-                    Import(AppConsts.MaxImportImages, AppVars.BackgroundProgress);
-                    ProcessDirectory(AppConsts.PathCollection, AppVars.BackgroundProgress);
-                }
+                ///if (_imgList.Count < AppConsts.MaxImages - AppConsts.MaxImportImages) {
+                ///    Import(0x1000000, AppVars.BackgroundProgress);
+                ///    ProcessDirectory(AppConsts.PathCollection, AppVars.BackgroundProgress);
+                ///}
 
                 backgroundworker.ReportProgress(0, string.Empty);
                 return;
@@ -46,7 +45,8 @@ namespace ImageBank
             }
 
             var sb = new StringBuilder();
-            sb.Append($"{count}: ");
+            var freshcount = GetFreshCount();
+            sb.Append($"{freshcount:X}/{count:X}: ");
             if (lastid == imgX.LastId)
             {
                 sb.Append($"[{imgX.LastId}] ");
