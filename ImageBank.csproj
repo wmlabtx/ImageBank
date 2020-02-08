@@ -115,7 +115,7 @@
     <Compile Include="Img.cs" />
     <Compile Include="ImgMdfAdd.cs" />
     <Compile Include="ImgMdfDelete.cs" />
-    <Compile Include="ImgMdfFindNextHash.cs" />
+    <Compile Include="ImgMdfFindNext.cs" />
     <Compile Include="ImgMdfLoad.cs" />
     <Compile Include="ImgMdfMoveTo.cs" />
     <Compile Include="HelperRandom.cs" />

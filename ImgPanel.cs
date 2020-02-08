@@ -5,22 +5,24 @@ namespace ImageBank
 {
     public class ImgPanel
     {
-        public string Hash { get; }
-        public string Subdirectory { get; }
+        public int Id { get; }
+        public string Name { get; }
+        public string Path { get; }
         public DateTime LastView { get; }
-        public float Sim { get; }
+        public int Match { get; }
         public int Generation { get; }
         public DateTime LastChange { get; }
         public Bitmap Bitmap { get; }
-        public int Length { get; }
+        public long Length { get; }
 
-        public ImgPanel(string hash, string subdirectory, DateTime lastview, int generation, float sim, DateTime lastchange, Bitmap bitmap, int length)
+        public ImgPanel(int id, string name, string path, DateTime lastview, int generation, int match, DateTime lastchange, Bitmap bitmap, long length)
         {
-            Hash = hash;
-            Subdirectory = subdirectory;
+            Id = id;
+            Name = name;
+            Path = path;
             LastView = lastview;
             Generation = generation;
-            Sim = sim;
+            Match = match;
             LastChange = lastchange;
             Bitmap = bitmap;
             Length = length;

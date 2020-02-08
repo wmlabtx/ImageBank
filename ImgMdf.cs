@@ -1,16 +1,22 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading;
 
 namespace ImageBank
 {
     public partial class ImgMdf
     {
-        private readonly object _sqlLock = new object();
-        private readonly SqlConnection _sqlConnection;
+        private static readonly Mutex _sqlLock = new Mutex();
+        private static SqlConnection _sqlConnection;
 
-        private readonly ConcurrentDictionary<string, Img> _imgList = new ConcurrentDictionary<string, Img>();
+        private readonly ConcurrentDictionary<int, Img> _imgList = new ConcurrentDictionary<int, Img>();
+        private readonly ConcurrentDictionary<string, Img> _nameList = new ConcurrentDictionary<string, Img>();
+        private readonly ConcurrentDictionary<string, Img> _checksumList = new ConcurrentDictionary<string, Img>();
 
         private int _id;
 
@@ -21,73 +27,57 @@ namespace ImageBank
             _sqlConnection.Open();
         }
 
-        private bool GetPairToCompare(ref string hashX, out string hashY)
+        private bool GetPairToCompare(out int idX, out int idY)
         {
-            hashY = null;
-            while (true)
-            {
-                if (string.IsNullOrEmpty(hashX)) {
-                    var scopetoview = _imgList
-                        .Values
-                        .Where(e => e.LastId >= 0)
-                        .ToArray();
+            idX = -1;
+            idY = -1;
+            while (true) {
+                var scopetoview = _imgList
+                    .Values
+                    .Where(e => e.LastId >= e.Id && e.GetDescriptors().Length > 0)
+                    .ToArray();
 
-                    if (scopetoview.Length == 0) {
-                        return false;
-                    }
+                if (scopetoview.Length == 0) {
+                    return false;
+                }
 
-                    var mingeneration = scopetoview.Min(e => e.Generation);
-                    scopetoview = scopetoview
-                        .Where(e => e.Generation == mingeneration)
-                        .ToArray();
+                var mingeneration = scopetoview.Min(e => e.Generation);
+                scopetoview = scopetoview
+                    .Where(e => e.Generation == mingeneration)
+                    .ToArray();
 
-                    var scopechanged = scopetoview
-                        .Where(e => e.LastView < e.LastChange)
-                        .ToArray();
-
-                    if (scopechanged.Length > 0) {
-                        scopetoview = scopechanged;
-                    }
-
-                    var minlastview = DateTime.MaxValue;
-                    foreach (var img in scopetoview) {
-                        if (_imgList.TryGetValue(img.NextHash, out var imgY)) {
-                            if (imgY.LastView < minlastview) {
-                                minlastview = imgY.LastView;
-                                hashX = img.Hash;
-                            }
+                long min = long.MaxValue;
+                foreach (var img in scopetoview) {
+                    if (_imgList.TryGetValue(img.NextId, out var imgY)) {
+                        var mint = img.LastView.Ticks + imgY.LastView.Ticks;
+                        if (mint < min) {
+                            min = mint;
+                            idX = img.Id;
+                            idY = imgY.Id;
                         }
                     }
                 }
 
-                if (string.IsNullOrEmpty(hashX)) {
+                if (idX < 0 || idY < 0) {
                     return false;
-                }
-                
-                if (!_imgList.TryGetValue(hashX, out var imgX))
-                {
-                    Delete(hashX);
-                    hashX = null;
-                    continue;
-                }
-
-                hashY = imgX.NextHash;
-                if (!_imgList.ContainsKey(hashY))
-                {
-                    imgX.LastId = 0;
-                    hashX = null;
-                    continue;
                 }
 
                 return true;
             }
         }
 
-        public void UpdateGeneration(string hash)
+        public void UpdateGeneration(int id)
         {
-            if (_imgList.TryGetValue(hash, out var img))
+            if (_imgList.TryGetValue(id, out var img))
             {
                 img.Generation++;
+            }
+        }
+
+        public void UpdateLastView(int id)
+        {
+            if (_imgList.TryGetValue(id, out var img)) {
+                img.LastView = DateTime.Now;
             }
         }
 
@@ -100,37 +90,47 @@ namespace ImageBank
             return min;
         }
 
-        public int GetMaxId()
+        private string GetPrompt()
         {
-            var maxid = _imgList.Count == 0 ? 0 : _imgList.Max(e => e.Value.Id);
-            return maxid;
-        }
-
-        private int GetFreshCount()
-        {
-            var freshcount = 0;
-            var scopetoview = _imgList
+            var counters = new SortedDictionary<int, int>();
+            var scope = _imgList
                 .Values
-                .Where(e => e.LastId >= 0)
+                .Where(e => e.LastId >= e.Id && e.GetDescriptors().Length > 0)
                 .ToArray();
 
-            if (scopetoview.Length > 0) {
-                var mingeneration = scopetoview.Min(e => e.Generation);
-                scopetoview = scopetoview
-                    .Where(e => e.Generation == mingeneration)
-                    .ToArray();
-
-                freshcount = scopetoview
-                    .Count(e => e.LastView < e.LastChange);
+            foreach (var img in scope) {
+                if (counters.ContainsKey(img.Generation)) {
+                    counters[img.Generation]++;
+                }
+                else {
+                    counters.Add(img.Generation, 1);
+                }
             }
 
-            return freshcount;
+            var sb = new StringBuilder();
+            var countwrong = _imgList.Count(e => e.Value.GetDescriptors().Length == 0);
+            if (countwrong > 0) {
+                sb.Append($"x:{countwrong}");
+            }
+
+            var generations = counters.Keys.ToArray();
+            for (var i = generations.Length - 1; i >= 0; i--) {
+                if (sb.Length > 0) {
+                    sb.Append('/');
+                }
+
+                sb.Append($"g{generations[i]}:{counters[generations[i]]}");
+            }
+
+            sb.Append($"/{_imgList.Count}");
+            sb.Append(": ");
+            return sb.ToString();
         }
 
-        private string GetNextToCheck()
+        private int GetNextToCheck()
         {
             if (_imgList.Count == 0) {
-                return null;
+                return -1;
             }
 
             var scopetocheck = _imgList
@@ -139,11 +139,30 @@ namespace ImageBank
                 .ToArray();
 
             if (scopetocheck.Length == 0) {
-                return null;
+                return -1;
             }
 
-            var hash = scopetocheck.Aggregate((m, e) => e.LastId < m.LastId ? e : m).Hash;
-            return hash;
+            var id = scopetocheck.Aggregate((m, e) => e.LastId < m.LastId ? e : m).Id;
+            return id;
+        }
+
+        private int GetNextToComputeHashes()
+        {
+            if (_imgList.Count == 0) {
+                return -1;
+            }
+
+            var scopetocheck = _imgList
+                .Values
+                .Where(e => e.GetDescriptors().Length == 0)
+                .ToArray();
+
+            if (scopetocheck.Length == 0) {
+                return -1;
+            }
+
+            var id = scopetocheck.Aggregate((m, e) => e.Id < m.Id ? e : m).Id;
+            return id;
         }
 
         private int AllocateId()
@@ -151,6 +170,33 @@ namespace ImageBank
             _id++;
             SqlUpdateVar(AppConsts.AttrId, _id);
             return _id;
+        }
+
+        private string GetSuggestedLegacyPath()
+        {
+            var filescounts = new int[99];
+            int idlegacy;
+            foreach (var img in _imgList) {
+                idlegacy = HelperPath.GetIdLegacy(img.Value.Path);
+                if (idlegacy >= 0 && idlegacy <= 99) {
+                    filescounts[idlegacy]++;
+                }
+            }
+
+            idlegacy = 0;
+            while (
+                idlegacy <= 99 &&
+                filescounts[idlegacy] >= AppConsts.MaxImages / 100) {
+                idlegacy++;
+            }
+
+            var path = HelperPath.GetLegacyPath(idlegacy);
+            var fullpath = $"{AppConsts.PathCollection}{path}";
+            if (!Directory.Exists(fullpath)) {
+                Directory.CreateDirectory(fullpath);
+            }
+
+            return path;
         }
     }
 }

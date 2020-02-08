@@ -4,8 +4,10 @@ namespace ImageBank
 {
     public class Img
     {
-        public string Hash { get; }
         public int Id { get; }
+        public string Name { get; }
+        public string Path { get; }
+        public string Checksum { get; }
 
         private int _generation;
         public int Generation
@@ -14,29 +16,29 @@ namespace ImageBank
             set
             {
                 _generation = value;
-                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrGeneration, value);
+                ImgMdf.SqlUpdateProperty(this, AppConsts.AttrGeneration, value);
             }
         }
 
-        private string _nexthash;
-        public string NextHash
+        private int _nextid;
+        public int NextId
         {
-            get => _nexthash;
+            get => _nextid;
             set
             {
-                _nexthash = value;
-                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrNextHash, value);
+                _nextid = value;
+                ImgMdf.SqlUpdateProperty(this, AppConsts.AttrNextId, value);
             }
         }
 
-        private float _sim;
-        public float Sim
+        private int _match;
+        public int Match
         {
-            get => _sim;
+            get => _match;
             set
             {
-                _sim = value;
-                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrSim, value);
+                _match = value;
+                ImgMdf.SqlUpdateProperty(this, AppConsts.AttrMatch, value);
             }
         }
 
@@ -50,7 +52,7 @@ namespace ImageBank
             set
             {
                 _lastid = value;
-                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrLastId, value);
+                ImgMdf.SqlUpdateProperty(this, AppConsts.AttrLastId, value);
             }
         }
 
@@ -61,7 +63,7 @@ namespace ImageBank
             set
             {
                 _lastview = value;
-                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrLastView, value);
+                ImgMdf.SqlUpdateProperty(this, AppConsts.AttrLastView, value);
             }
         }
 
@@ -72,27 +74,29 @@ namespace ImageBank
             set
             {
                 _lastchange = value;
-                AppVars.Collection.SqlUpdateProperty(this, AppConsts.AttrLastChange, value);
+                ImgMdf.SqlUpdateProperty(this, AppConsts.AttrLastChange, value);
             }
         }
 
-        public uint[] Descriptors { get; }
+        private uint[] _descriptors;
 
-        public string Subdirectory
+        public uint[] GetDescriptors()
         {
-            get
-            {
-                var hash = Math.Abs(Hash.GetHashCode()) % 100;
-                var subdirectory = $"{hash:D2}";
-                return subdirectory;
-            }
+            return _descriptors;
+        }
+
+        public void SetDescriptors(uint[] array)
+        {
+            _descriptors = array;
+            var buffer = HelperConvertors.ConvertToBuffer(_descriptors);
+            ImgMdf.SqlUpdateProperty(this, AppConsts.AttrDescriptors, buffer);
         }
 
         public string Directory
         {
             get
             {
-                var directory = $"{AppConsts.PathCollection}{Subdirectory}\\";
+                var directory = $"{AppConsts.PathCollection}{Path}\\";
                 return directory;
             }
         }
@@ -101,31 +105,35 @@ namespace ImageBank
         {
             get
             {
-                var filename = $"{Directory}{Hash}{AppConsts.DatExtension}";
+                var filename = $"{Directory}{Name}{AppConsts.JpgExtension}";
                 return filename;
             }
         }
 
         public Img(
-            string hash,
             int id,
+            string name,
+            string path,
+            string checksum,
             int generation,
             DateTime lastview,
-            string nexthash,
-            float sim,
+            int nextid,
+            int match,
             int lastid,
             DateTime lastchange,
             uint[] descriptors)
         {
-            Hash = hash;
             Id = id;
+            Name = name;
+            Path = path;
+            Checksum = checksum;
             _generation = generation;
             _lastview = lastview;
-            _nexthash = nexthash;
-            _sim = sim;
+            _nextid = nextid;
+            _match = match;
             _lastid = lastid;
             _lastchange = lastchange;
-            Descriptors = descriptors;
+            _descriptors = descriptors;
         }
     }
 }

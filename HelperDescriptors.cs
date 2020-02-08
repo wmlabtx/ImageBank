@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using OpenCvSharp;
 using OpenCvSharp.XFeatures2D;
 
@@ -60,7 +58,7 @@ namespace ImageBank
             return true;
         }
 
-        public static float ComputeSimilarity(uint[] x, uint[] y) {
+        public static int ComputeMatch(uint[] x, uint[] y) {
             var match = 0;
             var i = 0;
             var j = 0;
@@ -80,7 +78,7 @@ namespace ImageBank
                 }
             }
 
-            return (match * 100f) / x.Length;
+            return match;
         }
     }
 }

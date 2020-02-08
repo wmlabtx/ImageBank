@@ -1,34 +1,46 @@
-﻿using System.Diagnostics;
+﻿using System.Drawing;
+using System.IO;
 
 namespace ImageBank
 {
     public partial class ImgMdf
     {
-        private ImgPanel GetImgPanel(string hash)
+        private ImgPanel GetImgPanel(int id)
         {
-            Debug.Assert(!string.IsNullOrEmpty(hash), $"hash is null");
-
-            if (!_imgList.TryGetValue(hash, out var img))
-            {
-                Delete(hash);
+            if (!_imgList.TryGetValue(id, out var img)) {
+                Delete(id);
                 return null;
             }
 
-            if (!HelperImages.GetBitmapFromFile(img.File, out var jpgdata, out var bitmap, out var _))
+            Bitmap bitmap;
+            long length;
+            try {
+                using (var fs = new FileStream(img.File, FileMode.Open, FileAccess.Read)) {
+                    length = fs.Length;
+                    bitmap = (Bitmap)Image.FromStream(fs);
+                }
+            }
+            catch {
+                length = 0;
+                bitmap = null;
+            }
+
+            if (bitmap == null)
             {
-                Delete(hash);
+                Delete(id);
                 return null;
             }
 
             var imgpanel = new ImgPanel(
-                hash:hash, 
-                subdirectory: img.Subdirectory,
+                id: id,
+                name: img.Name,
+                path: img.Path,
                 lastview: img.LastView,
                 generation: img.Generation,
-                sim: img.Sim,
+                match: img.Match,
                 lastchange: img.LastChange,
-                bitmap:bitmap, 
-                length:jpgdata.Length);
+                bitmap: bitmap, 
+                length: length);
 
             return imgpanel;
         }

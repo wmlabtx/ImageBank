@@ -12,95 +12,108 @@ namespace ImageBank
 
             var added = 0;
             var found = 0;
-            var skipped = 0;
             var dt = DateTime.Now;
 
             var directoryInfo = new DirectoryInfo(AppConsts.PathCollection);
             var fileInfos = directoryInfo.GetFiles("*.*", SearchOption.AllDirectories).ToList();
-            foreach (var fileInfo in fileInfos)
-            {
+            foreach (var fileInfo in fileInfos) {
                 var filename = fileInfo.FullName;
                 var name = HelperPath.GetName(filename);
-                var extension = Path.GetExtension(filename);
-                if (_imgList.ContainsKey(name))
-                {
-                    continue;
+                var path = HelperPath.GetPath(filename);
+                if (_nameList.TryGetValue(name, out var imgfound)) {
+                    if (path.Equals(imgfound.Path)) {
+                        continue;
+                    }
                 }
 
-                if (DateTime.Now.Subtract(dt).TotalMilliseconds > AppConsts.TimeLapse)
-                {
+                if (DateTime.Now.Subtract(dt).TotalMilliseconds > AppConsts.TimeLapse) {
                     dt = DateTime.Now;
                     var file = filename.Substring(AppConsts.PathCollection.Length);
-                    var count = _imgList.Count;
-                    var freshcount = GetFreshCount();
-                    progress?.Report($"{freshcount:X}/{count:X}: {file} (a:{added}/f:{found}/s:{skipped})...");
+                    progress?.Report($"{file} (a:{added}/f:{found})...");
                 }
 
-                if (!HelperImages.GetBitmapFromFile(filename, out var jpgdata, out var bitmap, out var needwrite))
-                {
-                    if (File.Exists(filename))
-                    {                        
-                        var corruptedfile = $"{AppConsts.PathRecycle}{name}{extension}";
-                        File.Move(filename, corruptedfile);
-                        skipped++;
-                    }
-                    
-                    continue;
+                var extension = Path.GetExtension(filename);
+
+                if (!HelperImages.GetChecksumFromFile(
+                    filename,
+                    out var jpgdata,
+                    out var checksum)) {
+                    progress?.Report($"Corrupted image: {path}\\{name}{extension}");
+                    return;
+
                 }
 
-                var hash = HelperHash.ComputeName(jpgdata);
-                if (_imgList.ContainsKey(hash))
-                {
+                if (_checksumList.TryGetValue(checksum, out imgfound)) {
                     found++;
-                    HelperRecycleBin.Delete(filename);
-                    continue;
+                    if (extension.Equals(AppConsts.DatExtension)) {
+                        HelperRecycleBin.Delete(filename);
+                        continue;
+                    }
+
+                    Delete(imgfound.Id);
                 }
 
-                if (!HelperDescriptors.ComputeHashes(jpgdata, out var descriptors))
-                {
-                    var corruptedfile = $"{AppConsts.PathRecycle}{name}{AppConsts.JpgExtension}";
-                    File.WriteAllBytes(corruptedfile, jpgdata);
-                    HelperRecycleBin.Delete(filename);
-                    skipped++;
-                    continue;
+                if (!HelperImages.GetBitmapFromFile(
+                    filename, 
+                    out jpgdata, 
+                    out var bitmap, 
+                    out checksum,
+                    out var suggestedname,
+                    out var needwrite)) {
+                    progress?.Report($"Corrupted image: {path}\\{name}{extension}");
+                    return;
+                }
+
+                if (_checksumList.TryGetValue(checksum, out imgfound)) {
+                     found++;
+                    if (extension.Equals(AppConsts.DatExtension)) {
+                        HelperRecycleBin.Delete(filename);
+                        continue;
+                    }
+
+                    Delete(imgfound.Id);
                 }
 
                 var lastview = GetMinLastView();
-                var id = AllocateId();                
-                var generation = extension.Equals(AppConsts.DatExtension) ? 1 : 0;
+                var id = AllocateId();
+                var generation = 0;
+                if (extension.Equals(AppConsts.DatExtension)) {
+                    generation = 1;
+                    name = $"{AppConsts.PrefixMzx}{id:D6}";
+                    path = GetSuggestedLegacyPath();
+                }
+
+                name = HelperPath.AddChecksum(name, checksum);
                 var img = new Img(
-                    hash: hash,
                     id: id,
+                    name: name,
+                    path: path,
+                    checksum: checksum,
                     generation: generation,
                     lastview: lastview,
-                    nexthash: hash,
-                    sim: 0f,
+                    nextid: id,
+                    match: 0,
                     lastid: -1,
-                    lastchange: DateTime.Now,
-                    descriptors: descriptors);
+                    lastchange: lastview,
+                    descriptors: Array.Empty<uint>());
 
-                if (!img.File.Equals(filename))
-                {
-                    if (needwrite)
-                    {
-                        WriteJpgData(hash, img.Directory, jpgdata);
-                        HelperRecycleBin.Delete(filename);
-                    }
-                    else
-                    {
+                Add(img);
+                if (needwrite) {
+                    WriteJpgData(name, path, jpgdata);
+                    HelperRecycleBin.Delete(filename);
+                }
+                else {
+                    if (!filename.Equals(img.File)) {
                         File.Move(filename, img.File);
                     }
                 }
 
-                Add(img);
-                if (_imgList.Count >= AppConsts.MaxImages)
-                {
+                if (_imgList.Count >= AppConsts.MaxImages) {
                     break;
                 }
 
                 added++;
-                if (added >= maxadd)
-                {
+                if (added >= maxadd) {
                     break;
                 }
             }

@@ -1,17 +1,23 @@
-﻿using Crc32C;
-using System;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 
 namespace ImageBank
 {
     public static class HelperHash
     {
-        public static string ComputeName(byte[] array)
+        public static string Compute(byte[] array)
         {
-            var uintcrc = Crc32CAlgorithm.Compute(array);
-            var crc = $"{uintcrc:x8}";
-            return crc;
+            string hashString;
+            using (var sha256 = SHA256.Create()) {
+                var hash = sha256.ComputeHash(array);
+                StringBuilder result = new StringBuilder(64);
+                foreach (var e in hash) {
+                    result.Append(e.ToString("x2"));
+                }
+                hashString = result.ToString();
+            }
+            
+            return hashString;
         }
     }
 }

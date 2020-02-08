@@ -4,43 +4,28 @@ namespace ImageBank
 {
     public partial class ImgMdf
     {
-        public void Find(string hashX, IProgress<string> progress)
+        public void Find(IProgress<string> progress)
         {
             progress.Report("Moving forward...");
-            if (!GetPairToCompare(ref hashX, out var hashY))
-            {
+            if (!GetPairToCompare(out var idX, out var idY)) {
                 progress.Report("No images to view");
                 return;
             }
 
-            var count = _imgList.Count;
-            var freshcount = GetFreshCount();
-            progress.Report($"{freshcount:X}/{count:X}");
+            progress.Report(GetPrompt());
 
-            AppVars.ImgPanel[0] = GetImgPanel(hashX);
-            if (AppVars.ImgPanel[0] == null)
-            {
-                Delete(hashX);
-                progress.Report($"{hashX} corrupted");
+            AppVars.ImgPanel[0] = GetImgPanel(idX);
+            if (AppVars.ImgPanel[0] == null) {
+                Delete(idX);
+                progress.Report($"{idX} corrupted, deleted");
                 return;
             }
 
-            AppVars.ImgPanel[1] = GetImgPanel(hashY);
-            if (AppVars.ImgPanel[1] == null)
-            {
-                Delete(hashY);
-                progress.Report($"{hashY} corrupted");
+            AppVars.ImgPanel[1] = GetImgPanel(idY);
+            if (AppVars.ImgPanel[1] == null) {
+                Delete(idY);
+                progress.Report($"{idY} corrupted, deleted");
                 return;
-            }
-
-            if (_imgList.TryGetValue(hashX, out var imgX))
-            {
-                imgX.LastView = DateTime.Now;
-            }
-
-            if (_imgList.TryGetValue(hashY, out var imgY))
-            {
-                imgY.LastView = DateTime.Now;
             }
         }
     }

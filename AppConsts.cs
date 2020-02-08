@@ -6,9 +6,11 @@
         public const string PathCollection = PathRoot + @"Hp\";
         public const string PathRecycle = PathRoot + @"Rb\";
         public const string FileDatabase = PathRoot + @"Db\images.mdf";
+        public const string PathLegacy = @"Legacy\";
+        public const string PrefixMzx = @"mzx";
 
-        public const int MaxImportImages = 128 * 1024 /*16*/;
-        public const int MaxImages = 128 * 1024;
+        public const int MaxImportImages = 200000;
+        public const int MaxImages = 200000;
 
         public const string DatExtension = ".dat";
         public const string WebpExtension = ".webp";
@@ -21,12 +23,14 @@
         public const double TimeLapse = 500.0;
 
         public const string TableImages = "Images";
-        public const string AttrHash = "Hash";
         public const string AttrId = "Id";
+        public const string AttrName = "Name";
+        public const string AttrPath = "Path";
+        public const string AttrChecksum = "Checksum";
         public const string AttrGeneration = "Generation";
         public const string AttrLastView = "LastView";
-        public const string AttrNextHash = "NextHash";
-        public const string AttrSim = "Sim";
+        public const string AttrNextId = "NextId";
+        public const string AttrMatch = "Match";
         public const string AttrLastId = "LastId";
         public const string AttrLastChange = "LastChange";
         public const string AttrDescriptors = "Descriptors";

@@ -49,5 +49,12 @@ namespace ImageBank
             mat.GetArray<byte>(out var buffer);
             return buffer;
         }
+
+        public static byte[] ConvertToBuffer(uint[] array)
+        {
+            var buffer = new byte[array.Length * sizeof(uint)];
+            Buffer.BlockCopy(array, 0, buffer, 0, buffer.Length);
+            return buffer;
+        }
     }
 }

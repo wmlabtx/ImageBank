@@ -52,7 +52,7 @@ namespace ImageBank
 
             DisableElements();
             await Task.Run(() => { AppVars.Collection.Load(AppVars.Progress); });
-            await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
+            await Task.Run(() => { AppVars.Collection.Find(AppVars.Progress); });
             DrawCanvas();
             
             EnableElements();
@@ -88,9 +88,10 @@ namespace ImageBank
 
         private async void ImportClick()
         {
-            DisableElements();
-            await Task.Run(() => { AppVars.Collection.Import(AppVars.Progress); });            
-            await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
+            _ = Task.Run(() => { AppVars.Collection.Import(AppVars.BackgroundProgress); });
+
+            DisableElements();            
+            await Task.Run(() => { AppVars.Collection.Find(AppVars.Progress); });
             DrawCanvas();
             EnableElements();
         }
@@ -127,31 +128,37 @@ namespace ImageBank
         private void PictureLeftBoxMouseClick()
         {
             ImgPanelDelete(0);
+            AppVars.Collection.UpdateLastView(AppVars.ImgPanel[1].Id);
         }
 
         private void PictureRightBoxMouseClick()
         {
             ImgPanelDelete(1);
+            AppVars.Collection.UpdateLastView(AppVars.ImgPanel[0].Id);
         }
 
         private async void ButtonLeftNextMouseClick()
         {
-            AppVars.Collection.UpdateGeneration(AppVars.ImgPanel[0].Hash);
+            AppVars.Collection.UpdateGeneration(AppVars.ImgPanel[0].Id);
+            AppVars.Collection.UpdateLastView(AppVars.ImgPanel[0].Id);
+            AppVars.Collection.UpdateLastView(AppVars.ImgPanel[1].Id);
 
             DisableElements();
-            await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
+            await Task.Run(() => { AppVars.Collection.Find(AppVars.Progress); });
             DrawCanvas();
             EnableElements();
         }
 
-        private async void ButtonRightNextMouseClick()
+        private void ButtonRightNextMouseClick()
         {
-            AppVars.Collection.UpdateGeneration(AppVars.ImgPanel[0].Hash);
+            /*
+            AppVars.Collection.UpdateGeneration(AppVars.ImgPanel[0].Id);
 
             DisableElements();
-            await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
+            await Task.Run(() => { AppVars.Collection.Find(-1, AppVars.Progress); });
             DrawCanvas();
             EnableElements();
+            */
         }
 
         private void DoComputeSimProgress(object sender, ProgressChangedEventArgs e)
@@ -205,16 +212,16 @@ namespace ImageBank
             var pLabels = new[] { LabelLeft, LabelRight };
             for (var index = 0; index < 2; index++)
             {
-                var hash = AppVars.ImgPanel[index].Hash;
-                pBoxes[index].Tag = hash;
-                pLabels[index].Tag = hash;
+                var id = AppVars.ImgPanel[index].Id;
+                pBoxes[index].Tag = id;
+                pLabels[index].Tag = id;
 
                 pBoxes[index].Source = HelperImages.ImageSourceFromBitmap(AppVars.ImgPanel[index].Bitmap);
 
                 var sb = new StringBuilder();
-                sb.Append($"{AppVars.ImgPanel[index].Subdirectory}\\");
-                sb.Append($"{AppVars.ImgPanel[index].Hash}");
-                sb.Append($" [{AppVars.ImgPanel[index].Sim:F1}]");
+                sb.Append($"{AppVars.ImgPanel[index].Path}\\");
+                sb.Append($"{AppVars.ImgPanel[index].Name}");
+                sb.Append($" M:{AppVars.ImgPanel[index].Match}");
                 sb.Append($" G:{AppVars.ImgPanel[index].Generation}");
                 sb.AppendLine();
                 
@@ -227,21 +234,18 @@ namespace ImageBank
 
                 pLabels[index].Text = sb.ToString();
                 var scb = System.Windows.Media.Brushes.Bisque;
-                if (AppVars.ImgPanel[index].LastView < AppVars.ImgPanel[index].LastChange)
-                {
+                if (AppVars.ImgPanel[index].LastView < AppVars.ImgPanel[index].LastChange) {
                     scb = System.Windows.Media.Brushes.White;
                 }
 
-                if (AppVars.ImgPanel[index].Generation == 0)
-                {
+                if (AppVars.ImgPanel[index].Generation == 0) {
                     scb = System.Windows.Media.Brushes.Gold;
                 }
 
                 pLabels[index].Background = scb;
             }
 
-            if (AppVars.ImgPanel[0].Hash.Equals(AppVars.ImgPanel[1].Hash))
-            {
+            if (AppVars.ImgPanel[0].Id == AppVars.ImgPanel[1].Id) {
                 pLabels[0].Background = System.Windows.Media.Brushes.LightGray;
                 pLabels[1].Background = System.Windows.Media.Brushes.LightGray;
             }
@@ -286,19 +290,21 @@ namespace ImageBank
         private async void ImgPanelDelete(int index)
         {
             DisableElements();
-            await Task.Run(() => { AppVars.Collection.Delete(AppVars.ImgPanel[index].Hash); });
-            await Task.Run(() => { AppVars.Collection.Find(null, AppVars.Progress); });
+            await Task.Run(() => { AppVars.Collection.Delete(AppVars.ImgPanel[index].Id); });
+            await Task.Run(() => { AppVars.Collection.Find(AppVars.Progress); });
             DrawCanvas();
             EnableElements();
         }
 
-        private async void MoveToNodeClick(string folder)
+        private void MoveToNodeClick(string folder)
         {
+            /*
             DisableElements();
             await Task.Run(() => { AppVars.Collection.MoveTo(AppVars.ImgPanel[0].Hash, folder); });
             await Task.Run(() => { AppVars.Collection.Find(AppVars.ImgPanel[0].Hash, AppVars.Progress); });
             DrawCanvas();
             EnableElements();
+            */
         }
 
         private void DefineKeywordsClick()

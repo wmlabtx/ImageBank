@@ -13,19 +13,19 @@ namespace ImageBank
 {
     public static class HelperImages
     {
-        public static bool GetBitmapFromFile(string filename, out byte[] jpgdata, out Bitmap bitmap, out bool needwrite)
+        public static bool GetChecksumFromFile(
+            string filename,
+            out byte[] jpgdata,
+            out string checksum)
         {
             jpgdata = null;
-            bitmap = null;
-            needwrite = false;
-            if (!File.Exists(filename))
-            {
+            checksum = null;
+            if (!File.Exists(filename)) {
                 return false;
             }
 
             var extension = Path.GetExtension(filename);
-            if (string.IsNullOrEmpty(extension))
-            {
+            if (string.IsNullOrEmpty(extension)) {
                 return false;
             }
 
@@ -36,27 +36,75 @@ namespace ImageBank
                 !extension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase) &&
                 !extension.Equals(AppConsts.JpegExtension, StringComparison.InvariantCultureIgnoreCase) &&
                 !extension.Equals(AppConsts.DatExtension, StringComparison.InvariantCultureIgnoreCase)
-                )
-            {
+                ) {
                 return false;
             }
 
             jpgdata = File.ReadAllBytes(filename);
-            if (jpgdata == null || jpgdata.Length == 0)
-            {
+            if (jpgdata == null || jpgdata.Length == 0) {
                 return false;
             }
 
-            if (extension.Equals(AppConsts.DatExtension))
-            {
+            if (extension.Equals(AppConsts.DatExtension)) {
                 var password = HelperPath.GetPassword(filename);
                 jpgdata = HelperEncrypting.Decrypt(jpgdata, password);
-                if (jpgdata == null || jpgdata.Length == 0)
-                {
+                if (jpgdata == null || jpgdata.Length == 0) {
+                    return false;
+                }
+            }
+
+            checksum = HelperHash.Compute(jpgdata);
+            return true;
+        }
+
+
+        public static bool GetBitmapFromFile(
+            string filename, 
+            out byte[] jpgdata, 
+            out Bitmap bitmap, 
+            out string checksum, 
+            out string suggestedname, 
+            out bool needwrite)
+        {
+            jpgdata = null;
+            bitmap = null;
+            checksum = null;
+            suggestedname = null;
+            needwrite = false;
+            if (!File.Exists(filename)) {
+                return false;
+            }
+
+            var extension = Path.GetExtension(filename);
+            if (string.IsNullOrEmpty(extension)) {
+                return false;
+            }
+
+            if (
+                !extension.Equals(AppConsts.PngExtension, StringComparison.InvariantCultureIgnoreCase) &&
+                !extension.Equals(AppConsts.BmpExtension, StringComparison.InvariantCultureIgnoreCase) &&
+                !extension.Equals(AppConsts.WebpExtension, StringComparison.InvariantCultureIgnoreCase) &&
+                !extension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase) &&
+                !extension.Equals(AppConsts.JpegExtension, StringComparison.InvariantCultureIgnoreCase) &&
+                !extension.Equals(AppConsts.DatExtension, StringComparison.InvariantCultureIgnoreCase)
+                ) {
+                return false;
+            }
+
+            jpgdata = File.ReadAllBytes(filename);
+            if (jpgdata == null || jpgdata.Length == 0) {
+                return false;
+            }
+
+            if (extension.Equals(AppConsts.DatExtension)) {
+                var password = HelperPath.GetPassword(filename);
+                jpgdata = HelperEncrypting.Decrypt(jpgdata, password);
+                if (jpgdata == null || jpgdata.Length == 0) {
                     return false;
                 }
                 
                 extension = AppConsts.JpgExtension;
+                needwrite = true;
             }
 
             Mat mat = null;
@@ -65,39 +113,34 @@ namespace ImageBank
                 mat = Cv2.ImDecode(jpgdata, ImreadModes.AnyColor);
                 const float fmax = 6000f * 4000f;
                 var fx = (float)Math.Sqrt(fmax / (mat.Width * mat.Height));
-                if (fx < 1f)
-                {
+                if (fx < 1f) {
                     mat = mat.Resize(OpenCvSharp.Size.Zero, fx, fx, InterpolationFlags.Cubic);
                     var iep = new ImageEncodingParam(ImwriteFlags.JpegQuality, 95);
                     Cv2.ImEncode(AppConsts.JpgExtension, mat, out jpgdata, iep);
                     needwrite = true;
                 }
-                else
-                {
+                else {
                     if (!extension.Equals(AppConsts.JpgExtension, StringComparison.InvariantCultureIgnoreCase) &&
-                        !extension.Equals(AppConsts.JpegExtension, StringComparison.InvariantCultureIgnoreCase))
-                    {
+                        !extension.Equals(AppConsts.JpegExtension, StringComparison.InvariantCultureIgnoreCase)) {
                         var iep = new ImageEncodingParam(ImwriteFlags.JpegQuality, 95);
                         Cv2.ImEncode(AppConsts.JpgExtension, mat, out jpgdata, iep);
+                        needwrite = true;
                     }
                 }
 
                 bitmap = mat.ToBitmap();
-                var suggestedname = HelperHash.ComputeName(jpgdata);
+                checksum = HelperHash.Compute(jpgdata);
                 var name = Path.GetFileNameWithoutExtension(filename);
-                if (!suggestedname.Equals((name)))
-                {
-                    needwrite = true;
-                }
+                suggestedname = HelperPath.AddChecksum(name, checksum);
             }
-            catch (ArgumentException)
-            {
+            catch {
                 jpgdata = null;
                 bitmap = null;
+                checksum = null;
+                suggestedname = null;
                 return false;
             }
-            finally
-            {
+            finally {
                 mat?.Dispose();
             }
 
