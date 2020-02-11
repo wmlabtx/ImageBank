@@ -1,27 +1,17 @@
-﻿namespace ImageBank
+﻿using System.IO;
+
+namespace ImageBank
 {
     public partial class ImgMdf
     {
-        public void MoveTo(string hash, string folder)
+        public void MoveTo(int id, string path)
         {
-            /*
-            if (_imgList.TryGetValue(hash, out var imgX))
-            {
-                imgX.Folder = folder;
-                if (!string.IsNullOrEmpty(folder))
-                {
-                    if (_imgList.TryGetValue(imgX.NextHash, out var imgY))
-                    {
-                        if (imgY.Folder.IndexOf(folder) != 0)
-                        {
-                            var images = GetImagesFromFolder(folder);
-                            var index = HelperRandom.Next(images.Length);
-                            imgX.NextHash = images[index].Hash;
-                        }
-                    }
-                }
+            if (_imgList.TryGetValue(id, out var imgX)) {
+                var oldfile = imgX.File;
+                imgX.Path = path;
+                var newfile = imgX.File;
+                File.Move(oldfile, newfile);
             }
-            */
         }
     }
 }

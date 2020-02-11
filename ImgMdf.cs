@@ -34,7 +34,7 @@ namespace ImageBank
             while (true) {
                 var scopetoview = _imgList
                     .Values
-                    .Where(e => e.LastId >= e.Id && e.GetDescriptors().Length > 0)
+                    .Where(e => e.GetDescriptors().Length > 0)
                     .ToArray();
 
                 if (scopetoview.Length == 0) {
@@ -90,12 +90,21 @@ namespace ImageBank
             return min;
         }
 
+        private DateTime GetMinLastCheck()
+        {
+            var min = (_imgList.Count == 0 ?
+                DateTime.Now :
+                _imgList.Min(e => e.Value.LastCheck))
+                .AddSeconds(-1);
+            return min;
+        }
+
         private string GetPrompt()
         {
             var counters = new SortedDictionary<int, int>();
             var scope = _imgList
                 .Values
-                .Where(e => e.LastId >= e.Id && e.GetDescriptors().Length > 0)
+                .Where(e => e.GetDescriptors().Length > 0)
                 .ToArray();
 
             foreach (var img in scope) {
@@ -135,14 +144,13 @@ namespace ImageBank
 
             var scopetocheck = _imgList
                 .Values
-                .Where(e => e.LastId < e.Id)
                 .ToArray();
 
             if (scopetocheck.Length == 0) {
                 return -1;
             }
 
-            var id = scopetocheck.Aggregate((m, e) => e.LastId < m.LastId ? e : m).Id;
+            var id = scopetocheck.Aggregate((m, e) => e.LastCheck < m.LastCheck ? e : m).Id;
             return id;
         }
 

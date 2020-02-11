@@ -6,7 +6,18 @@ namespace ImageBank
     {
         public int Id { get; }
         public string Name { get; }
-        public string Path { get; }
+
+        private string _path;
+        public string Path
+        {
+            get => _path;
+            set
+            {
+                _path = value;
+                ImgMdf.SqlUpdateProperty(this, AppConsts.AttrPath, value);
+            }
+        }
+
         public string Checksum { get; }
 
         private int _generation;
@@ -42,17 +53,17 @@ namespace ImageBank
             }
         }
 
-        private int _lastid;
-        public int LastId
+        private DateTime _lastcheck;
+        public DateTime LastCheck
         {
             get
             {
-                return _lastid;
+                return _lastcheck;
             }
             set
             {
-                _lastid = value;
-                ImgMdf.SqlUpdateProperty(this, AppConsts.AttrLastId, value);
+                _lastcheck = value;
+                ImgMdf.SqlUpdateProperty(this, AppConsts.AttrLastCheck, value);
             }
         }
 
@@ -119,19 +130,19 @@ namespace ImageBank
             DateTime lastview,
             int nextid,
             int match,
-            int lastid,
+            DateTime lastcheck,
             DateTime lastchange,
             uint[] descriptors)
         {
             Id = id;
             Name = name;
-            Path = path;
+            _path = path;
             Checksum = checksum;
             _generation = generation;
             _lastview = lastview;
             _nextid = nextid;
             _match = match;
-            _lastid = lastid;
+            _lastcheck = lastcheck;
             _lastchange = lastchange;
             _descriptors = descriptors;
         }

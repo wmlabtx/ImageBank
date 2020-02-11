@@ -50,7 +50,13 @@ namespace ImageBank
                         continue;
                     }
 
-                    Delete(imgfound.Id);
+                    if (File.Exists(imgfound.File)) {
+                        HelperRecycleBin.Delete(imgfound.File);
+                    }
+
+                    imgfound.Path = path;
+                    imgfound.LastCheck = GetMinLastCheck();
+                    continue;
                 }
 
                 if (!HelperImages.GetBitmapFromFile(
@@ -75,6 +81,7 @@ namespace ImageBank
                 }
 
                 var lastview = GetMinLastView();
+                var lastcheck = GetMinLastCheck();
                 var id = AllocateId();
                 var generation = 0;
                 if (extension.Equals(AppConsts.DatExtension)) {
@@ -93,7 +100,7 @@ namespace ImageBank
                     lastview: lastview,
                     nextid: id,
                     match: 0,
-                    lastid: -1,
+                    lastcheck: lastcheck,
                     lastchange: lastview,
                     descriptors: Array.Empty<uint>());
 

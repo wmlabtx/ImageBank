@@ -18,11 +18,12 @@ namespace ImageBank
 
         private void ResetRefers(int id)
         {
+            var lastcheck = GetMinLastCheck();
             _imgList
                 .Values
                 .Where(e => e.NextId == id)
                 .ToList()
-                .ForEach(e => e.LastId = -1);
+                .ForEach(e => e.LastCheck = lastcheck);
         }
     }
 }

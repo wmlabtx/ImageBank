@@ -64,7 +64,7 @@ namespace ImageBank
                 sb.Append($"{AppConsts.AttrGeneration}, ");
                 sb.Append($"{AppConsts.AttrNextId}, ");
                 sb.Append($"{AppConsts.AttrMatch}, ");
-                sb.Append($"{AppConsts.AttrLastId}, ");
+                sb.Append($"{AppConsts.AttrLastCheck}, ");
                 sb.Append($"{AppConsts.AttrLastView}, ");
                 sb.Append($"{AppConsts.AttrLastChange}, ");
                 sb.Append($"{AppConsts.AttrDescriptors}");
@@ -76,7 +76,7 @@ namespace ImageBank
                 sb.Append($"@{AppConsts.AttrGeneration}, ");
                 sb.Append($"@{AppConsts.AttrNextId}, ");
                 sb.Append($"@{AppConsts.AttrMatch}, ");
-                sb.Append($"@{AppConsts.AttrLastId}, ");
+                sb.Append($"@{AppConsts.AttrLastCheck}, ");
                 sb.Append($"@{AppConsts.AttrLastView}, ");
                 sb.Append($"@{AppConsts.AttrLastChange}, ");
                 sb.Append($"@{AppConsts.AttrDescriptors}");
@@ -89,7 +89,7 @@ namespace ImageBank
                 sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrGeneration}", img.Generation);
                 sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrNextId}", img.NextId);
                 sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrMatch}", img.Match);
-                sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastId}", img.LastId);
+                sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastCheck}", img.LastCheck);
                 sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastView}", img.LastView);
                 sqlCommand.Parameters.AddWithValue($"@{AppConsts.AttrLastChange}", img.LastChange);
                 var buffer = HelperConvertors.ConvertToBuffer(img.GetDescriptors());

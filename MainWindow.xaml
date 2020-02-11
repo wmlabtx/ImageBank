@@ -42,6 +42,9 @@
                     <MenuItem Header="@Veronica Rodriguez" Tag="Adult.@Veronica Rodriguez" Click="MoveToNodeClick" />
                     <MenuItem Header="@Whitney Conroy" Tag="Adult.@Whitney Conroy" Click="MoveToNodeClick" />
                 </MenuItem>
+                <MenuItem Header="Kandid">
+                    <MenuItem Header="Root" Tag="Kandid" Click="MoveToNodeClick"  />
+                </MenuItem>                
             </MenuItem>
         </Menu>
         <StatusBar DockPanel.Dock="Bottom">

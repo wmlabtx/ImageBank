@@ -31,7 +31,7 @@
         public const string AttrLastView = "LastView";
         public const string AttrNextId = "NextId";
         public const string AttrMatch = "Match";
-        public const string AttrLastId = "LastId";
+        public const string AttrLastCheck = "LastCheck";
         public const string AttrLastChange = "LastChange";
         public const string AttrDescriptors = "Descriptors";
         public const string TableVars = "Vars";

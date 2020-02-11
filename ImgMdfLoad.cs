@@ -22,7 +22,7 @@ namespace ImageBank
             sb.Append($"{AppConsts.AttrLastView}, "); // 5
             sb.Append($"{AppConsts.AttrNextId}, "); // 6
             sb.Append($"{AppConsts.AttrMatch}, "); // 7
-            sb.Append($"{AppConsts.AttrLastId}, "); // 8
+            sb.Append($"{AppConsts.AttrLastCheck}, "); // 8
             sb.Append($"{AppConsts.AttrLastChange}, "); // 9
             sb.Append($"{AppConsts.AttrDescriptors} "); // 10
             sb.Append($"FROM {AppConsts.TableImages}");
@@ -43,7 +43,7 @@ namespace ImageBank
                         var lastview = reader.GetDateTime(5);
                         var nextid = reader.GetInt32(6);
                         var match = reader.GetInt32(7);
-                        var lastid = reader.GetInt32(8);
+                        var lastcheck = reader.GetDateTime(8);
                         var lastchange = reader.GetDateTime(9);
                         var buffer = (byte[])reader[10];
                         var descriptors = new uint[buffer.Length / sizeof(uint)];
@@ -57,7 +57,7 @@ namespace ImageBank
                             lastview: lastview,
                             nextid: nextid,
                             match: match,
-                            lastid: lastid,
+                            lastcheck: lastcheck,
                             lastchange: lastchange,
                             descriptors: descriptors);
 

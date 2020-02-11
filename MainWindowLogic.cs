@@ -245,6 +245,19 @@ namespace ImageBank
                 pLabels[index].Background = scb;
             }
 
+            if (
+                !AppVars.ImgPanel[0].Path.StartsWith(AppConsts.PathLegacy) &&
+                !AppVars.ImgPanel[1].Path.StartsWith(AppConsts.PathLegacy) &&
+                (
+                    AppVars.ImgPanel[0].Path.StartsWith(AppVars.ImgPanel[1].Path) ||
+                    AppVars.ImgPanel[1].Path.StartsWith(AppVars.ImgPanel[0].Path)
+                )
+                ) {
+                pLabels[0].Background = System.Windows.Media.Brushes.LightGreen;
+                pLabels[1].Background = System.Windows.Media.Brushes.LightGreen;
+            }
+
+
             if (AppVars.ImgPanel[0].Id == AppVars.ImgPanel[1].Id) {
                 pLabels[0].Background = System.Windows.Media.Brushes.LightGray;
                 pLabels[1].Background = System.Windows.Media.Brushes.LightGray;
@@ -296,15 +309,13 @@ namespace ImageBank
             EnableElements();
         }
 
-        private void MoveToNodeClick(string folder)
+        private async void MoveToNodeClick(string path)
         {
-            /*
             DisableElements();
-            await Task.Run(() => { AppVars.Collection.MoveTo(AppVars.ImgPanel[0].Hash, folder); });
-            await Task.Run(() => { AppVars.Collection.Find(AppVars.ImgPanel[0].Hash, AppVars.Progress); });
+            await Task.Run(() => { AppVars.Collection.MoveTo(AppVars.ImgPanel[0].Id, path); });
+            await Task.Run(() => { AppVars.Collection.Find(AppVars.ImgPanel[0].Id, AppVars.Progress); });
             DrawCanvas();
             EnableElements();
-            */
         }
 
         private void DefineKeywordsClick()
