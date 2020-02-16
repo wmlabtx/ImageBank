@@ -51,8 +51,8 @@ namespace ImageBank
             AppVars.BackgroundProgress = new Progress<string>(message => BackgroundStatus.Text = message);
 
             DisableElements();
-            await Task.Run(() => { AppVars.Collection.Load(AppVars.Progress); });
-            await Task.Run(() => { AppVars.Collection.Find(AppVars.Progress); });
+            await Task.Run(() => { AppVars.Collection.Load(AppVars.Progress); }).ConfigureAwait(true);
+            await Task.Run(() => { AppVars.Collection.Find(AppVars.Progress); }).ConfigureAwait(true);
             DrawCanvas();
             
             EnableElements();
@@ -88,10 +88,10 @@ namespace ImageBank
 
         private async void ImportClick()
         {
-            _ = Task.Run(() => { AppVars.Collection.Import(AppVars.BackgroundProgress); });
+            await Task.Run(() => { AppVars.Collection.Import(AppVars.BackgroundProgress); }).ConfigureAwait(true);
 
             DisableElements();            
-            await Task.Run(() => { AppVars.Collection.Find(AppVars.Progress); });
+            await Task.Run(() => { AppVars.Collection.Find(AppVars.Progress); }).ConfigureAwait(true);
             DrawCanvas();
             EnableElements();
         }
@@ -99,7 +99,7 @@ namespace ImageBank
         private async void ExportClick()
         {
             DisableElements();
-            await Task.Run(() => { AppVars.Collection.Export(AppVars.Progress); });
+            await Task.Run(() => { AppVars.Collection.Export(AppVars.Progress); }).ConfigureAwait(true);
             DrawCanvas();
             EnableElements();
         }
@@ -144,7 +144,7 @@ namespace ImageBank
             AppVars.Collection.UpdateLastView(AppVars.ImgPanel[1].Id);
 
             DisableElements();
-            await Task.Run(() => { AppVars.Collection.Find(AppVars.Progress); });
+            await Task.Run(() => { AppVars.Collection.Find(AppVars.Progress); }).ConfigureAwait(true);
             DrawCanvas();
             EnableElements();
         }
@@ -170,7 +170,7 @@ namespace ImageBank
         {
             while (!_backgroundWorker.CancellationPending)
             {
-                AppVars.Collection.ComputeSim(_backgroundWorker);
+                AppVars.Collection.Compute(_backgroundWorker);
                 Thread.Sleep(100);
             }
 
@@ -201,6 +201,7 @@ namespace ImageBank
             LabelRight.IsEnabled = enabled;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "<Pending>")]
         private void DrawCanvas()
         {
             if (AppVars.ImgPanel[0] == null || AppVars.ImgPanel[1] == null)
@@ -210,27 +211,27 @@ namespace ImageBank
 
             var pBoxes = new[] { BoxLeft, BoxRight };
             var pLabels = new[] { LabelLeft, LabelRight };
-            for (var index = 0; index < 2; index++)
-            {
+            for (var index = 0; index < 2; index++) {
                 var id = AppVars.ImgPanel[index].Id;
                 pBoxes[index].Tag = id;
                 pLabels[index].Tag = id;
 
-                pBoxes[index].Source = HelperImages.ImageSourceFromBitmap(AppVars.ImgPanel[index].Bitmap);
+                pBoxes[index].Source = Helper.ImageSourceFromBitmap(AppVars.ImgPanel[index].Bitmap);
 
                 var sb = new StringBuilder();
                 sb.Append($"{AppVars.ImgPanel[index].Path}\\");
-                sb.Append($"{AppVars.ImgPanel[index].Name}");
-                sb.Append($" M:{AppVars.ImgPanel[index].Match}");
+                sb.Append($"{AppVars.ImgPanel[index].Name.ToLowerInvariant()}");
+                sb.Append($" Q:{AppVars.ImgPanel[index].Quality:F2}");
+                sb.Append($" L:{AppVars.ImgPanel[index].Descriptors}");
                 sb.Append($" G:{AppVars.ImgPanel[index].Generation}");
                 sb.AppendLine();
                 
-                sb.Append($"{HelperConvertors.SizeToString(AppVars.ImgPanel[index].Length)} ");
+                sb.Append($"{Helper.SizeToString(AppVars.ImgPanel[index].Length)} ");
                 sb.Append($" ({ AppVars.ImgPanel[index].Bitmap.Width}x{AppVars.ImgPanel[index].Bitmap.Height})");
                 sb.AppendLine();
 
-                sb.Append($"{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].LastView))} ago");
-                sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].LastChange))} ago]");
+                sb.Append($"{Helper.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].LastView))} ago");
+                sb.Append($" [{Helper.TimeIntervalToString(DateTime.Now.Subtract(AppVars.ImgPanel[index].LastChange))} ago]");
 
                 pLabels[index].Text = sb.ToString();
                 var scb = System.Windows.Media.Brushes.Bisque;
@@ -244,19 +245,6 @@ namespace ImageBank
 
                 pLabels[index].Background = scb;
             }
-
-            if (
-                !AppVars.ImgPanel[0].Path.StartsWith(AppConsts.PathLegacy) &&
-                !AppVars.ImgPanel[1].Path.StartsWith(AppConsts.PathLegacy) &&
-                (
-                    AppVars.ImgPanel[0].Path.StartsWith(AppVars.ImgPanel[1].Path) ||
-                    AppVars.ImgPanel[1].Path.StartsWith(AppVars.ImgPanel[0].Path)
-                )
-                ) {
-                pLabels[0].Background = System.Windows.Media.Brushes.LightGreen;
-                pLabels[1].Background = System.Windows.Media.Brushes.LightGreen;
-            }
-
 
             if (AppVars.ImgPanel[0].Id == AppVars.ImgPanel[1].Id) {
                 pLabels[0].Background = System.Windows.Media.Brushes.LightGray;
@@ -303,8 +291,8 @@ namespace ImageBank
         private async void ImgPanelDelete(int index)
         {
             DisableElements();
-            await Task.Run(() => { AppVars.Collection.Delete(AppVars.ImgPanel[index].Id); });
-            await Task.Run(() => { AppVars.Collection.Find(AppVars.Progress); });
+            await Task.Run(() => { AppVars.Collection.Delete(AppVars.ImgPanel[index].Id); }).ConfigureAwait(true);
+            await Task.Run(() => { AppVars.Collection.Find(AppVars.Progress); }).ConfigureAwait(true);
             DrawCanvas();
             EnableElements();
         }
@@ -312,8 +300,8 @@ namespace ImageBank
         private async void MoveToNodeClick(string path)
         {
             DisableElements();
-            await Task.Run(() => { AppVars.Collection.MoveTo(AppVars.ImgPanel[0].Id, path); });
-            await Task.Run(() => { AppVars.Collection.Find(AppVars.ImgPanel[0].Id, AppVars.Progress); });
+            await Task.Run(() => { AppVars.Collection.MoveTo(AppVars.ImgPanel[0].Id, path); }).ConfigureAwait(true);
+            await Task.Run(() => { AppVars.Collection.Find(AppVars.ImgPanel[0].Id, AppVars.Progress); }).ConfigureAwait(true);
             DrawCanvas();
             EnableElements();
         }

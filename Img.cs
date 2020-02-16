@@ -14,7 +14,7 @@ namespace ImageBank
             set
             {
                 _path = value;
-                ImgMdf.SqlUpdateProperty(this, AppConsts.AttrPath, value);
+                ImgMdf.SqlUpdateProperty(Id, AppConsts.AttrPath, value);
             }
         }
 
@@ -27,7 +27,7 @@ namespace ImageBank
             set
             {
                 _generation = value;
-                ImgMdf.SqlUpdateProperty(this, AppConsts.AttrGeneration, value);
+                ImgMdf.SqlUpdateProperty(Id, AppConsts.AttrGeneration, value);
             }
         }
 
@@ -38,7 +38,7 @@ namespace ImageBank
             set
             {
                 _nextid = value;
-                ImgMdf.SqlUpdateProperty(this, AppConsts.AttrNextId, value);
+                ImgMdf.SqlUpdateProperty(Id, AppConsts.AttrNextId, value);
             }
         }
 
@@ -49,21 +49,21 @@ namespace ImageBank
             set
             {
                 _match = value;
-                ImgMdf.SqlUpdateProperty(this, AppConsts.AttrMatch, value);
+                ImgMdf.SqlUpdateProperty(Id, AppConsts.AttrMatch, value);
             }
         }
 
-        private DateTime _lastcheck;
-        public DateTime LastCheck
+        private int _lastid;
+        public int LastId
         {
             get
             {
-                return _lastcheck;
+                return _lastid;
             }
             set
             {
-                _lastcheck = value;
-                ImgMdf.SqlUpdateProperty(this, AppConsts.AttrLastCheck, value);
+                _lastid = value;
+                ImgMdf.SqlUpdateProperty(Id, AppConsts.AttrLastId, value);
             }
         }
 
@@ -74,7 +74,7 @@ namespace ImageBank
             set
             {
                 _lastview = value;
-                ImgMdf.SqlUpdateProperty(this, AppConsts.AttrLastView, value);
+                ImgMdf.SqlUpdateProperty(Id, AppConsts.AttrLastView, value);
             }
         }
 
@@ -85,22 +85,17 @@ namespace ImageBank
             set
             {
                 _lastchange = value;
-                ImgMdf.SqlUpdateProperty(this, AppConsts.AttrLastChange, value);
+                ImgMdf.SqlUpdateProperty(Id, AppConsts.AttrLastChange, value);
             }
         }
 
-        private uint[] _descriptors;
+        public float Quality { get; }
+
+        private readonly uint[] _descriptors;
 
         public uint[] GetDescriptors()
         {
             return _descriptors;
-        }
-
-        public void SetDescriptors(uint[] array)
-        {
-            _descriptors = array;
-            var buffer = HelperConvertors.ConvertToBuffer(_descriptors);
-            ImgMdf.SqlUpdateProperty(this, AppConsts.AttrDescriptors, buffer);
         }
 
         public string Directory
@@ -116,7 +111,7 @@ namespace ImageBank
         {
             get
             {
-                var filename = $"{Directory}{Name}{AppConsts.JpgExtension}";
+                var filename = $"{Directory}{Name}{AppConsts.MzxExtension}";
                 return filename;
             }
         }
@@ -130,8 +125,9 @@ namespace ImageBank
             DateTime lastview,
             int nextid,
             int match,
-            DateTime lastcheck,
+            int lastid,
             DateTime lastchange,
+            float quality,
             uint[] descriptors)
         {
             Id = id;
@@ -142,8 +138,9 @@ namespace ImageBank
             _lastview = lastview;
             _nextid = nextid;
             _match = match;
-            _lastcheck = lastcheck;
+            _lastid = lastid;
             _lastchange = lastchange;
+            Quality = quality;
             _descriptors = descriptors;
         }
     }

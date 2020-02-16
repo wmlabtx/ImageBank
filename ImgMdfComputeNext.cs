@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -8,14 +9,17 @@ namespace ImageBank
 {
     public partial class ImgMdf
     {
-        public void ComputeSim(BackgroundWorker backgroundworker)
+        public void Compute(BackgroundWorker backgroundworker)
         {
+            Contract.Requires(backgroundworker != null);
+
             AppVars.SuspendEvent.WaitOne(Timeout.Infinite);
 
-            var count = _imgList.Count();
-            if (count == 0) {
-                backgroundworker.ReportProgress(0, "no images");
-                return;
+            lock (_imglock) {
+                if (_imgList.Count == 0) {
+                    backgroundworker.ReportProgress(0, "no images");
+                    return;
+                }
             }
 
             var idX = GetNextToCheck();
@@ -24,22 +28,15 @@ namespace ImageBank
                 return;
             }
 
-            if (!_imgList.TryGetValue(idX, out var imgX)) {
-                backgroundworker.ReportProgress(0, $"error getting {idX}");
-                return;
-            }
-
-            if (imgX.GetDescriptors().Length == 0) {
-                var jpgdata = ReadJpgData(imgX.Name, imgX.Path);
-                if (!HelperDescriptors.ComputeHashes(jpgdata, out var descriptors)) {
-                    backgroundworker.ReportProgress(0, $"Unable to compute hashes: {imgX.Path}\\{imgX.Name}{AppConsts.JpgExtension}");
+            Img imgX;
+            lock (_imglock) {
+                if (!_imgList.TryGetValue(idX, out imgX)) {
+                    backgroundworker.ReportProgress(0, $"error getting {idX}");
                     return;
                 }
-
-                imgX.SetDescriptors(descriptors);
             }
 
-            FindNext(idX, out var lastcheck, out var lastchange, out var nextid, out var match);
+            FindNext(idX, out var lastid, out var lastchange, out var nextid, out var match);
 
             var sb = new StringBuilder();
             sb.Append($"i{imgX.Id}: ");
@@ -59,15 +56,17 @@ namespace ImageBank
                     sb.Append($"i{nextid}");
                     imgX.NextId = nextid;
                 }
+                else {
+
+                }
             }
 
             if (lastchange != imgX.LastChange) {
                 imgX.LastChange = lastchange;
             }
-
-            sb.Append($" [{HelperConvertors.TimeIntervalToString(DateTime.Now.Subtract(imgX.LastCheck))} ago]");
-            if (lastcheck != imgX.LastCheck) {
-                imgX.LastCheck = lastcheck;
+            
+            if (lastid != imgX.LastId) {
+                imgX.LastId = lastid;
             }
 
             var message = sb.ToString();

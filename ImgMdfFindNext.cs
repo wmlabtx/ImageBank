@@ -1,38 +1,43 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 
 namespace ImageBank
 {
     public partial class ImgMdf
     {
-        private void FindNext(int idX, out DateTime lastcheck, out DateTime lastchange, out int nextid, out int match)
+        private void FindNext(int idX, out int lastid, out DateTime lastchange, out int nextid, out int match)
         {
-            var imgX = _imgList[idX];
-            lastcheck = DateTime.Now;
-            lastchange = imgX.LastChange;
-            nextid = imgX.Id;
-            match = 0;
+            lock (_imglock) {
+                var imgX = _imgList[idX];
+                lastchange = imgX.LastChange;
+                nextid = imgX.Id;
+                match = 0;
+                lastid = _id;
 
-            var candidates = 
-                (imgX.Path.StartsWith(AppConsts.PathLegacy) ?
-                _imgList.Values.Where(e => e.GetDescriptors().Length > 0) :
-                _imgList.Values.Where(e => e.GetDescriptors().Length > 0 && imgX.Path.StartsWith(e.Path)))
-                .ToArray();
+                var candidates = new SortedDictionary<int, int>();
+                foreach (var descriptor in imgX.GetDescriptors()) {
+                    if (_descriptorList.TryGetValue(descriptor, out SortedDictionary<int, int> tree)) {
+                        var countX = tree[idX];
+                        foreach (var candidate in tree) {
+                            if (candidate.Key == idX) {
+                                continue;
+                            }
 
-            if (candidates.Length == 0) {
-                return;
-            }
+                            var count = Math.Min(countX, candidate.Value);
+                            if (!candidates.ContainsKey(candidate.Key)) {
+                                candidates.Add(candidate.Key, count);
+                            }
+                            else {
+                                candidates[candidate.Key] += count;
+                            }
 
-            foreach (var imgY in candidates) {
-                if (imgY.Id == imgX.Id) {
-                    continue;
-                }
-
-                var matchxy = HelperDescriptors.ComputeMatch(imgX.GetDescriptors(), imgY.GetDescriptors());
-                if (matchxy > match) {
-                    match = matchxy;
-                    nextid = imgY.Id;
-                    lastchange = DateTime.Now;
+                            if (candidates[candidate.Key] > match) {
+                                match = candidates[candidate.Key];
+                                nextid = candidate.Key;
+                                lastchange = DateTime.Now;
+                            }
+                        }
+                    }
                 }
             }
         }

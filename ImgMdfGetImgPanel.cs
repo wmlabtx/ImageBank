@@ -15,9 +15,10 @@ namespace ImageBank
             Bitmap bitmap;
             long length;
             try {
-                using (var fs = new FileStream(img.File, FileMode.Open, FileAccess.Read)) {
-                    length = fs.Length;
-                    bitmap = (Bitmap)Image.FromStream(fs);
+                var imgdata = Helper.ReadEncryptedData(img.File);
+                using (var ms = new MemoryStream(imgdata)) {
+                    length = imgdata.Length;
+                    bitmap = (Bitmap)Image.FromStream(ms);
                 }
             }
             catch {
@@ -25,8 +26,7 @@ namespace ImageBank
                 bitmap = null;
             }
 
-            if (bitmap == null)
-            {
+            if (bitmap == null) {
                 Delete(id);
                 return null;
             }
@@ -37,10 +37,11 @@ namespace ImageBank
                 path: img.Path,
                 lastview: img.LastView,
                 generation: img.Generation,
-                match: img.Match,
+                quality: img.Quality,
                 lastchange: img.LastChange,
                 bitmap: bitmap, 
-                length: length);
+                length: length,
+                descriptors: img.GetDescriptors().Length);
 
             return imgpanel;
         }

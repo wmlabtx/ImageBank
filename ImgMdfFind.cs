@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 
 namespace ImageBank
 {
@@ -25,6 +26,7 @@ namespace ImageBank
 
         public void Find(IProgress<string> progress)
         {
+            Contract.Requires(progress != null);
             if (!GetPairToCompare(out var idX, out var idY)) {
                 progress.Report("No images to view");
                 return;
@@ -35,19 +37,20 @@ namespace ImageBank
 
         public void Find(int idX, IProgress<string> progress)
         {
+            Contract.Requires(progress != null);
             if (!_imgList.TryGetValue(idX, out var imgX)) {
                 progress.Report($"error getting {idX}");
                 return;
             }
 
-            FindNext(idX, out var lastcheck, out var lastchange, out var nextid, out var match);
+            FindNext(idX, out var lastid, out var lastchange, out var nextid, out var match);
 
             if (lastchange != imgX.LastChange) {
                 imgX.LastChange = lastchange;
             }
 
-            if (lastcheck != imgX.LastCheck) {
-                imgX.LastCheck = lastcheck;
+            if (lastid != imgX.LastId) {
+                imgX.LastId = lastid;
             }
 
             if (nextid != imgX.NextId) {

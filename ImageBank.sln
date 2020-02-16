@@ -5,7 +5,12 @@ VisualStudioVersion = 16.0.29025.244
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageBank", "ImageBank.csproj", "{70149A98-8CE5-4EAF-8BFA-3A5E0CA4EBC4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageBankTests", "..\ImageBankTests\ImageBankTests.csproj", "{1BD02D2F-BE8B-4471-A0D7-101C04CC1FA1}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{537824E7-9A08-4C44-BCC2-8C968F5414D9}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{2C04C593-2034-4830-8C92-164BDEBAB863}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +22,10 @@ Global
 		{70149A98-8CE5-4EAF-8BFA-3A5E0CA4EBC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70149A98-8CE5-4EAF-8BFA-3A5E0CA4EBC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70149A98-8CE5-4EAF-8BFA-3A5E0CA4EBC4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1BD02D2F-BE8B-4471-A0D7-101C04CC1FA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1BD02D2F-BE8B-4471-A0D7-101C04CC1FA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1BD02D2F-BE8B-4471-A0D7-101C04CC1FA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1BD02D2F-BE8B-4471-A0D7-101C04CC1FA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C04C593-2034-4830-8C92-164BDEBAB863}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C04C593-2034-4830-8C92-164BDEBAB863}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C04C593-2034-4830-8C92-164BDEBAB863}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C04C593-2034-4830-8C92-164BDEBAB863}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -7,8 +7,9 @@ namespace ImageBank
     {
         public static readonly ImgMdf Collection = new ImgMdf();
         public static readonly ImgPanel[] ImgPanel = new ImgPanel[2];
-        public static Progress<string> Progress;
-        public static Progress<string> BackgroundProgress;
-        public static ManualResetEvent SuspendEvent;
+
+        public static Progress<string> Progress { get; set; }
+        public static Progress<string> BackgroundProgress { get; set; }
+        public static ManualResetEvent SuspendEvent { get; set; }
     }
 }

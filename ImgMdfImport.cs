@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 
@@ -6,6 +7,7 @@ namespace ImageBank
 {
     public partial class ImgMdf
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "<Pending>")]
         private void Import(int maxadd, IProgress<string> progress)
         { 
             AppVars.SuspendEvent.Reset();
@@ -18,11 +20,14 @@ namespace ImageBank
             var fileInfos = directoryInfo.GetFiles("*.*", SearchOption.AllDirectories).ToList();
             foreach (var fileInfo in fileInfos) {
                 var filename = fileInfo.FullName;
-                var name = HelperPath.GetName(filename);
-                var path = HelperPath.GetPath(filename);
-                if (_nameList.TryGetValue(name, out var imgfound)) {
-                    if (path.Equals(imgfound.Path)) {
-                        continue;
+                var name = Helper.GetName(filename);
+                var path = Helper.GetPath(filename);
+                Img imgfound;
+                lock (_imglock) {
+                    if (_nameList.TryGetValue(name, out imgfound)) {
+                        if (path.Equals(imgfound.Path, StringComparison.OrdinalIgnoreCase)) {
+                            continue;
+                        }
                     }
                 }
 
@@ -32,85 +37,65 @@ namespace ImageBank
                     progress?.Report($"{file} (a:{added}/f:{found})...");
                 }
 
-                var extension = Path.GetExtension(filename);
-
-                if (!HelperImages.GetChecksumFromFile(
+                var extension = Helper.GetExtension(filename);
+                if (!Helper.GetImageDataFromFile(
                     filename,
-                    out var jpgdata,
-                    out var checksum)) {
-                    progress?.Report($"Corrupted image: {path}\\{name}{extension}");
-                    return;
-
-                }
-
-                if (_checksumList.TryGetValue(checksum, out imgfound)) {
-                    found++;
-                    if (extension.Equals(AppConsts.DatExtension)) {
-                        HelperRecycleBin.Delete(filename);
-                        continue;
-                    }
-
-                    if (File.Exists(imgfound.File)) {
-                        HelperRecycleBin.Delete(imgfound.File);
-                    }
-
-                    imgfound.Path = path;
-                    imgfound.LastCheck = GetMinLastCheck();
-                    continue;
-                }
-
-                if (!HelperImages.GetBitmapFromFile(
-                    filename, 
-                    out jpgdata, 
-                    out var bitmap, 
-                    out checksum,
-                    out var suggestedname,
+                    out var imgdata,
+                    out var quality,
+                    out var bitmap,
+                    out var checksum,
                     out var needwrite)) {
                     progress?.Report($"Corrupted image: {path}\\{name}{extension}");
                     return;
                 }
 
-                if (_checksumList.TryGetValue(checksum, out imgfound)) {
-                     found++;
-                    if (extension.Equals(AppConsts.DatExtension)) {
-                        HelperRecycleBin.Delete(filename);
+                lock (_imglock) {
+                    if (_checksumList.TryGetValue(checksum, out imgfound)) {
+                        found++;
+                        Helper.DeleteToRecycleBin(filename);
                         continue;
                     }
-
-                    Delete(imgfound.Id);
                 }
 
-                var lastview = GetMinLastView();
-                var lastcheck = GetMinLastCheck();
+                if (!Helper.GetImageDescriptors(imgdata, out uint[] descriptors)) {
+                    progress?.Report($"Cannot get descriptors: {path}\\{name}{extension}");
+                    return;
+                }
+
                 var id = AllocateId();
-                var generation = 0;
-                if (extension.Equals(AppConsts.DatExtension)) {
-                    generation = 1;
-                    name = $"{AppConsts.PrefixMzx}{id:D6}";
-                    path = GetSuggestedLegacyPath();
+                string suggestedname;
+                var namelenght = 0;
+                lock (_imglock) {
+                    do {
+                        namelenght++;
+                        suggestedname = string.Concat(AppConsts.PrefixName, checksum.Substring(0, namelenght));
+                    } while (_nameList.ContainsKey(suggestedname));
                 }
 
-                name = HelperPath.AddChecksum(name, checksum);
+                var suggestedpath = GetSuggestedLegacyPath();
+                var suggestedfilename = Helper.GetFileName(suggestedname.ToLowerInvariant(), suggestedpath);
+                var lastview = GetMinLastView();
                 var img = new Img(
                     id: id,
-                    name: name,
-                    path: path,
+                    name: suggestedname,
+                    path: suggestedpath,
                     checksum: checksum,
-                    generation: generation,
+                    generation: 0,
                     lastview: lastview,
                     nextid: id,
                     match: 0,
-                    lastcheck: lastcheck,
+                    lastid: -1,
                     lastchange: lastview,
-                    descriptors: Array.Empty<uint>());
+                    quality: quality,
+                    descriptors: descriptors);
 
                 Add(img);
                 if (needwrite) {
-                    WriteJpgData(name, path, jpgdata);
-                    HelperRecycleBin.Delete(filename);
+                    Helper.WriteEncryptedData(suggestedfilename, imgdata);
+                    Helper.DeleteToRecycleBin(filename);
                 }
                 else {
-                    if (!filename.Equals(img.File)) {
+                    if (!filename.Equals(img.File, StringComparison.OrdinalIgnoreCase)) {
                         File.Move(filename, img.File);
                     }
                 }
@@ -128,29 +113,11 @@ namespace ImageBank
             AppVars.SuspendEvent.Set();
         }
 
-        private static void ProcessDirectory(string startLocation, IProgress<string> progress)
-        {
-            foreach (var directory in Directory.GetDirectories(startLocation))
-            {
-                ProcessDirectory(directory, progress);
-                if (Directory.GetFiles(directory).Length != 0 || Directory.GetDirectories(directory).Length != 0)
-                    continue;
-
-                progress.Report($"{directory} deleting...");
-                try
-                {
-                    Directory.Delete(directory, false);
-                }
-                catch (IOException)
-                {
-                }
-            }
-        }
-
         public void Import(IProgress<string> progress)
         {
-            Import(AppConsts.MaxImportImages, progress);
-            ProcessDirectory(AppConsts.PathCollection, progress);
+            Contract.Requires(progress != null);
+            Import(100, progress);
+            Helper.CleanupDirectories(AppConsts.PathCollection, progress);
             progress.Report(string.Empty);
         }
 
