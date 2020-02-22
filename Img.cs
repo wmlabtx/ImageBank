@@ -42,14 +42,14 @@ namespace ImageBank
             }
         }
 
-        private int _match;
-        public int Match
+        private int _distance;
+        public int Distance
         {
-            get => _match;
+            get => _distance;
             set
             {
-                _match = value;
-                ImgMdf.SqlUpdateProperty(Id, AppConsts.AttrMatch, value);
+                _distance = value;
+                ImgMdf.SqlUpdateProperty(Id, AppConsts.AttrDistance, value);
             }
         }
 
@@ -89,13 +89,13 @@ namespace ImageBank
             }
         }
 
-        public float Quality { get; }
+        public ulong Phash { get; set; }
 
-        private readonly uint[] _descriptors;
+        private readonly ulong[] _orbv;
 
-        public uint[] GetDescriptors()
+        public ulong[] Orbv()
         {
-            return _descriptors;
+            return _orbv;
         }
 
         public string Directory
@@ -107,11 +107,12 @@ namespace ImageBank
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "<Pending>")]
         public string File
         {
             get
             {
-                var filename = $"{Directory}{Name}{AppConsts.MzxExtension}";
+                var filename = Helper.GetFileName(Name.ToLowerInvariant(), Path);
                 return filename;
             }
         }
@@ -124,11 +125,11 @@ namespace ImageBank
             int generation,
             DateTime lastview,
             int nextid,
-            int match,
+            int distance,
             int lastid,
             DateTime lastchange,
-            float quality,
-            uint[] descriptors)
+            ulong phash,
+            ulong[] orbv)
         {
             Id = id;
             Name = name;
@@ -137,11 +138,11 @@ namespace ImageBank
             _generation = generation;
             _lastview = lastview;
             _nextid = nextid;
-            _match = match;
+            _distance = distance;
             _lastid = lastid;
             _lastchange = lastchange;
-            Quality = quality;
-            _descriptors = descriptors;
+            Phash = phash;
+            _orbv = orbv;
         }
     }
 }

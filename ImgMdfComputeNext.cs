@@ -36,15 +36,15 @@ namespace ImageBank
                 }
             }
 
-            FindNext(idX, out var lastid, out var lastchange, out var nextid, out var match);
+            FindNext(idX, out var lastid, out var lastchange, out var nextid, out var distance);
 
             var sb = new StringBuilder();
             sb.Append($"i{imgX.Id}: ");
-            if (match != imgX.Match) {
-                sb.Append($"{imgX.Match} ");
-                sb.Append($"{char.ConvertFromUtf32(match > imgX.Match ? 0x2192 : 0x2193)} ");
-                sb.Append($"{match}");
-                imgX.Match = match;
+            if (distance != imgX.Distance) {
+                sb.Append($"{imgX.Distance} ");
+                sb.Append($"{char.ConvertFromUtf32(distance < imgX.Distance ? 0x2192 : 0x2193)} ");
+                sb.Append($"{distance}");
+                imgX.Distance = distance;
                 if (nextid != imgX.NextId) {
                     imgX.NextId = nextid;
                 }

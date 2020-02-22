@@ -15,7 +15,6 @@ namespace ImageBank
                 _imgList.Clear();
                 _nameList.Clear();
                 _checksumList.Clear();
-                _descriptorList.Clear();
             }
 
             progress.Report("Loading images...");
@@ -29,11 +28,11 @@ namespace ImageBank
             sb.Append($"{AppConsts.AttrGeneration}, "); // 4
             sb.Append($"{AppConsts.AttrLastView}, "); // 5
             sb.Append($"{AppConsts.AttrNextId}, "); // 6
-            sb.Append($"{AppConsts.AttrMatch}, "); // 7
+            sb.Append($"{AppConsts.AttrDistance}, "); // 7
             sb.Append($"{AppConsts.AttrLastId}, "); // 8
             sb.Append($"{AppConsts.AttrLastChange}, "); // 9
-            sb.Append($"{AppConsts.AttrQuality}, "); // 10
-            sb.Append($"{AppConsts.AttrDescriptors} "); // 11
+            sb.Append($"{AppConsts.AttrPhash}, "); // 10
+            sb.Append($"{AppConsts.AttrOrbv} "); // 11
             sb.Append($"FROM {AppConsts.TableImages}");
             var sqltext = sb.ToString();
             lock (_sqllock) {
@@ -48,13 +47,13 @@ namespace ImageBank
                             var generation = reader.GetInt32(4);
                             var lastview = reader.GetDateTime(5);
                             var nextid = reader.GetInt32(6);
-                            var match = reader.GetInt32(7);
+                            var distance = reader.GetInt32(7);
                             var lastid = reader.GetInt32(8);
                             var lastchange = reader.GetDateTime(9);
-                            var quality = reader.GetFloat(10);
-                            var buffer = (byte[])reader[11];
-                            var descriptors = Helper.BufferToDescriptors(buffer);
-                            Buffer.BlockCopy(buffer, 0, descriptors, 0, buffer.Length);
+                            var phashbuffer = (byte[])reader[10];
+                            var phash = BitConverter.ToUInt64(phashbuffer, 0);
+                            var orbvbuffer = (byte[])reader[11];
+                            var orbv = Helper.BufferToVector(orbvbuffer);
                             var img = new Img(
                                 id: id,
                                 name: name,
@@ -63,11 +62,11 @@ namespace ImageBank
                                 generation: generation,
                                 lastview: lastview,
                                 nextid: nextid,
-                                match: match,
+                                distance: distance,
                                 lastid: lastid,
                                 lastchange: lastchange,
-                                quality: quality,
-                                descriptors: descriptors);
+                                phash: phash,
+                                orbv: orbv);
 
                             AddToMemory(img);
 

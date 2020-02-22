@@ -41,7 +41,6 @@ namespace ImageBank
                 if (!Helper.GetImageDataFromFile(
                     filename,
                     out var imgdata,
-                    out var quality,
                     out var bitmap,
                     out var checksum,
                     out var needwrite)) {
@@ -57,7 +56,7 @@ namespace ImageBank
                     }
                 }
 
-                if (!Helper.GetImageDescriptors(imgdata, out uint[] descriptors)) {
+                if (!Helper.GetPhashOrbv(imgdata, out ulong phash, out ulong[] orbv)) {
                     progress?.Report($"Cannot get descriptors: {path}\\{name}{extension}");
                     return;
                 }
@@ -72,32 +71,49 @@ namespace ImageBank
                     } while (_nameList.ContainsKey(suggestedname));
                 }
 
-                var suggestedpath = GetSuggestedLegacyPath();
-                var suggestedfilename = Helper.GetFileName(suggestedname.ToLowerInvariant(), suggestedpath);
+                var suggestedfilename = Helper.GetFileName(suggestedname.ToLowerInvariant(), path);
                 var lastview = GetMinLastView();
                 var img = new Img(
                     id: id,
                     name: suggestedname,
-                    path: suggestedpath,
+                    path: path,
                     checksum: checksum,
-                    generation: 0,
+                    generation: 1,
                     lastview: lastview,
                     nextid: id,
-                    match: 0,
+                    distance: 256,
                     lastid: -1,
                     lastchange: lastview,
-                    quality: quality,
-                    descriptors: descriptors);
+                    phash: phash,
+                    orbv: orbv);
 
                 Add(img);
                 if (needwrite) {
-                    Helper.WriteEncryptedData(suggestedfilename, imgdata);
+                    Helper.WriteData(suggestedfilename, imgdata);
                     Helper.DeleteToRecycleBin(filename);
                 }
                 else {
                     if (!filename.Equals(img.File, StringComparison.OrdinalIgnoreCase)) {
                         File.Move(filename, img.File);
                     }
+                }
+
+                FindNext(id, out var lastid, out var lastchange, out var nextid, out var distance);
+
+                if (distance != img.Distance) {
+                    img.Distance = distance;
+                }
+
+                if (nextid != img.NextId) {
+                    img.NextId = nextid;
+                }
+
+                if (lastchange != img.LastChange) {
+                    img.LastChange = lastchange;
+                }
+
+                if (lastid != img.LastId) {
+                    img.LastId = lastid;
                 }
 
                 if (_imgList.Count >= AppConsts.MaxImages) {
@@ -116,9 +132,8 @@ namespace ImageBank
         public void Import(IProgress<string> progress)
         {
             Contract.Requires(progress != null);
-            Import(100, progress);
             Helper.CleanupDirectories(AppConsts.PathCollection, progress);
-            progress.Report(string.Empty);
+            Import(1000000, progress);
         }
 
         public void Export(IProgress<string> progress)

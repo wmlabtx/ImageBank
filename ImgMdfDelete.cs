@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 namespace ImageBank
 {
@@ -11,17 +10,6 @@ namespace ImageBank
                 if (_imgList.TryGetValue(id, out var img)) {                    
                     _nameList.Remove(img.Name);
                     _checksumList.Remove(img.Checksum);
-                    foreach (var descriptor in img.GetDescriptors()) {
-                        if (_descriptorList.TryGetValue(descriptor, out SortedDictionary<int, int> tree)) {
-                            if (tree.ContainsKey(img.Id)) {
-                                tree[img.Id]--;
-                                if (tree[img.Id] == 0) {
-                                    tree.Remove(img.Id);
-                                }
-                            }
-                        }
-                    }
-
                     Helper.DeleteToRecycleBin(img.File);
                     _imgList.Remove(id);
                 }

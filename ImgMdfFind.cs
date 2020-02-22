@@ -5,7 +5,7 @@ namespace ImageBank
 {
     public partial class ImgMdf
     {
-        private void SetImgPanles(IProgress<string> progress, int idX, int idY)
+        private bool SetImgPanles(IProgress<string> progress, int idX, int idY)
         {
             progress.Report(GetPrompt());
 
@@ -13,26 +13,30 @@ namespace ImageBank
             if (AppVars.ImgPanel[0] == null) {
                 Delete(idX);
                 progress.Report($"{idX} corrupted, deleted");
-                return;
+                return false;
             }
 
             AppVars.ImgPanel[1] = GetImgPanel(idY);
             if (AppVars.ImgPanel[1] == null) {
                 Delete(idY);
                 progress.Report($"{idY} corrupted, deleted");
-                return;
+                return false;
             }
+
+            return true;
         }
 
         public void Find(IProgress<string> progress)
         {
             Contract.Requires(progress != null);
-            if (!GetPairToCompare(out var idX, out var idY)) {
-                progress.Report("No images to view");
-                return;
-            }
-
-            SetImgPanles(progress, idX, idY);
+            int idX;
+            int idY;
+            do {
+                if (!GetPairToCompare(out idX, out idY)) {
+                    progress.Report("No images to view");
+                    return;
+                }
+            } while (!SetImgPanles(progress, idX, idY));
         }
 
         public void Find(int idX, IProgress<string> progress)
@@ -43,26 +47,28 @@ namespace ImageBank
                 return;
             }
 
-            FindNext(idX, out var lastid, out var lastchange, out var nextid, out var match);
+            int idY;
+            do {
+                FindNext(idX, out var lastid, out var lastchange, out var nextid, out var distance);
 
-            if (lastchange != imgX.LastChange) {
-                imgX.LastChange = lastchange;
-            }
+                if (lastchange != imgX.LastChange) {
+                    imgX.LastChange = lastchange;
+                }
 
-            if (lastid != imgX.LastId) {
-                imgX.LastId = lastid;
-            }
+                if (lastid != imgX.LastId) {
+                    imgX.LastId = lastid;
+                }
 
-            if (nextid != imgX.NextId) {
-                imgX.NextId = nextid;
-            }
+                if (nextid != imgX.NextId) {
+                    imgX.NextId = nextid;
+                }
 
-            if (match != imgX.Match) {
-                imgX.Match = match;
-            }
+                if (distance != imgX.Distance) {
+                    imgX.Distance = distance;
+                }
 
-            var idY = nextid;
-            SetImgPanles(progress, idX, idY);
+                idY = nextid;
+            } while (!SetImgPanles(progress, idX, idY));
         }
     }
 }

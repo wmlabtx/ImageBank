@@ -9,25 +9,23 @@ namespace ImageBank
         public string Name { get; }
         public string Path { get; }
         public DateTime LastView { get; }
-        public float Quality { get; }
+        public int Distance { get; }
         public int Generation { get; }
         public DateTime LastChange { get; }
         public Bitmap Bitmap { get; }
         public long Length { get; }
-        public int Descriptors { get; }
 
-        public ImgPanel(int id, string name, string path, DateTime lastview, int generation, float quality, DateTime lastchange, Bitmap bitmap, long length, int descriptors)
+        public ImgPanel(int id, string name, string path, DateTime lastview, int generation, int distance, DateTime lastchange, Bitmap bitmap, long length)
         {
             Id = id;
             Name = name;
             Path = path;
             LastView = lastview;
             Generation = generation;
-            Quality = quality;
+            Distance = distance;
             LastChange = lastchange;
             Bitmap = bitmap;
             Length = length;
-            Descriptors = descriptors;
         }
     }
 }

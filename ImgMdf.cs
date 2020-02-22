@@ -16,7 +16,6 @@ namespace ImageBank
         private readonly SortedDictionary<int, Img> _imgList = new SortedDictionary<int, Img>();
         private readonly SortedDictionary<string, Img> _nameList = new SortedDictionary<string, Img>();
         private readonly SortedDictionary<string, Img> _checksumList = new SortedDictionary<string, Img>();
-        private readonly SortedDictionary<uint, SortedDictionary<int, int>> _descriptorList = new SortedDictionary<uint, SortedDictionary<int, int>>();
 
         private int _id;
 
@@ -102,7 +101,6 @@ namespace ImageBank
                 var counters = new SortedDictionary<int, int>();
                 var scope = _imgList
                     .Values
-                    .Where(e => e.GetDescriptors().Length > 0)
                     .ToArray();
 
                 foreach (var img in scope) {
@@ -156,40 +154,6 @@ namespace ImageBank
             _id++;
             SqlUpdateVar(AppConsts.AttrId, _id);
             return _id;
-        }
-
-        private string GetSuggestedLegacyPath()
-        {
-            var filescounts = new int[99];
-            int idlegacy;
-            lock (_imglock) {
-                foreach (var img in _imgList) {
-                    if (!int.TryParse(img.Value.Path, out idlegacy)) {
-                        continue;
-                    }
-
-                    if (idlegacy < 0 || idlegacy > 99) {
-                        continue;
-                    }
-
-                    filescounts[idlegacy]++;
-                }
-            }
-
-            idlegacy = 0;
-            while (
-                idlegacy <= 99 &&
-                filescounts[idlegacy] >= AppConsts.MaxImages / 100) {
-                idlegacy++;
-            }
-
-            var path = $"{idlegacy:D02}";
-            var fullpath = $"{AppConsts.PathCollection}{path}";
-            if (!Directory.Exists(fullpath)) {
-                Directory.CreateDirectory(fullpath);
-            }
-
-            return path;
         }
     }
 }

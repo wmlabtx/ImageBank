@@ -221,8 +221,7 @@ namespace ImageBank
                 var sb = new StringBuilder();
                 sb.Append($"{AppVars.ImgPanel[index].Path}\\");
                 sb.Append($"{AppVars.ImgPanel[index].Name.ToLowerInvariant()}");
-                sb.Append($" Q:{AppVars.ImgPanel[index].Quality:F2}");
-                sb.Append($" L:{AppVars.ImgPanel[index].Descriptors}");
+                sb.Append($" D:{AppVars.ImgPanel[index].Distance}");
                 sb.Append($" G:{AppVars.ImgPanel[index].Generation}");
                 sb.AppendLine();
                 
